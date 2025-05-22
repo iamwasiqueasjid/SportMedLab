@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  flutter_android_builder:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes:
+      - .:/app
+    environment:
+      - ANDROID_SDK_ROOT=/opt/android-sdk
+    command: flutter build apk --debug
+
+
+
