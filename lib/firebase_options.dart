@@ -3,6 +3,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:test_project/secrets.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -49,20 +50,20 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAj1_w04Xo1M5UWrqedF9sj3ZrW5ZYeA38',
-    appId: '1:200118990270:android:2747c61b92b769224db5ef',
-    messagingSenderId: '200118990270',
-    projectId: 'sports-med-lab-4f8aa',
-    storageBucket: 'sports-med-lab-4f8aa.firebasestorage.app',
+  static FirebaseOptions android = FirebaseOptions(
+    apiKey: FIREBASE_ANDROID_API_KEY,
+    appId: FIREBASE_ANDROID_APP_ID,
+    messagingSenderId: FIREBASE_ANDROID_MESSAGING_SENDER_ID,
+    projectId: FIREBASE_ANDROID_PROJECT_ID,
+    storageBucket: FIREBASE_ANDROID_STORAGE_BUCKET,
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyC5Pdmum1hMmTbg235i_n8WapjY7bgZfXU',
-    appId: '1:200118990270:ios:56eac0ec910a5eab4db5ef',
-    messagingSenderId: '200118990270',
-    projectId: 'sports-med-lab-4f8aa',
-    storageBucket: 'sports-med-lab-4f8aa.firebasestorage.app',
-    iosBundleId: 'com.example.testProject',
+  static FirebaseOptions ios = FirebaseOptions(
+    apiKey: FIREBASE_IOS_API_KEY,
+    appId: FIREBASE_IOS_APP_ID,
+    messagingSenderId: FIREBASE_IOS_MESSAGING_SENDER_ID,
+    projectId: FIREBASE_IOS_PROJECT_ID,
+    storageBucket: FIREBASE_IOS_STORAGE_BUCKET,
+    iosBundleId: FIREBASE_IOS_BUNDLE_ID,
   );
 }
