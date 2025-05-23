@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean
 
 # Install Flutter
-RUN git clone https://github.com/flutter/flutter.git -b stable /flutter
+RUN until git clone https://github.com/flutter/flutter.git -b stable /flutter; do echo "Retrying..."; sleep 5; done
 
 # Set Flutter and Dart paths
 ENV PATH="/flutter/bin:/flutter/bin/cache/dart-sdk/bin:${PATH}"
@@ -33,9 +33,9 @@ ENV PATH="${PATH}:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROO
 # Install required Android SDK components
 RUN yes | sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --licenses && \
     sdkmanager --sdk_root=${ANDROID_SDK_ROOT} \
-      "platform-tools" \
-      "platforms;android-33" \
-      "build-tools;33.0.2"
+    "platform-tools" \
+    "platforms;android-33" \
+    "build-tools;33.0.2"
 
 # Run flutter doctor to finalize setup
 RUN flutter doctor
