@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "200118990270",
+    "project_id": "sports-med-lab-4f8aa",
+    "storage_bucket": "sports-med-lab-4f8aa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:200118990270:android:2747c61b92b769224db5ef",
+        "android_client_info": {
+          "package_name": "com.example.test_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAj1_w04Xo1M5UWrqedF9sj3ZrW5ZYeA38"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
