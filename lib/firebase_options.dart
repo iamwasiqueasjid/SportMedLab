@@ -3,7 +3,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
-import 'package:test_project/secrets.dart';
+import 'package:test_project/utils/constants.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -51,19 +51,19 @@ class DefaultFirebaseOptions {
   }
 
   static FirebaseOptions android = FirebaseOptions(
-    apiKey: FIREBASE_ANDROID_API_KEY,
-    appId: FIREBASE_ANDROID_APP_ID,
-    messagingSenderId: FIREBASE_ANDROID_MESSAGING_SENDER_ID,
-    projectId: FIREBASE_ANDROID_PROJECT_ID,
-    storageBucket: FIREBASE_ANDROID_STORAGE_BUCKET,
+    apiKey: AppConstants.FIREBASE_ANDROID_APP_ID,
+    appId: AppConstants.FIREBASE_ANDROID_APP_ID,
+    messagingSenderId: AppConstants.FIREBASE_ANDROID_MESSAGING_SENDER_ID,
+    projectId: AppConstants.FIREBASE_ANDROID_PROJECT_ID,
+    storageBucket: AppConstants.FIREBASE_ANDROID_STORAGE_BUCKET,
   );
 
   static FirebaseOptions ios = FirebaseOptions(
-    apiKey: FIREBASE_IOS_API_KEY,
-    appId: FIREBASE_IOS_APP_ID,
-    messagingSenderId: FIREBASE_IOS_MESSAGING_SENDER_ID,
-    projectId: FIREBASE_IOS_PROJECT_ID,
-    storageBucket: FIREBASE_IOS_STORAGE_BUCKET,
-    iosBundleId: FIREBASE_IOS_BUNDLE_ID,
+    apiKey: AppConstants.FIREBASE_IOS_API_KEY,
+    appId: AppConstants.FIREBASE_IOS_APP_ID,
+    messagingSenderId: AppConstants.FIREBASE_IOS_MESSAGING_SENDER_ID,
+    projectId: AppConstants.FIREBASE_IOS_PROJECT_ID,
+    storageBucket: AppConstants.FIREBASE_IOS_STORAGE_BUCKET,
+    iosBundleId: AppConstants.FIREBASE_IOS_BUNDLE_ID,
   );
 }
