@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:test_project/services/databaseHandler.dart';
+import 'package:test_project/services/authService.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -18,7 +18,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
-  final DatabaseService _databaseService = DatabaseService();
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -41,18 +41,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  Text(
-                    'Sign Up',
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: theme.primaryColor,
-                    ),
+                  // 👋 Welcome Text
+                  Row(
+                    children: [
+                      Text(
+                        "Get On Board!",
+                        style: TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          color: theme.primaryColor,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Using example@gmail.com to Sign Up',
-                    style: theme.textTheme.bodyMedium,
+                    "Create your profile to start your Journey.",
+                    style: TextStyle(color: Colors.grey[800]),
                   ),
                   const SizedBox(height: 32),
 
@@ -84,7 +89,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           _obscurePassword
                               ? Icons.visibility
                               : Icons.visibility_off,
-                          color: theme.iconTheme.color,
+                          color: theme.primaryColor,
                         ),
                         onPressed: () {
                           setState(() {
@@ -111,7 +116,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           _obscureConfirmPassword
                               ? Icons.visibility
                               : Icons.visibility_off,
-                          color: theme.iconTheme.color,
+                          color: theme.primaryColor,
                         ),
                         onPressed: () {
                           setState(() {
@@ -161,7 +166,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             return;
                           }
 
-                          bool result = await _databaseService.signUp(
+                          bool result = await _authService.signUp(
                             email: email,
                             password: password,
                             context: context,
@@ -182,65 +187,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-
-                  // Or Divider
-                  Row(
-                    children: [
-                      Expanded(child: Divider(color: Colors.grey.shade400)),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
-                        child: Text("Or"),
-                      ),
-                      Expanded(child: Divider(color: Colors.grey.shade400)),
-                    ],
-                  ),
                   const SizedBox(height: 16),
 
-                  // Google Sign Up
+                  // 🆕 Create Account Button
                   SizedBox(
                     width: double.infinity,
                     height: 50,
-                    child: OutlinedButton.icon(
-                      icon: Image.asset(
-                        'assets/images/google_icon.jpg',
-                        height: 24,
-                      ),
-                      label: Text("Sign Up with Google"),
+                    child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.black87,
-                        side: BorderSide(color: Colors.grey.shade400),
+                        side: BorderSide(color: theme.primaryColor),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       onPressed: () {
-                        // Google sign-up logic here
+                        Navigator.pushNamed(context, '/login');
                       },
+                      child: Text(
+                        'Already have an account? SIGN IN',
+                        style: TextStyle(color: theme.primaryColor),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Already Have Account
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Already have an account?",
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      TextButton(
-                        onPressed:
-                            () => Navigator.pushReplacementNamed(
-                              context,
-                              '/login',
-                            ),
-                        child: Text(
-                          "Login",
-                          style: TextStyle(color: theme.primaryColor),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),

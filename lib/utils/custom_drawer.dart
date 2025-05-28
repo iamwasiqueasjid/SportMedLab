@@ -17,9 +17,10 @@ class CustomDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final DatabaseService _databaseService = DatabaseService();
+    final currentRoute = ModalRoute.of(context)?.settings.name;
 
     return Drawer(
-      backgroundColor: const Color(0xFFF0F4F8), // Soft blue-gray background
+      backgroundColor: const Color(0xFFF0F4F8),
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
@@ -33,11 +34,11 @@ class CustomDrawer extends StatelessWidget {
                   backgroundImage:
                       photoUrl != null
                           ? NetworkImage(photoUrl!)
-                          : AssetImage('assets/images/avatar.png')
+                          : const AssetImage('assets/images/avatar.png')
                               as ImageProvider,
                   backgroundColor: Colors.white,
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Text(
                   userName ?? role,
                   style: const TextStyle(
@@ -60,26 +61,50 @@ class CustomDrawer extends StatelessWidget {
               style: TextStyle(color: theme.primaryColor),
             ),
             selected:
-                ModalRoute.of(context)?.settings.name == '/doctorDashboard' ||
-                ModalRoute.of(context)?.settings.name == '/patientDashboard',
+                currentRoute == '/doctorDashboard' ||
+                currentRoute == '/patientDashboard',
             selectedTileColor: theme.primaryColor.withOpacity(0.1),
-            onTap: () {
-              Navigator.pop(context);
-              _databaseService.getUserRole().then((userRole) {
-                if (userRole == 'Doctor') {
-                  Navigator.pushReplacementNamed(context, '/doctorDashboard');
+            onTap: () async {
+              Navigator.pop(context); // Close the drawer
+
+              try {
+                final userRole = await _databaseService.getUserRole();
+                final targetRoute =
+                    userRole == 'Doctor'
+                        ? '/doctorDashboard'
+                        : '/patientDashboard';
+
+                if (currentRoute != targetRoute) {
+                  Navigator.pushReplacementNamed(context, targetRoute);
                 } else {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Already on $userRole Dashboard')),
+                    );
+                  });
+                }
+              } catch (e) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error fetching role: $e')),
+                  );
+                });
+
+                if (currentRoute != '/patientDashboard') {
                   Navigator.pushReplacementNamed(context, '/patientDashboard');
                 }
-              });
+              }
             },
           ),
           ListTile(
             leading: Icon(Icons.person, color: theme.primaryColor),
             title: Text('Profile', style: TextStyle(color: theme.primaryColor)),
+            selected: currentRoute == '/profile',
+            selectedTileColor: theme.primaryColor.withOpacity(0.1),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamed(context, '/profile');
+
+              Navigator.pushReplacementNamed(context, '/profile');
             },
           ),
           Divider(color: Colors.grey[400]),

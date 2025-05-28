@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test_project/services/authService.dart';
 import 'package:test_project/services/databaseHandler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -14,7 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final DatabaseService _databaseService = DatabaseService();
+  final AuthService _authService = AuthService();
   bool _rememberMe = true;
 
   @override
@@ -44,18 +45,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   children: [
                     Text(
-                      "Welcome back,",
+                      "Welcome Back,",
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 40,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: theme.primaryColor,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Discover Limitless Choices and Unmatched Convenience.",
+                  "Make it work, make it right, make it fast.",
                   style: TextStyle(color: Colors.grey[700]),
                 ),
                 const SizedBox(height: 32),
@@ -187,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        bool result = await _databaseService.login(
+                        bool result = await _authService.login(
                           email: _emailController.text.trim(),
                           password: _passwordController.text.trim(),
                           context: context,
@@ -221,45 +222,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       Navigator.pushNamed(context, '/signUp');
                     },
                     child: Text(
-                      'Create Account',
+                      'Don\'t have an account? SIGN UP',
                       style: TextStyle(color: theme.primaryColor),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(height: 1, width: 50, color: Colors.grey[400]),
-                    const SizedBox(width: 8),
-                    const Text("Or", style: TextStyle(color: Colors.black54)),
-                    const SizedBox(width: 8),
-                    Container(height: 1, width: 50, color: Colors.grey[400]),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // ✅ Google Sign-In Button Styled
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: OutlinedButton.icon(
-                    icon: Image.asset(
-                      'assets/images/google_icon.jpg',
-                      height: 24,
-                    ), // make sure the asset exists
-                    label: Text("Sign in with Google"),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.black87,
-                      side: BorderSide(color: Colors.grey.shade400),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: () {
-                      // Google sign-up logic here
-                    },
                   ),
                 ),
               ],

@@ -55,9 +55,9 @@ class DatabaseService {
         // Check user role and navigate to appropriate screen
         final userData = await fetchUserData();
         if (userData != null && userData['role'] == 'Doctor') {
-          Navigator.pushReplacementNamed(context, '/tutorDashboard');
+          Navigator.pushReplacementNamed(context, '/doctorDashboard');
         } else {
-          Navigator.pushReplacementNamed(context, '/studentDashboard');
+          Navigator.pushReplacementNamed(context, '/patientDashboard');
         }
         return true;
       }
@@ -291,9 +291,9 @@ class DatabaseService {
 
       // Navigate based on role
       if (Role == 'Tutor') {
-        Navigator.of(context).pushReplacementNamed('/tutorDashboard');
+        Navigator.of(context).pushReplacementNamed('/doctorDashboard');
       } else {
-        Navigator.of(context).pushReplacementNamed('/studentDashboard');
+        Navigator.of(context).pushReplacementNamed('/patientDashboard');
       }
 
       return true;

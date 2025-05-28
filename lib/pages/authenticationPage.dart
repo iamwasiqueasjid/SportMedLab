@@ -1,4 +1,4 @@
-import 'package:test_project/services/databaseHandler.dart';
+import 'package:test_project/services/authService.dart';
 import 'package:flutter/material.dart';
 
 class AuthenticationPage extends StatefulWidget {
@@ -10,7 +10,7 @@ class AuthenticationPage extends StatefulWidget {
 
 class _AuthenticationPageState extends State<AuthenticationPage> {
   final PageController _pageController = PageController();
-  final _databaseService = DatabaseService();
+  final _authService = AuthService();
   int _currentPage = 0;
   bool _isLoading = false;
 
@@ -143,7 +143,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12.0),
                           ),
-                          elevation: 6,
+                          elevation: 3,
                         ),
                         onPressed: () {
                           Navigator.pushNamed(context, '/login');
@@ -165,7 +165,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12.0),
                           ),
-                          elevation: 6,
+                          elevation: 3,
                         ),
                         onPressed: () {
                           Navigator.pushNamed(context, '/signUp');
@@ -177,6 +177,69 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // ✅ Google Sign-In Button Styled
+                      SizedBox(
+                        width: size.width * 0.8,
+                        height: 50,
+                        child: OutlinedButton.icon(
+                          icon: Image.asset(
+                            'assets/images/google_icon.jpg',
+                            height: 24,
+                          ),
+                          label: Text("Continue with Google"),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.black87,
+                            side: BorderSide(color: Colors.grey.shade400),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            minimumSize: Size(size.width * 0.8, 50),
+                          ),
+                          // ✅ Google Sign-In onPressed Logic
+                          onPressed:
+                              _isLoading
+                                  ? null
+                                  : () async {
+                                    setState(() {
+                                      _isLoading = true;
+                                    });
+
+                                    try {
+                                      bool success = await _authService
+                                          .signInWithGoogle(context: context);
+
+                                      if (success) {
+                                        // Navigation is handled automatically in AuthService
+                                        // based on user role and whether it's a new user
+                                        print('Google sign-in successful');
+                                      }
+                                    } catch (e) {
+                                      print('Google sign-in error: $e');
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Google sign-in failed. Please try again.',
+                                            ),
+                                            backgroundColor: Colors.red,
+                                            duration: Duration(seconds: 3),
+                                          ),
+                                        );
+                                      }
+                                    } finally {
+                                      if (mounted) {
+                                        setState(() {
+                                          _isLoading = false;
+                                        });
+                                      }
+                                    }
+                                  },
                         ),
                       ),
                       const SizedBox(height: 25.0),

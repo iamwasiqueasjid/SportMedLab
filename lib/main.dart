@@ -1,6 +1,7 @@
 // Packages
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:test_project/pages/edit_profile.dart';
 
 // Pages
 import 'package:test_project/pages/splashScreen.dart';
@@ -78,8 +79,9 @@ class _MyAppState extends State<MyApp> {
             (context) => const ProfileSetupScreen(), // Your profile setup page
         // Add all your other routes here, for example:
         '/home': (context) => HomePage(),
-        '/tutorDashboard': (context) => DoctorDashboard(),
-        '/studentDashboard': (context) => PatientDashboard(),
+        '/doctorDashboard': (context) => DoctorDashboard(),
+        '/patientDashboard': (context) => PatientDashboard(),
+        '/profile': (context) => const ProfileScreen(),
         // '/login': (context) => LoginPage(),
         // '/signup': (context) => SignupPage(),-===========[[[[]]]]        // '/settings': (context) => SettingsPage(
         //   isDarkMode: isDarkMode,
