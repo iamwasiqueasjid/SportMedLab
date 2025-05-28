@@ -54,7 +54,7 @@ class DatabaseService {
 
         // Check user role and navigate to appropriate screen
         final userData = await fetchUserData();
-        if (userData != null && userData['role'] == 'Tutor') {
+        if (userData != null && userData['role'] == 'Doctor') {
           Navigator.pushReplacementNamed(context, '/tutorDashboard');
         } else {
           Navigator.pushReplacementNamed(context, '/studentDashboard');
@@ -236,6 +236,11 @@ class DatabaseService {
     required String Name,
     required String Role,
     String? PhotoURL,
+    required double Weight,
+    required String WeightUnit,
+    required double Height,
+    required String Gender,
+    required String DateOfBirth,
     required BuildContext context,
   }) async {
     final user = _auth.currentUser;
@@ -247,11 +252,16 @@ class DatabaseService {
     }
 
     try {
-      // Create the data map
+      // Create the data map with all profile fields
       Map<String, dynamic> userData = {
         'displayName': Name,
         'email': user.email,
         'role': Role,
+        'weight': Weight,
+        'weightUnit': WeightUnit,
+        'height': Height,
+        'gender': Gender,
+        'dateOfBirth': DateOfBirth,
         'updatedAt': FieldValue.serverTimestamp(),
       };
 

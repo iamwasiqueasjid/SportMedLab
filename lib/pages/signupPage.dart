@@ -35,14 +35,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Back Button
                   IconButton(
                     icon: Icon(Icons.arrow_back, color: theme.primaryColor),
                     onPressed: () => Navigator.pop(context),
                   ),
                   const SizedBox(height: 16),
 
-                  // Title
                   Text(
                     'Sign Up',
                     style: theme.textTheme.bodyLarge?.copyWith(
@@ -58,10 +56,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Email
+                  // Email Field
                   TextFormField(
                     controller: _emailController,
-                    style: theme.textTheme.bodyLarge,
+                    cursorColor: theme.primaryColor,
+                    style: TextStyle(color: theme.primaryColor),
                     decoration: _inputDecoration(
                       theme,
                       'Your Email',
@@ -70,11 +69,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Password
+                  // Password Field
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
-                    style: theme.textTheme.bodyLarge,
+                    cursorColor: theme.primaryColor,
+                    style: TextStyle(color: theme.primaryColor),
                     decoration: _inputDecoration(
                       theme,
                       'Your Password',
@@ -96,11 +96,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Confirm Password
+                  // Confirm Password Field
                   TextFormField(
                     controller: _confirmPasswordController,
                     obscureText: _obscureConfirmPassword,
-                    style: theme.textTheme.bodyLarge,
+                    cursorColor: theme.primaryColor,
+                    style: TextStyle(color: theme.primaryColor),
                     decoration: _inputDecoration(
                       theme,
                       'Re-enter Password',
@@ -196,7 +197,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Google Sign-Up Button
+                  // Google Sign Up
                   SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -204,7 +205,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       icon: Image.asset(
                         'assets/images/google_icon.jpg',
                         height: 24,
-                      ), // make sure the asset exists
+                      ),
                       label: Text("Sign Up with Google"),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.black87,
@@ -220,7 +221,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Already have account
+                  // Already Have Account
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -259,17 +260,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return InputDecoration(
       labelText: label,
       hintText: hint,
-      hintStyle: TextStyle(color: theme.primaryColor),
-      labelStyle: theme.textTheme.bodySmall?.copyWith(
-        color: theme.primaryColor,
-      ),
+      hintStyle: TextStyle(color: theme.primaryColor.withOpacity(0.6)),
+      labelStyle: TextStyle(color: theme.primaryColor),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: theme.primaryColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: theme.primaryColor),
+        borderSide: BorderSide(color: theme.primaryColor, width: 2),
       ),
       suffixIcon: suffixIcon,
     );

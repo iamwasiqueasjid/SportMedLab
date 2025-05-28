@@ -11,8 +11,8 @@ import 'package:test_project/pages/loginPage.dart';
 import 'package:test_project/pages/profileSetupPage.dart';
 import 'package:test_project/pages/signupPage.dart';
 import 'package:test_project/pages/starterPage.dart';
-import 'package:test_project/pages/studentDashboard.dart';
-import 'package:test_project/pages/tutorDashboard.dart';
+import 'package:test_project/pages/patientDashboard.dart';
+import 'package:test_project/pages/doctorDashboard.dart';
 
 // Theme files
 import 'package:test_project/theme/app_theme.dart' show lightTheme, darkTheme;
@@ -78,11 +78,10 @@ class _MyAppState extends State<MyApp> {
             (context) => const ProfileSetupScreen(), // Your profile setup page
         // Add all your other routes here, for example:
         '/home': (context) => HomePage(),
-        '/tutorDashboard': (context) => TutorDashboard(),
-        '/studentDashboard': (context) => StudentDashboard(),
+        '/tutorDashboard': (context) => DoctorDashboard(),
+        '/studentDashboard': (context) => PatientDashboard(),
         // '/login': (context) => LoginPage(),
-        // '/signup': (context) => SignupPage(),
-        // '/settings': (context) => SettingsPage(
+        // '/signup': (context) => SignupPage(),-===========[[[[]]]]        // '/settings': (context) => SettingsPage(
         //   isDarkMode: isDarkMode,
         //   onDarkModeToggled: toggleTheme,
         // ),

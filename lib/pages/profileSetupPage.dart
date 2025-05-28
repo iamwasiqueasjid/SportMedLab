@@ -4,6 +4,7 @@ import 'package:test_project/services/databaseHandler.dart';
 import 'package:test_project/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -15,18 +16,25 @@ class ProfileSetupScreen extends StatefulWidget {
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _weightController = TextEditingController();
+  final _heightController = TextEditingController();
   final _databaseService = DatabaseService();
   final ImagePicker _picker = ImagePicker();
 
-  String? _selectedRole;
   File? _imageFile;
   bool _isLoading = false;
   bool _isUploading = false;
   String? _uploadedImageUrl;
+  String _weightUnit = 'kg'; // Default weight unit
+  String? _selectedGender;
+  DateTime? _selectedDate;
+  final List<String> _genders = ['Male', 'Female', 'Other'];
 
   @override
   void dispose() {
     _nameController.dispose();
+    _weightController.dispose();
+    _heightController.dispose();
     super.dispose();
   }
 
@@ -45,7 +53,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         });
 
         try {
-          // Upload the image immediately after selection
           final imageUrl = await _databaseService.uploadProfilePhoto(
             filePath: image.path,
             context: context,
@@ -77,22 +84,42 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     }
   }
 
+  // Function to show date picker
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
+
   Future<void> _handleContinue() async {
-    if (_formKey.currentState!.validate() && _selectedRole != null) {
+    if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
       try {
-        // Save the profile data - now passing the photoURL if available
         await _databaseService.saveProfileData(
           Name: _nameController.text,
-          Role: _selectedRole!,
-          PhotoURL: _uploadedImageUrl, // Pass the URL from the earlier upload
+          Role: 'Patient',
+          PhotoURL: _uploadedImageUrl,
+          Weight: double.tryParse(_weightController.text) ?? 0.0,
+          WeightUnit: _weightUnit,
+          Height: double.tryParse(_heightController.text) ?? 0.0,
+          Gender: _selectedGender ?? '',
+          DateOfBirth:
+              _selectedDate != null
+                  ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
+                  : '',
           context: context,
         );
-
-        // Navigation will be handled in saveProfileData
       } catch (e) {
         ScaffoldMessenger.of(
           context,
@@ -102,9 +129,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         });
       }
     } else {
-      // Show validation errors or missing role selection
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please complete the profile setup')),
+        const SnackBar(content: Text('Please complete all required fields')),
       );
     }
   }
@@ -114,14 +140,17 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: Colors.white, // Match LoginScreen background
       appBar: AppBar(
-        backgroundColor: theme.appBarTheme.backgroundColor,
+        backgroundColor: Colors.white, // Match LoginScreen
         elevation: 0,
         leading: Builder(
           builder:
               (context) => IconButton(
-                icon: Icon(Icons.menu, color: theme.iconTheme.color),
+                icon: Icon(
+                  Icons.menu,
+                  color: theme.primaryColor,
+                ), // Use primaryColor
                 onPressed: () {
                   Scaffold.of(context).openDrawer();
                 },
@@ -134,24 +163,36 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
+              : SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 20,
+                  ),
                   child: Form(
                     key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Title
                         Text(
                           'Profile Setup',
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            fontSize: 28,
+                          style: const TextStyle(
+                            fontSize: 24,
                             fontWeight: FontWeight.bold,
+                            color: Colors.black, // Match LoginScreen
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Complete your profile to get started.',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                          ), // Match LoginScreen
+                        ),
+                        const SizedBox(height: 32),
 
-                        // Circle Avatar with Image Picker and upload indicator
+                        // Image picker
                         Center(
                           child: Stack(
                             alignment: Alignment.bottomRight,
@@ -163,13 +204,23 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                   height: 120,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: theme.colorScheme.surface,
+                                    color:
+                                        Colors
+                                            .grey[100], // Match LoginScreen field fill
+                                    border: Border.all(
+                                      color:
+                                          theme
+                                              .primaryColor, // Match LoginScreen
+                                      width: 1,
+                                    ),
                                   ),
                                   child:
                                       _isUploading
                                           ? Center(
                                             child: CircularProgressIndicator(
-                                              color: theme.colorScheme.primary,
+                                              color:
+                                                  theme
+                                                      .primaryColor, // Match LoginScreen
                                             ),
                                           )
                                           : ClipOval(
@@ -192,7 +243,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: theme.colorScheme.primary,
+                                  color:
+                                      theme.primaryColor, // Match LoginScreen
                                   shape: BoxShape.circle,
                                 ),
                                 child: Padding(
@@ -201,7 +253,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                     _isUploading
                                         ? Icons.hourglass_top
                                         : Icons.camera_alt,
-                                    color: theme.colorScheme.onPrimary,
+                                    color:
+                                        Colors
+                                            .white, // Match LoginScreen button text
                                     size: 20,
                                   ),
                                 ),
@@ -224,22 +278,38 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           ),
                         const SizedBox(height: 24),
 
-                        // Name input field
-                        Text('Your Name', style: theme.textTheme.bodyMedium),
+                        // Name input
+                        Text(
+                          'Your Name',
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
+                        ),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _nameController,
-                          style: theme.textTheme.bodyLarge,
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
                           decoration: InputDecoration(
+                            hintText: 'Enter your name',
+                            hintStyle: TextStyle(
+                              color: theme.primaryColor,
+                            ), // Match LoginScreen
                             filled: true,
-                            fillColor: theme.colorScheme.surface,
-                            border: OutlineInputBorder(
+                            fillColor: Colors.grey[100], // Match LoginScreen
+                            enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
+                              borderSide: BorderSide(
+                                color: theme.primaryColor,
+                              ), // Match LoginScreen
                             ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: theme.primaryColor,
+                                width: 2,
+                              ),
                             ),
                           ),
                           validator: (value) {
@@ -251,72 +321,285 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Role selection (Tutor or Student)
+                        // Weight input with unit toggle
                         Text(
-                          'Select Your Role',
-                          style: theme.textTheme.bodyMedium,
+                          'Weight',
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
                         ),
                         const SizedBox(height: 8),
                         Row(
                           children: [
                             Expanded(
-                              child: _RoleCard(
-                                title: 'Tutor',
-                                icon: Icons.school,
-                                isSelected: _selectedRole == 'Tutor',
-                                iconColor: AppColors.lightTextSecondary,
-                                onTap:
-                                    () =>
-                                        setState(() => _selectedRole = 'Tutor'),
+                              child: TextFormField(
+                                controller: _weightController,
+                                style: TextStyle(
+                                  color: theme.primaryColor,
+                                ), // Match LoginScreen
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  hintText: 'Enter your weight',
+                                  hintStyle: TextStyle(
+                                    color: theme.primaryColor,
+                                  ), // Match LoginScreen
+                                  filled: true,
+                                  fillColor:
+                                      Colors.grey[100], // Match LoginScreen
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: theme.primaryColor,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: theme.primaryColor,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  suffixText: _weightUnit,
+                                  suffixStyle: TextStyle(
+                                    color: theme.primaryColor,
+                                  ), // Match LoginScreen
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your weight';
+                                  }
+                                  if (double.tryParse(value) == null) {
+                                    return 'Please enter a valid number';
+                                  }
+                                  return null;
+                                },
                               ),
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: _RoleCard(
-                                title: 'Student',
-                                icon: Icons.person,
-                                isSelected: _selectedRole == 'Student',
-                                iconColor: AppColors.darkTextSecondary,
-                                onTap:
-                                    () => setState(
-                                      () => _selectedRole = 'Student',
-                                    ),
-                              ),
+                            const SizedBox(width: 8),
+                            DropdownButton<String>(
+                              value: _weightUnit,
+                              items:
+                                  ['kg', 'lb']
+                                      .map(
+                                        (unit) => DropdownMenuItem(
+                                          value: unit,
+                                          child: Text(
+                                            unit,
+                                            style: TextStyle(
+                                              color: theme.primaryColor,
+                                            ), // Match LoginScreen
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    _weightUnit = value;
+                                  });
+                                }
+                              },
+                              style: TextStyle(
+                                color: theme.primaryColor,
+                              ), // Match LoginScreen
+                              dropdownColor:
+                                  Colors.grey[100], // Match LoginScreen
+                              iconEnabledColor:
+                                  theme.primaryColor, // Match LoginScreen
                             ),
                           ],
                         ),
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 24),
+
+                        // Height input
+                        Text(
+                          'Height (cm)',
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _heightController,
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            hintText: 'Enter your height',
+                            hintStyle: TextStyle(
+                              color: theme.primaryColor,
+                            ), // Match LoginScreen
+                            filled: true,
+                            fillColor: Colors.grey[100], // Match LoginScreen
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: theme.primaryColor),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: theme.primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            suffixText: 'cm',
+                            suffixStyle: TextStyle(
+                              color: theme.primaryColor,
+                            ), // Match LoginScreen
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your height';
+                            }
+                            if (double.tryParse(value) == null) {
+                              return 'Please enter a valid number';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Gender dropdown
+                        Text(
+                          'Gender',
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
+                        ),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<String>(
+                          value: _selectedGender,
+                          decoration: InputDecoration(
+                            hintText: 'Select gender',
+                            hintStyle: TextStyle(
+                              color: theme.primaryColor,
+                            ), // Match LoginScreen
+                            filled: true,
+                            fillColor: Colors.grey[100], // Match LoginScreen
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: theme.primaryColor),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: theme.primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                          items:
+                              _genders
+                                  .map(
+                                    (gender) => DropdownMenuItem(
+                                      value: gender,
+                                      child: Text(
+                                        gender,
+                                        style: TextStyle(
+                                          color: theme.primaryColor,
+                                        ), // Match LoginScreen
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedGender = value;
+                            });
+                          },
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
+                          dropdownColor: Colors.grey[100], // Match LoginScreen
+                          iconEnabledColor:
+                              theme.primaryColor, // Match LoginScreen
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Please select your gender';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Date of birth
+                        Text(
+                          'Date of Birth',
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
+                        ),
+                        const SizedBox(height: 8),
+                        InkWell(
+                          onTap: () => _selectDate(context),
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              hintText: 'Select date',
+                              hintStyle: TextStyle(
+                                color: theme.primaryColor,
+                              ), // Match LoginScreen
+                              filled: true,
+                              fillColor: Colors.grey[100], // Match LoginScreen
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: theme.primaryColor,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: theme.primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              _selectedDate == null
+                                  ? 'Select date'
+                                  : DateFormat(
+                                    'yyyy-MM-dd',
+                                  ).format(_selectedDate!),
+                              style: TextStyle(
+                                color: theme.primaryColor,
+                              ), // Match LoginScreen
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
 
                         // Continue button
                         SizedBox(
                           width: double.infinity,
-                          height: 56,
+                          height: 50, // Match LoginScreen button height
                           child: ElevatedButton(
                             onPressed:
                                 (_isLoading || _isUploading)
                                     ? null
                                     : _handleContinue,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.colorScheme.primary,
+                              backgroundColor:
+                                  theme.primaryColor, // Match LoginScreen
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              disabledBackgroundColor: theme.colorScheme.primary
+                              disabledBackgroundColor: theme.primaryColor
                                   .withOpacity(0.5),
                             ),
                             child:
                                 _isLoading
-                                    ? const CircularProgressIndicator(
-                                      color: Colors.white,
+                                    ? CircularProgressIndicator(
+                                      color: Colors.white, // Match LoginScreen
                                     )
-                                    : Text(
+                                    : const Text(
                                       'Continue',
-                                      style: theme.textTheme.bodyLarge
-                                          ?.copyWith(
-                                            color: theme.colorScheme.onPrimary,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color:
+                                            Colors.white, // Match LoginScreen
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                           ),
                         ),
@@ -326,60 +609,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   ),
                 ),
               ),
-    );
-  }
-}
-
-class _RoleCard extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final bool isSelected;
-  final Color iconColor;
-  final VoidCallback onTap;
-
-  const _RoleCard({
-    required this.title,
-    required this.icon,
-    required this.isSelected,
-    required this.iconColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration: BoxDecoration(
-          color:
-              isSelected
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? theme.colorScheme.onPrimary : iconColor,
-              size: 32,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: TextStyle(
-                color:
-                    isSelected ? theme.colorScheme.onPrimary : theme.hintColor,
-                fontSize: 16,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
