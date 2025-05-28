@@ -1,3 +1,9 @@
+// Packages
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+// Pages
+import 'package:test_project/pages/splashScreen.dart';
 import 'package:test_project/pages/authenticationPage.dart';
 import 'package:test_project/pages/courseDetails.dart';
 import 'package:test_project/pages/homePage.dart';
@@ -7,17 +13,8 @@ import 'package:test_project/pages/signupPage.dart';
 import 'package:test_project/pages/starterPage.dart';
 import 'package:test_project/pages/studentDashboard.dart';
 import 'package:test_project/pages/tutorDashboard.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
 
-// Import your pages here
-import 'package:test_project/pages/splashScreen.dart';
-// Add your other page imports as needed, for example:
-// import 'package:comsicon/pages/homePage.dart';
-// import 'package:comsicon/pages/authPage.dart';
-// etc.
-
-// Import your theme files (you'll need to create these)
+// Theme files
 import 'package:test_project/theme/app_theme.dart' show lightTheme, darkTheme;
 
 void main() async {
@@ -57,6 +54,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      home: const SplashScreen(), // Set the initial screen to SplashScreen
       debugShowCheckedModeBanner: false,
       title: 'Comsicon',
 
@@ -68,8 +66,7 @@ class _MyAppState extends State<MyApp> {
       themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
 
       // Define initial route
-      initialRoute: '/splash',
-
+      initialRoute: '/splash', // Change this to your initial route
       // Define all routes
       routes: {
         '/splash': (context) => const SplashScreen(),
