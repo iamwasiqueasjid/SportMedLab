@@ -44,7 +44,12 @@ dependencies:
   intl: ^0.20.2
   font_awesome_flutter: ^10.8.0
   google_sign_in: ^6.3.0
+  flutter_launcher_icons: ^0.14.3
 
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/logo.png"
 
 dev_dependencies:
   flutter_test:

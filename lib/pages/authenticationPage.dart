@@ -57,7 +57,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
                 // Slider (Unchanged)
                 SizedBox(
-                  height: size.height * 0.5,
+                  height: size.height * 0.45,
                   child: PageView.builder(
                     controller: _pageController,
                     onPageChanged: (index) {

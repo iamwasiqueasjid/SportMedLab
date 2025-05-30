@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:test_project/utils/custom_drawer.dart';
 
 class DoctorDashboard extends StatefulWidget {
   const DoctorDashboard({Key? key}) : super(key: key);
@@ -295,11 +296,26 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     return FilterChip(
       label: Text(label),
       selected: isSelected,
-      selectedColor: theme.primaryColor.withOpacity(0.2), // Match LoginScreen
-      checkmarkColor: theme.primaryColor, // Match LoginScreen
+      selectedColor:
+          theme.primaryColor, // Solid primary color for selected state
+      checkmarkColor:
+          Colors.white, // White checkmark to contrast with primary color
+      backgroundColor: Colors.grey[200], // Grey background for unselected state
       labelStyle: TextStyle(
         color:
-            isSelected ? theme.primaryColor : Colors.black, // Match LoginScreen
+            isSelected
+                ? Colors.white
+                : theme
+                    .primaryColor, // White when selected, primary color when unselected
+      ),
+      side: BorderSide(
+        color: Color.fromRGBO(
+          10,
+          45,
+          123,
+          1.0,
+        ), // Primary color border with full opacity
+        width: 1.0,
       ),
       onSelected: (selected) {
         setState(() {
@@ -319,92 +335,24 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     return Scaffold(
       backgroundColor: Colors.white, // Match LoginScreen
       appBar: AppBar(
-        backgroundColor: Colors.white, // Match LoginScreen
+        backgroundColor: theme.primaryColor, // Match LoginScreen
         elevation: 0,
+        iconTheme: IconThemeData(color: Colors.white),
         title: Text(
           'Doctor Dashboard',
-          style: TextStyle(color: theme.primaryColor), // Match LoginScreen
+          style: TextStyle(color: Colors.white), // Match LoginScreen
         ),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.logout,
-              color: theme.primaryColor,
-            ), // Match LoginScreen
+            icon: Icon(Icons.logout, color: Colors.white), // Match LoginScreen
             onPressed: () => _databaseService.signOut(context),
           ),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: theme.primaryColor, // Match LoginScreen
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 36,
-                    backgroundImage:
-                        _photoUrl != null
-                            ? NetworkImage(_photoUrl!)
-                            : AssetImage('assets/images/avatar.png')
-                                as ImageProvider,
-                    backgroundColor: Colors.grey[100], // Match LoginScreen
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    _userName ?? 'Doctor',
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  Text(
-                    'Doctor',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.dashboard,
-                color: theme.primaryColor,
-              ), // Match LoginScreen
-              title: Text('Dashboard'),
-              selected: true,
-              selectedTileColor: theme.primaryColor.withOpacity(
-                0.1,
-              ), // Match LoginScreen
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.person,
-                color: theme.primaryColor,
-              ), // Match LoginScreen
-              title: Text('Profile'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/profile');
-              },
-            ),
-            Divider(color: Colors.grey[400]), // Match LoginScreen
-            ListTile(
-              leading: Icon(
-                Icons.exit_to_app,
-                color: theme.primaryColor,
-              ), // Match LoginScreen
-              title: Text('Logout'),
-              onTap: () {
-                _databaseService.signOut(context);
-              },
-            ),
-          ],
-        ),
+      drawer: CustomDrawer(
+        userName: _userName,
+        photoUrl: _photoUrl,
+        role: 'Doctor',
       ),
       body:
           _isLoading

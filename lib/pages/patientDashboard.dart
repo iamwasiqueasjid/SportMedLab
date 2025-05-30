@@ -38,18 +38,15 @@ class _PatientDashboardState extends State<PatientDashboard> {
     return Scaffold(
       backgroundColor: Colors.white, // Match LoginScreen
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.primaryColor,
         elevation: 0,
         iconTheme: IconThemeData(
-          color: theme.primaryColor,
+          color: Colors.white,
         ), // Ensures hamburger icon is visible
-        title: Text(
-          'Patient Dashboard',
-          style: TextStyle(color: theme.primaryColor),
-        ),
+        title: Text('Patient Dashboard', style: TextStyle(color: Colors.white)),
         actions: [
           IconButton(
-            icon: Icon(Icons.logout, color: theme.primaryColor),
+            icon: Icon(Icons.logout, color: Colors.white),
             onPressed: () => _databaseService.signOut(context),
           ),
         ],
