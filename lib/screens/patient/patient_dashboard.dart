@@ -3,7 +3,7 @@ import 'package:test_project/utils/custom_drawer.dart';
 import 'package:flutter/material.dart';
 
 class PatientDashboard extends StatefulWidget {
-  const PatientDashboard({Key? key}) : super(key: key);
+  const PatientDashboard({super.key});
 
   @override
   _PatientDashboardState createState() => _PatientDashboardState();

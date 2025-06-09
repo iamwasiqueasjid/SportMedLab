@@ -7,16 +7,16 @@ class CustomDrawer extends StatelessWidget {
   final String role;
 
   const CustomDrawer({
-    Key? key,
+    super.key,
     this.userName,
     this.photoUrl,
     required this.role,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final AuthService _authService = AuthService();
+    final AuthService authService = AuthService();
     final currentRoute = ModalRoute.of(context)?.settings.name;
 
     return Drawer(
@@ -68,7 +68,7 @@ class CustomDrawer extends StatelessWidget {
               Navigator.pop(context); // Close the drawer
 
               try {
-                final userRole = await _authService.getUserRole();
+                final userRole = await authService.getUserRole();
                 final targetRoute =
                     userRole == 'Doctor'
                         ? '/doctorDashboard'
@@ -112,7 +112,7 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.logout, color: theme.primaryColor),
             title: Text('Logout', style: TextStyle(color: theme.primaryColor)),
             onTap: () {
-              _authService.signOut(context);
+              authService.signOut(context);
             },
           ),
         ],

@@ -3,7 +3,7 @@ import 'package:test_project/services/auth_service.dart';
 // import 'package:test_project/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -38,9 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
               left: 16,
               child: IconButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(
-                    theme.primaryColor,
-                  ),
+                  backgroundColor: WidgetStateProperty.all(theme.primaryColor),
                 ),
                 icon: Icon(Icons.arrow_back, color: Colors.white, size: 35),
                 onPressed: () {
@@ -118,8 +116,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             validator: (value) {
-                              if (value?.isEmpty ?? true)
+                              if (value?.isEmpty ?? true) {
                                 return 'Please enter your email';
+                              }
                               if (!RegExp(
                                 r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                               ).hasMatch(value!)) {
@@ -176,10 +175,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             validator: (value) {
-                              if (value?.isEmpty ?? true)
+                              if (value?.isEmpty ?? true) {
                                 return 'Please enter your password';
-                              if (value!.length < 6)
+                              }
+                              if (value!.length < 6) {
                                 return 'Password must be at least 6 characters';
+                              }
                               return null;
                             },
                           ),

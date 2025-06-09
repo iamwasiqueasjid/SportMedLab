@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class CustomSidebar extends StatefulWidget {
   final String userName;
 
-  const CustomSidebar({Key? key, required this.userName}) : super(key: key);
+  const CustomSidebar({super.key, required this.userName});
 
   @override
   _CustomSidebarState createState() => _CustomSidebarState();

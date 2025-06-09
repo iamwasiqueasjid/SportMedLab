@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:test_project/utils/custom_drawer.dart';
 
 class DoctorDashboard extends StatefulWidget {
-  const DoctorDashboard({Key? key}) : super(key: key);
+  const DoctorDashboard({super.key});
 
   @override
   State<DoctorDashboard> createState() => _DoctorDashboardState();
@@ -22,7 +22,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
   String? _userName;
   String? _photoUrl;
   bool _isLoading = true;
-  List<Map<String, dynamic>> _plans = [];
+  final List<Map<String, dynamic>> _plans = [];
 
   @override
   void initState() {
@@ -236,12 +236,6 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                   },
                 ),
                 TextButton(
-                  child: Text(
-                    'Save',
-                    style: TextStyle(
-                      color: theme.primaryColor,
-                    ), // Match LoginScreen
-                  ),
                   onPressed:
                       isSaving
                           ? null
@@ -278,6 +272,12 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                               });
                             }
                           },
+                  child: Text(
+                    'Save',
+                    style: TextStyle(
+                      color: theme.primaryColor,
+                    ), // Match LoginScreen
+                  ),
                 ),
               ],
             );
@@ -388,8 +388,8 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddPlanDialog,
         backgroundColor: theme.primaryColor, // Match LoginScreen
-        child: Icon(Icons.add, color: Colors.white), // Match LoginScreen
-        tooltip: 'Add New Fitness Plan',
+        tooltip: 'Add New Fitness Plan', // Match LoginScreen
+        child: Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -485,7 +485,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Plan image
-            Container(
+            SizedBox(
               height: 160,
               width: double.infinity,
               child:

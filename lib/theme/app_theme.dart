@@ -9,8 +9,8 @@ final ThemeData lightTheme = ThemeData(
   colorScheme: ColorScheme.light(
     primary: AppColors.lightPrimary,
     onPrimary: Colors.white, // Text on primary buttons
-    background: AppColors.lightBackground,
-    onBackground: AppColors.lightTextPrimary,
+    surface: AppColors.lightBackground,
+    onSurface: AppColors.lightTextPrimary,
     secondary: AppColors.lightTextSecondary,
   ),
   textTheme: TextTheme(
@@ -48,8 +48,8 @@ final ThemeData darkTheme = ThemeData(
   colorScheme: ColorScheme.dark(
     primary: AppColors.darkPrimary,
     onPrimary: Colors.white,
-    background: AppColors.darkBackground,
-    onBackground: AppColors.darkTextPrimary,
+    surface: AppColors.darkBackground,
+    onSurface: AppColors.darkTextPrimary,
     secondary: AppColors.darkTextSecondary,
   ),
   textTheme: TextTheme(

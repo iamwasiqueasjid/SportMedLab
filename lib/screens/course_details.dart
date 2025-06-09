@@ -9,8 +9,7 @@ import 'package:file_picker/file_picker.dart';
 class CourseDetailsScreen extends StatefulWidget {
   final String courseId;
 
-  const CourseDetailsScreen({Key? key, required this.courseId})
-    : super(key: key);
+  const CourseDetailsScreen({super.key, required this.courseId});
 
   @override
   State<CourseDetailsScreen> createState() => _CourseDetailsScreenState();
@@ -213,7 +212,6 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   },
                 ),
                 TextButton(
-                  child: Text('Save'),
                   onPressed:
                       isSaving
                           ? null
@@ -265,6 +263,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                               });
                             }
                           },
+                  child: Text('Save'),
                 ),
               ],
             );
@@ -292,7 +291,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Course header
-                  Container(
+                  SizedBox(
                     height: 180,
                     width: double.infinity,
                     child:
@@ -444,8 +443,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddLessonDialog,
         backgroundColor: Colors.indigo,
-        child: Icon(Icons.add),
         tooltip: 'Add New Lesson',
+        child: Icon(Icons.add),
       ),
     );
   }
@@ -656,7 +655,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
 
                   // If no flashcards are available
                   if (lesson['flashcards'] == null ||
-                      !(lesson['flashcards'] is List) ||
+                      lesson['flashcards'] is! List ||
                       (lesson['flashcards'] as List).isEmpty)
                     Container(
                       padding: EdgeInsets.all(16),
