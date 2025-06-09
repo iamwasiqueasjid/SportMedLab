@@ -11,7 +11,6 @@ import 'package:test_project/widgets/app_message_notifier.dart';
 class DatabaseService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final CloudinaryService _cloudinaryService = CloudinaryService();
 
   // Get current user
   User? get currentUser => _auth.currentUser;
@@ -64,7 +63,8 @@ class DatabaseService {
       String? coverImageUrl;
 
       if (imageFile != null) {
-        coverImageUrl = await _cloudinaryService.uploadToCloudinary(
+        final CloudinaryService cloudinaryService = CloudinaryService();
+        coverImageUrl = await cloudinaryService.uploadToCloudinary(
           imageFile.path,
           dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
         );
@@ -197,7 +197,8 @@ class DatabaseService {
 
       // Upload new image if provided
       if (imageFile != null) {
-        String? coverImageUrl = await _cloudinaryService.uploadToCloudinary(
+        final CloudinaryService cloudinaryService = CloudinaryService();
+        String? coverImageUrl = await cloudinaryService.uploadToCloudinary(
           imageFile.path,
           dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
         );
@@ -321,7 +322,8 @@ class DatabaseService {
       String? fileUrl;
 
       if (file != null && (contentType == 'image' || contentType == 'pdf')) {
-        fileUrl = await _cloudinaryService.uploadToCloudinary(
+        final CloudinaryService cloudinaryService = CloudinaryService();
+        fileUrl = await cloudinaryService.uploadToCloudinary(
           file.path,
           dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
         );
@@ -398,7 +400,8 @@ class DatabaseService {
 
       // Upload new file if provided
       if (file != null && (contentType == 'image' || contentType == 'pdf')) {
-        String? fileUrl = await _cloudinaryService.uploadToCloudinary(
+        final CloudinaryService cloudinaryService = CloudinaryService();
+        String? fileUrl = await cloudinaryService.uploadToCloudinary(
           file.path,
           dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
         );

@@ -10,7 +10,6 @@ import 'package:test_project/widgets/app_message_notifier.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final CloudinaryService _cloudinaryService = CloudinaryService();
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // Get current user
@@ -224,11 +223,12 @@ class AuthService {
 
     try {
       // Upload to Cloudinary
-      final String? imageUrl = await _cloudinaryService.uploadToCloudinary(
+      final CloudinaryService cloudinaryService = CloudinaryService();
+      final String? imageUrl = await cloudinaryService.uploadToCloudinary(
         filePath,
-        dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? '',
+        dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
       );
-
+      print('imageUrl issssssssssssss: $imageUrl');
       if (imageUrl != null && imageUrl.isNotEmpty) {
         try {
           // First check if the document exists

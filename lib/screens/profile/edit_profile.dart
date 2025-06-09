@@ -637,15 +637,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 24),
-                        ElevatedButton(
-                          onPressed:
-                              () => _authService.resetPassword(
-                                email: _emailController.text,
-                                context: context,
-                              ),
-                          child: Text("RESET PASSWORD"),
-                        ),
                       ],
                     ),
                   ),
