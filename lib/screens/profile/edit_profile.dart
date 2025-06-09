@@ -28,6 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isUploading = false;
   bool _isEditing = false;
   String? _uploadedImageUrl;
+  String _role = 'Patient';
   String _weightUnit = 'kg';
   String? _selectedGender;
   DateTime? _selectedDate;
@@ -58,6 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() {
           _emailController.text = userData['email'] ?? '';
           _nameController.text = userData['displayName'] ?? '';
+          _role = userData['role'] ?? 'Patient';
           _weightController.text = userData['weight']?.toString() ?? '';
           _heightController.text = userData['height']?.toString() ?? '';
           _weightUnit = userData['weightUnit'] ?? 'kg';
@@ -159,7 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       try {
         await _authService.saveProfileData(
           name: _nameController.text,
-          role: 'Patient', // Role remains Patient as per your logic
+          role: _role,
           photoURL: _uploadedImageUrl,
           weight: double.tryParse(_weightController.text) ?? 0.0,
           weightUnit: _weightUnit,

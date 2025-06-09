@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
-import 'package:test_project/widgets/side_bar.dart';
 import 'package:test_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -167,9 +166,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               ),
         ),
       ),
-      drawer: CustomSidebar(
-        userName: _nameController.text.isEmpty ? "User" : _nameController.text,
-      ),
+      // drawer: CustomSidebar(
+      //   userName: _nameController.text.isEmpty ? "User" : _nameController.text,
+      // ),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())

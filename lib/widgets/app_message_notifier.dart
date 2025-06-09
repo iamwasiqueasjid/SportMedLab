@@ -1,62 +1,90 @@
-// lib/widgets/app_message_notifier.dart
-import 'dart:async';
 import 'package:flutter/material.dart';
-import '../utils/message_type.dart'; // Make sure this path is correct
+import 'package:test_project/utils/message_type.dart';
 
-/// A custom, good-looking, and modern widget to display temporary messages
-/// with custom slide-in/slide-out animations.
-class AppMessageOverlayContent extends StatefulWidget {
-  final String message;
-  final MessageType type;
-  final VoidCallback onDismissed; // Callback when animation is done
-  final Color? backgroundColor;
-  final Color? textColor;
-  final Color? iconColor;
-  final Widget? leadingIcon;
-  final Widget? trailingAction;
+class AppNotifier {
+  static OverlayEntry? _overlayEntry;
+  static bool _isShowing = false;
 
-  const AppMessageOverlayContent({
-    Key? key,
-    required this.message,
-    required this.onDismissed,
-    this.type = MessageType.info,
-    this.backgroundColor,
-    this.textColor,
-    this.iconColor,
-    this.leadingIcon,
-    this.trailingAction,
-  }) : super(key: key);
+  static void show(
+    BuildContext context,
+    String message, {
+    MessageType type = MessageType.info,
+    Duration duration = const Duration(seconds: 3),
+  }) {
+    if (_isShowing) {
+      hide();
+    }
 
-  @override
-  _AppMessageOverlayContentState createState() =>
-      _AppMessageOverlayContentState();
+    _overlayEntry = OverlayEntry(
+      builder:
+          (context) => _NotificationWidget(
+            message: message,
+            type: type,
+            onDismiss: hide,
+          ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+    _isShowing = true;
+
+    // Auto-hide after duration
+    Future.delayed(duration, () {
+      if (_isShowing) {
+        hide();
+      }
+    });
+  }
+
+  static void hide() {
+    if (_overlayEntry != null && _isShowing) {
+      _overlayEntry!.remove();
+      _overlayEntry = null;
+      _isShowing = false;
+    }
+  }
 }
 
-class _AppMessageOverlayContentState extends State<AppMessageOverlayContent>
+class _NotificationWidget extends StatefulWidget {
+  final String message;
+  final MessageType type;
+  final VoidCallback onDismiss;
+
+  const _NotificationWidget({
+    required this.message,
+    required this.type,
+    required this.onDismiss,
+  });
+
+  @override
+  State<_NotificationWidget> createState() => _NotificationWidgetState();
+}
+
+class _NotificationWidgetState extends State<_NotificationWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  late Animation<Offset> _offsetAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _opacityAnimation;
 
   @override
   void initState() {
     super.initState();
-    AppNotifier._currentState = this;
     _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
       vsync: this,
-      duration: const Duration(milliseconds: 300), // Animation duration
     );
 
-    _offsetAnimation = Tween<Offset>(
-      begin: const Offset(0.0, 1.0), // Starts below the screen
-      end: Offset.zero, // Ends at its natural position
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 1),
+      end: Offset.zero,
     ).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
 
-    // Start animation after the widget is laid out
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _animationController.forward();
-    });
+    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+
+    _animationController.forward();
   }
 
   @override
@@ -65,99 +93,113 @@ class _AppMessageOverlayContentState extends State<AppMessageOverlayContent>
     super.dispose();
   }
 
-  Future<void> _hideAndDispose() async {
-    await _animationController.reverse(); // Slide out animation
-    widget.onDismissed(); // Notify the overlay to remove
+  void _dismiss() async {
+    await _animationController.reverse();
+    widget.onDismiss();
   }
 
-  /// Determines the background color based on the message type.
-  Color _getBackgroundColor(BuildContext context) {
-    if (widget.backgroundColor != null) return widget.backgroundColor!;
+  Color _getBackgroundColor() {
     switch (widget.type) {
       case MessageType.success:
-        return Colors.green.shade700;
+        return const Color(0xFF10B981); // Green
       case MessageType.error:
-        return Colors.red.shade700;
-      case MessageType.info:
-        return Theme.of(context).colorScheme.primary;
+        return const Color(0xFFEF4444); // Red
       case MessageType.warning:
-        return Colors.orange.shade700;
+        return const Color(0xFFF59E0B); // Amber
+      case MessageType.info:
+        return const Color(0xFF3B82F6); // Blue
     }
   }
 
-  /// Determines the appropriate icon data based on the message type.
-  IconData _getIconData() {
+  IconData _getIcon() {
     switch (widget.type) {
       case MessageType.success:
         return Icons.check_circle_outline;
       case MessageType.error:
         return Icons.error_outline;
-      case MessageType.info:
-        return Icons.info_outline;
       case MessageType.warning:
         return Icons.warning_amber_outlined;
+      case MessageType.info:
+        return Icons.info_outline;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final effectiveTextColor = widget.textColor ?? Colors.white;
-    final effectiveIconColor = widget.iconColor ?? Colors.white;
-
     return Positioned(
-      bottom: 16, // Adjust distance from bottom
-      left: 16,
-      right: 16,
+      bottom: 0,
+      left: 0,
+      right: 0,
       child: SlideTransition(
-        position: _offsetAnimation,
-        child: Material(
-          color: _getBackgroundColor(context),
-          borderRadius: BorderRadius.circular(12),
-          elevation: 6,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ), // Reduced vertical padding
-            child: Row(
-              crossAxisAlignment:
-                  CrossAxisAlignment.center, // Center content vertically
-              children: [
-                widget.leadingIcon ??
-                    Icon(
-                      _getIconData(),
-                      color: effectiveIconColor,
-                      size: 24,
-                    ), // Adjust icon size if needed
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    widget.message,
-                    style: TextStyle(
-                      color: effectiveTextColor,
-                      fontSize: 16,
-                      height:
-                          1.2, // Adjust line height to reduce vertical space
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 3,
-                  ),
+        position: _slideAnimation,
+        child: FadeTransition(
+          opacity: _opacityAnimation,
+          child: Container(
+            margin: const EdgeInsets.all(16),
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
                 ),
-                widget.trailingAction ??
-                    IconButton(
-                      icon: Icon(
-                        Icons.close,
-                        color: effectiveTextColor.withOpacity(0.8),
-                        size: 20, // Smaller icon size for better balance
-                      ),
-                      onPressed: _hideAndDispose, // Manual dismiss
-                      padding:
-                          EdgeInsets
-                              .zero, // Remove extra padding around IconButton
-                      constraints:
-                          const BoxConstraints(), // Remove default constraints
+                decoration: BoxDecoration(
+                  color: _getBackgroundColor(),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
-              ],
+                    BoxShadow(
+                      color: _getBackgroundColor().withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(_getIcon(), color: Colors.white, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        widget.message,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: _dismiss,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
@@ -166,64 +208,36 @@ class _AppMessageOverlayContentState extends State<AppMessageOverlayContent>
   }
 }
 
-/// A static helper class to easily show and manage the custom message notifier.
-class AppNotifier {
-  static OverlayEntry? _currentOverlayEntry;
-  static Timer? _hideTimer;
-  static _AppMessageOverlayContentState? _currentState;
-
-  static void show(
-    BuildContext context,
+// Extension to make it even easier to use
+extension AppNotifierExtension on BuildContext {
+  void showNotification(
     String message, {
     MessageType type = MessageType.info,
     Duration duration = const Duration(seconds: 3),
-    Color? backgroundColor,
-    Color? textColor,
-    Color? iconColor,
-    Widget? leadingIcon,
-    Widget? trailingAction,
   }) {
-    // Hide any currently visible notifier before showing a new one
-    // Create a new OverlayEntry
-    _currentOverlayEntry = OverlayEntry(
-      builder:
-          (context) => AppMessageOverlayContent(
-            message: message,
-            type: type,
-            backgroundColor: backgroundColor,
-            textColor: textColor,
-            iconColor: iconColor,
-            leadingIcon: leadingIcon,
-            trailingAction: trailingAction,
-            onDismissed: () {
-              // This callback is triggered when the message wants to disappear
-              _currentOverlayEntry?.remove();
-              _currentOverlayEntry = null;
-              _currentState = null;
-            },
-          ),
-    );
-
-    // Set a timer to automatically hide the message after the duration
-    _hideTimer?.cancel(); // Cancel any existing timer
-    _hideTimer = Timer(duration, () {
-      if (_currentState != null) {
-        _currentState!._hideAndDispose();
-      }
-    });
-
-    // Insert the overlay into the current context
-    Overlay.of(context).insert(_currentOverlayEntry!);
-  }
-
-  /// Hides the currently displayed message notifier, if any.
-  static void hide() {
-    _hideTimer?.cancel();
-    if (_currentState != null) {
-      _currentState!._hideAndDispose();
-    } else if (_currentOverlayEntry != null && _currentOverlayEntry!.mounted) {
-      _currentOverlayEntry?.remove();
-      _currentOverlayEntry = null;
-    }
+    AppNotifier.show(this, message, type: type, duration: duration);
   }
 }
+
+
+// USAGE
+// // Basic usage
+// AppNotifier.show(
+//   context,
+//   'Error loading course: $e',
+//   type: MessageType.error,
+// );
+
+// // With custom duration
+// AppNotifier.show(
+//   context,
+//   'Success! Course loaded successfully.',
+//   type: MessageType.success,
+//   duration: Duration(seconds: 5),
+// );
+
+// // Using the extension (optional)
+// context.showNotification(
+//   'This is an info message',
+//   type: MessageType.info,
+// );
