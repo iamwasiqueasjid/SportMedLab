@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:test_project/services/cloudinaryServices.dart';
-import 'package:test_project/utils/constants.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:test_project/services/cloudinary_service.dart';
 import 'dart:io';
 
 class DatabaseService {
@@ -60,16 +60,15 @@ class DatabaseService {
       String? coverImageUrl;
 
       if (imageFile != null) {
-        coverImageUrl = await _cloudinaryService.uploadImage(
+        coverImageUrl = await _cloudinaryService.uploadToCloudinary(
           imageFile.path,
-          AppConstants.cloudinaryUploadPreset,
-          folder: 'EdTech/Courses',
-          fileName: 'course_${DateTime.now().millisecondsSinceEpoch}',
+          dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
         );
       }
 
       // Create course document in Firestore
-      DocumentReference courseRef = await _firestore.collection('courses').add({
+      // DocumentReference courseRef = await _firestore.collection('courses').add({
+      await _firestore.collection('courses').add({
         'title': title,
         'description': description,
         'coverImageUrl': coverImageUrl ?? '',
@@ -194,11 +193,9 @@ class DatabaseService {
 
       // Upload new image if provided
       if (imageFile != null) {
-        String? coverImageUrl = await _cloudinaryService.uploadImage(
+        String? coverImageUrl = await _cloudinaryService.uploadToCloudinary(
           imageFile.path,
-          AppConstants.cloudinaryUploadPreset,
-          folder: 'EdTech/Courses',
-          fileName: 'course_${DateTime.now().millisecondsSinceEpoch}',
+          dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
         );
         updateData['coverImageUrl'] = coverImageUrl ?? '';
       }
@@ -317,11 +314,9 @@ class DatabaseService {
       String? fileUrl;
 
       if (file != null && (contentType == 'image' || contentType == 'pdf')) {
-        fileUrl = await _cloudinaryService.uploadImage(
+        fileUrl = await _cloudinaryService.uploadToCloudinary(
           file.path,
-          AppConstants.cloudinaryUploadPreset,
-          folder: 'EdTech/Lessons/${contentType}s',
-          fileName: '${contentType}_${DateTime.now().millisecondsSinceEpoch}',
+          dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
         );
       }
 
@@ -393,11 +388,9 @@ class DatabaseService {
 
       // Upload new file if provided
       if (file != null && (contentType == 'image' || contentType == 'pdf')) {
-        String? fileUrl = await _cloudinaryService.uploadImage(
+        String? fileUrl = await _cloudinaryService.uploadToCloudinary(
           file.path,
-          AppConstants.cloudinaryUploadPreset,
-          folder: 'EdTech/Lessons/${contentType}s',
-          fileName: '${contentType}_${DateTime.now().millisecondsSinceEpoch}',
+          dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
         );
         updateData['contentUrl'] = fileUrl ?? '';
       }

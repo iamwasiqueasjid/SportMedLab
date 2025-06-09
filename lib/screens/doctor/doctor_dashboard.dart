@@ -1,4 +1,5 @@
-import 'package:test_project/services/databaseHandler.dart';
+import 'package:test_project/services/database_service.dart';
+import 'package:test_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -15,6 +16,7 @@ class DoctorDashboard extends StatefulWidget {
 
 class _DoctorDashboardState extends State<DoctorDashboard> {
   final DatabaseService _databaseService = DatabaseService();
+  final AuthService _authService = AuthService();
   final ImagePicker _imagePicker = ImagePicker();
 
   String? _userName;
@@ -29,7 +31,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
   }
 
   Future<void> _loadUserData() async {
-    final userData = await _databaseService.fetchUserData();
+    final userData = await _authService.fetchUserData();
     if (userData != null) {
       setState(() {
         _userName = userData['displayName'];
@@ -345,7 +347,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         actions: [
           IconButton(
             icon: Icon(Icons.logout, color: Colors.white), // Match LoginScreen
-            onPressed: () => _databaseService.signOut(context),
+            onPressed: () => _authService.signOut(context),
           ),
         ],
       ),

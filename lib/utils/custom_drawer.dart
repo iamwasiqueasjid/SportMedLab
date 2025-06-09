@@ -1,4 +1,4 @@
-import 'package:test_project/services/databaseHandler.dart';
+import 'package:test_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -16,7 +16,7 @@ class CustomDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final DatabaseService _databaseService = DatabaseService();
+    final AuthService _authService = AuthService();
     final currentRoute = ModalRoute.of(context)?.settings.name;
 
     return Drawer(
@@ -68,7 +68,7 @@ class CustomDrawer extends StatelessWidget {
               Navigator.pop(context); // Close the drawer
 
               try {
-                final userRole = await _databaseService.getUserRole();
+                final userRole = await _authService.getUserRole();
                 final targetRoute =
                     userRole == 'Doctor'
                         ? '/doctorDashboard'
@@ -112,7 +112,7 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.logout, color: theme.primaryColor),
             title: Text('Logout', style: TextStyle(color: theme.primaryColor)),
             onTap: () {
-              _databaseService.signOut(context);
+              _authService.signOut(context);
             },
           ),
         ],

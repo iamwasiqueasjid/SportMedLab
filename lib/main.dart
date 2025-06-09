@@ -1,19 +1,19 @@
 // Packages
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:test_project/pages/edit_profile.dart';
+import 'package:test_project/screens/profile/edit_profile.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Pages
-import 'package:test_project/pages/splashScreen.dart';
-import 'package:test_project/pages/authenticationPage.dart';
-import 'package:test_project/pages/courseDetails.dart';
-import 'package:test_project/pages/homePage.dart';
-import 'package:test_project/pages/loginPage.dart';
-import 'package:test_project/pages/profileSetupPage.dart';
-import 'package:test_project/pages/signupPage.dart';
-import 'package:test_project/pages/starterPage.dart';
-import 'package:test_project/pages/patientDashboard.dart';
-import 'package:test_project/pages/doctorDashboard.dart';
+import 'package:test_project/screens/splash_screen.dart';
+import 'package:test_project/screens/auth/authentication_page.dart';
+import 'package:test_project/screens/course_details.dart';
+import 'package:test_project/screens/auth/login_page.dart';
+import 'package:test_project/screens/profile/profile_setup_page.dart';
+import 'package:test_project/screens/auth/signup_page.dart';
+import 'package:test_project/screens/starter_page.dart';
+import 'package:test_project/screens/patient/patient_dashboard.dart';
+import 'package:test_project/screens/doctor/doctor_dashboard.dart';
 
 // Theme files
 import 'package:test_project/theme/app_theme.dart' show lightTheme, darkTheme;
@@ -30,6 +30,12 @@ void main() async {
     print('Firebase initialization error: $e');
   }
 
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    throw Exception('Error loading .env file: $e');
+  }
+
   runApp(MyApp());
 }
 
@@ -41,11 +47,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  /// Tracks whether the app should be in dark mode or light mode
-  bool isDarkMode =
-      true; // Default: Dark. Set to false if you want Light by default
+  bool isDarkMode = true;
 
-  /// Method that toggles the theme; called from SettingsScreen
+  // Method that toggles the theme;
   void toggleTheme(bool enableDark) {
     setState(() {
       isDarkMode = enableDark;
@@ -55,39 +59,28 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const SplashScreen(), // Set the initial screen to SplashScreen
+      home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
       title: 'Comsicon',
 
       // Provide both light and dark themes
       theme: lightTheme,
-      darkTheme: darkTheme,
+      // darkTheme: darkTheme,
 
       // Dynamically pick which theme to use
       themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-
-      // Define initial route
-      initialRoute: '/splash', // Change this to your initial route
+      initialRoute: '/splash',
       // Define all routes
       routes: {
         '/splash': (context) => const SplashScreen(),
-        '/starterPage': (context) => const starterPage(), // Your starter page
+        '/starterPage': (context) => const starterPage(),
         '/auth': (context) => AuthenticationPage(),
-        '/signUp': (context) => const SignUpScreen(), // Your signup page
-        '/login': (context) => const LoginScreen(), // Your login page
-        '/profileSetup':
-            (context) => const ProfileSetupScreen(), // Your profile setup page
-        // Add all your other routes here, for example:
-        '/home': (context) => HomePage(),
+        '/signUp': (context) => const SignUpScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/profileSetup': (context) => const ProfileSetupScreen(),
         '/doctorDashboard': (context) => DoctorDashboard(),
         '/patientDashboard': (context) => PatientDashboard(),
         '/profile': (context) => const ProfileScreen(),
-        // '/login': (context) => LoginPage(),
-        // '/signup': (context) => SignupPage(),-===========[[[[]]]]        // '/settings': (context) => SettingsPage(
-        //   isDarkMode: isDarkMode,
-        //   onDarkModeToggled: toggleTheme,
-        // ),
-        // Add more routes as needed
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/courseDetails') {

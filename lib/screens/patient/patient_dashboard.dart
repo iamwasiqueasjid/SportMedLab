@@ -1,4 +1,4 @@
-import 'package:test_project/services/databaseHandler.dart';
+import 'package:test_project/services/auth_service.dart';
 import 'package:test_project/utils/custom_drawer.dart';
 import 'package:flutter/material.dart';
 
@@ -10,7 +10,7 @@ class PatientDashboard extends StatefulWidget {
 }
 
 class _PatientDashboardState extends State<PatientDashboard> {
-  final DatabaseService _databaseService = DatabaseService();
+  final AuthService _authService = AuthService();
   String? _userName;
   String? _photoUrl;
   bool _isLoading = true;
@@ -22,7 +22,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
   }
 
   Future<void> _loadUserData() async {
-    final userData = await _databaseService.fetchUserData();
+    final userData = await _authService.fetchUserData();
     if (userData != null) {
       setState(() {
         _userName = userData['displayName'];
@@ -47,7 +47,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
         actions: [
           IconButton(
             icon: Icon(Icons.logout, color: Colors.white),
-            onPressed: () => _databaseService.signOut(context),
+            onPressed: () => _authService.signOut(context),
           ),
         ],
       ),
@@ -150,7 +150,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
   }
 
   Widget _buildAvailablePlans() {
-    final theme = Theme.of(context);
+    // final theme = Theme.of(context);
     // Dummy plan data (replace with Firestore data)
     final plans = [
       {

@@ -1,18 +1,17 @@
-import 'package:test_project/services/databaseHandler.dart';
+import 'package:test_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class CustomSidebar extends StatefulWidget {
   final String userName;
-  final _databaseService = DatabaseService();
 
-  CustomSidebar({Key? key, required this.userName}) : super(key: key);
+  const CustomSidebar({Key? key, required this.userName}) : super(key: key);
 
   @override
   _CustomSidebarState createState() => _CustomSidebarState();
 }
 
 class _CustomSidebarState extends State<CustomSidebar> {
-  final _databaseService = DatabaseService();
+  final _authService = AuthService();
   String? userName;
   String? photoUrl;
   bool isLoading = true;
@@ -24,7 +23,7 @@ class _CustomSidebarState extends State<CustomSidebar> {
   }
 
   // Future<void> fetchUserData() async {
-  //   final userData = await _databaseService.fetchUserData();
+  //   final userData = await _authService.fetchUserData();
   //   if (userData != null) {
   //     setState(() {
   //       userName = userData['displayName'];
@@ -131,7 +130,7 @@ class _CustomSidebarState extends State<CustomSidebar> {
                 ),
               ),
               onTap: () {
-                _databaseService.signOut(context);
+                _authService.signOut(context);
               },
             ),
           ],

@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:test_project/services/cloudinaryServices.dart';
-import 'package:test_project/utils/constants.dart';
+import 'package:test_project/services/cloudinary_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -51,7 +51,6 @@ class AuthService {
   }
 
   // Google Sign-In
-  // Google Sign-In with Account Selection
   Future<bool> signInWithGoogle({required BuildContext context}) async {
     try {
       // Sign out from Google first to force account selection
@@ -200,14 +199,10 @@ class AuthService {
     }
 
     try {
-      print('Starting upload to Cloudinary...');
-      print('Upload preset: ${AppConstants.cloudinaryUploadPreset}');
-
       // Upload to Cloudinary
-      final String? imageUrl = await _cloudinaryService.uploadImage(
+      final String? imageUrl = await _cloudinaryService.uploadToCloudinary(
         filePath,
-        AppConstants.cloudinaryUploadPreset,
-        folder: 'EdTech/Users',
+        dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? '',
       );
 
       print('Cloudinary upload complete, URL: $imageUrl');
@@ -279,7 +274,6 @@ class AuthService {
       }
       return null;
     } catch (e) {
-      print('Error getting user role: $e');
       return null;
     }
   }
@@ -305,14 +299,14 @@ class AuthService {
 
   // Save profile data to Firestore
   Future<bool> saveProfileData({
-    required String Name,
-    required String Role,
-    String? PhotoURL,
-    required double Weight,
-    required String WeightUnit,
-    required double Height,
-    required String Gender,
-    required String DateOfBirth,
+    required String name,
+    required String role,
+    String? photoURL,
+    required double weight,
+    required String weightUnit,
+    required double height,
+    required String gender,
+    required String dateOfBirth,
     required BuildContext context,
   }) async {
     final user = _auth.currentUser;
@@ -326,20 +320,20 @@ class AuthService {
     try {
       // Create the data map with all profile fields
       Map<String, dynamic> userData = {
-        'displayName': Name,
+        'displayName': name,
         'email': user.email,
-        'role': Role,
-        'weight': Weight,
-        'weightUnit': WeightUnit,
-        'height': Height,
-        'gender': Gender,
-        'dateOfBirth': DateOfBirth,
+        'role': role,
+        'weight': weight,
+        'weightUnit': weightUnit,
+        'height': height,
+        'gender': gender,
+        'dateOfBirth': dateOfBirth,
         'updatedAt': FieldValue.serverTimestamp(),
       };
 
       // Only add photoURL if it's provided and not empty
-      if (PhotoURL != null && PhotoURL.isNotEmpty) {
-        userData['photoURL'] = PhotoURL;
+      if (photoURL != null && photoURL.isNotEmpty) {
+        userData['photoURL'] = photoURL;
       }
 
       // Check if this is a new user
@@ -362,7 +356,7 @@ class AuthService {
       );
 
       // Navigate based on role
-      if (Role == 'Doctor') {
+      if (role == 'Doctor') {
         Navigator.of(context).pushReplacementNamed('/doctorDashboard');
       } else {
         Navigator.of(context).pushReplacementNamed('/patientDashboard');

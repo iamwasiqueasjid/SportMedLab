@@ -1,11 +1,10 @@
-// lib/screens/course_details_screen.dart
-import 'package:test_project/services/databaseHandler.dart';
+import 'package:test_project/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-// import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:file_picker/file_picker.dart';
 
 class CourseDetailsScreen extends StatefulWidget {
   final String courseId;
@@ -121,21 +120,20 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                                 selectedFile = File(pickedFile.path);
                               });
                             }
-                          }
-                          // else if (contentType == 'pdf') {
-                          //                             FilePickerResult? result = await FilePicker.platform
-                          //                                 .pickFiles(
-                          //                                   type: FileType.custom,
-                          //                                   allowedExtensions: ['pdf'],
-                          //                                 );
+                          } else if (contentType == 'pdf') {
+                            FilePickerResult? result = await FilePicker.platform
+                                .pickFiles(
+                                  type: FileType.custom,
+                                  allowedExtensions: ['pdf'],
+                                );
 
-                          //                             if (result != null &&
-                          //                                 result.files.single.path != null) {
-                          //                               setState(() {
-                          //                                 selectedFile = File(result.files.single.path!);
-                          //                               });
-                          //                             }
-                          //                           }
+                            if (result != null &&
+                                result.files.single.path != null) {
+                              setState(() {
+                                selectedFile = File(result.files.single.path!);
+                              });
+                            }
+                          }
                         },
                         child: Container(
                           height: 120,

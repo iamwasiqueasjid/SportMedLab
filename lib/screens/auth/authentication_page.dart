@@ -1,8 +1,8 @@
-import 'package:test_project/services/authService.dart';
+import 'package:test_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class AuthenticationPage extends StatefulWidget {
-  const AuthenticationPage({Key? key}) : super(key: key);
+  const AuthenticationPage({super.key});
 
   @override
   _AuthenticationPageState createState() => _AuthenticationPageState();

@@ -1,42 +1,33 @@
 import 'dart:io';
-import 'package:test_project/services/databaseHandler.dart';
-import 'package:test_project/theme/colors.dart';
+import 'package:test_project/utils/side_bar.dart';
+import 'package:test_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:test_project/utils/custom_drawer.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class ProfileSetupScreen extends StatefulWidget {
+  const ProfileSetupScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _weightController = TextEditingController();
   final _heightController = TextEditingController();
-  final _databaseService = DatabaseService();
+  final _authService = AuthService();
   final ImagePicker _picker = ImagePicker();
 
   File? _imageFile;
   bool _isLoading = false;
   bool _isUploading = false;
-  bool _isEditing = false;
   String? _uploadedImageUrl;
-  String _weightUnit = 'kg';
+  String _weightUnit = 'kg'; // Default weight unit
   String? _selectedGender;
   DateTime? _selectedDate;
   final List<String> _genders = ['Male', 'Female', 'Other'];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
 
   @override
   void dispose() {
@@ -46,42 +37,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _loadUserData() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final userData = await _databaseService.fetchUserData();
-      if (userData != null) {
-        setState(() {
-          _nameController.text = userData['displayName'] ?? '';
-          _weightController.text = userData['weight']?.toString() ?? '';
-          _heightController.text = userData['height']?.toString() ?? '';
-          _weightUnit = userData['weightUnit'] ?? 'kg';
-          _selectedGender = userData['gender'];
-          _uploadedImageUrl = userData['photoURL'];
-          if (userData['dateOfBirth'] != null &&
-              userData['dateOfBirth'].isNotEmpty) {
-            _selectedDate = DateFormat(
-              'yyyy-MM-dd',
-            ).parse(userData['dateOfBirth']);
-          }
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error loading profile: $e')));
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
+  // Function to pick image from gallery
   Future<void> _pickImage() async {
-    if (!_isEditing) return;
     try {
       final XFile? image = await _picker.pickImage(
         source: ImageSource.gallery,
@@ -95,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
 
         try {
-          final imageUrl = await _databaseService.uploadProfilePhoto(
+          final imageUrl = await _authService.uploadProfilePhoto(
             filePath: image.path,
             context: context,
           );
@@ -126,11 +83,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  // Function to show date picker
   Future<void> _selectDate(BuildContext context) async {
-    if (!_isEditing) return;
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
+      initialDate: DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
@@ -141,38 +98,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> _handleSave() async {
+  Future<void> _handleContinue() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
       try {
-        await _databaseService.saveProfileData(
-          Name: _nameController.text,
-          Role: 'Patient', // Role remains Patient as per your logic
-          PhotoURL: _uploadedImageUrl,
-          Weight: double.tryParse(_weightController.text) ?? 0.0,
-          WeightUnit: _weightUnit,
-          Height: double.tryParse(_heightController.text) ?? 0.0,
-          Gender: _selectedGender ?? '',
-          DateOfBirth:
+        await _authService.saveProfileData(
+          name: _nameController.text,
+          role: 'Patient',
+          photoURL: _uploadedImageUrl,
+          weight: double.tryParse(_weightController.text) ?? 0.0,
+          weightUnit: _weightUnit,
+          height: double.tryParse(_heightController.text) ?? 0.0,
+          gender: _selectedGender ?? '',
+          dateOfBirth:
               _selectedDate != null
                   ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
                   : '',
           context: context,
         );
-        setState(() {
-          _isEditing = false;
-          _isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully')),
-        );
       } catch (e) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error updating profile: $e')));
+        ).showSnackBar(SnackBar(content: Text('Error saving profile: $e')));
         setState(() {
           _isLoading = false;
         });
@@ -184,58 +134,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _toggleEdit() {
-    setState(() {
-      _isEditing = !_isEditing;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.white, // Match LoginScreen background
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.white, // Match LoginScreen
         elevation: 0,
         leading: Builder(
           builder:
               (context) => IconButton(
-                icon: Icon(Icons.menu, color: theme.primaryColor),
+                icon: Icon(
+                  Icons.menu,
+                  color: theme.primaryColor,
+                ), // Use primaryColor
                 onPressed: () {
                   Scaffold.of(context).openDrawer();
                 },
               ),
         ),
-        actions: [
-          TextButton(
-            onPressed: _isLoading ? null : _toggleEdit,
-            child: Text(
-              _isEditing ? 'Cancel' : 'Edit',
-              style: TextStyle(
-                color: theme.primaryColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          if (_isEditing)
-            TextButton(
-              onPressed: _isLoading || _isUploading ? null : _handleSave,
-              child: Text(
-                'Save',
-                style: TextStyle(
-                  color: theme.primaryColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-        ],
       ),
-      drawer: CustomDrawer(
+      drawer: CustomSidebar(
         userName: _nameController.text.isEmpty ? "User" : _nameController.text,
-        photoUrl: _uploadedImageUrl,
-        role: 'Patient',
       ),
       body:
           _isLoading
@@ -251,34 +173,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Title
                         Text(
-                          'Your Profile',
+                          'Profile Setup',
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            color: Colors.black, // Match LoginScreen
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'View or update your profile details.',
-                          style: TextStyle(color: Colors.grey[700]),
+                          'Complete your profile to get started.',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                          ), // Match LoginScreen
                         ),
                         const SizedBox(height: 32),
+
+                        // Image picker
                         Center(
                           child: Stack(
                             alignment: Alignment.bottomRight,
                             children: [
                               GestureDetector(
-                                onTap: _pickImage,
+                                onTap: _isUploading ? null : _pickImage,
                                 child: Container(
                                   width: 120,
                                   height: 120,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Colors.grey[100],
+                                    color:
+                                        Colors
+                                            .grey[100], // Match LoginScreen field fill
                                     border: Border.all(
-                                      color: theme.primaryColor,
+                                      color:
+                                          theme
+                                              .primaryColor, // Match LoginScreen
                                       width: 1,
                                     ),
                                   ),
@@ -286,7 +217,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       _isUploading
                                           ? Center(
                                             child: CircularProgressIndicator(
-                                              color: theme.primaryColor,
+                                              color:
+                                                  theme
+                                                      .primaryColor, // Match LoginScreen
                                             ),
                                           )
                                           : ClipOval(
@@ -294,13 +227,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 _imageFile != null
                                                     ? Image.file(
                                                       _imageFile!,
-                                                      width: 120,
-                                                      height: 120,
-                                                      fit: BoxFit.cover,
-                                                    )
-                                                    : _uploadedImageUrl != null
-                                                    ? Image.network(
-                                                      _uploadedImageUrl!,
                                                       width: 120,
                                                       height: 120,
                                                       fit: BoxFit.cover,
@@ -314,27 +240,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                 ),
                               ),
-                              if (_isEditing)
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: theme.primaryColor,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Icon(
-                                      _isUploading
-                                          ? Icons.hourglass_top
-                                          : Icons.camera_alt,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color:
+                                      theme.primaryColor, // Match LoginScreen
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Icon(
+                                    _isUploading
+                                        ? Icons.hourglass_top
+                                        : Icons.camera_alt,
+                                    color:
+                                        Colors
+                                            .white, // Match LoginScreen button text
+                                    size: 20,
                                   ),
                                 ),
+                              ),
                             ],
                           ),
                         ),
-                        if (_uploadedImageUrl != null && _isEditing)
+                        if (_uploadedImageUrl != null)
                           Center(
                             child: Padding(
                               padding: const EdgeInsets.only(top: 8.0),
@@ -348,23 +276,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                         const SizedBox(height: 24),
+
+                        // Name input
                         Text(
                           'Your Name',
-                          style: TextStyle(color: theme.primaryColor),
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _nameController,
-                          enabled: _isEditing,
-                          style: TextStyle(color: theme.primaryColor),
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
                           decoration: InputDecoration(
                             hintText: 'Enter your name',
-                            hintStyle: TextStyle(color: theme.primaryColor),
+                            hintStyle: TextStyle(
+                              color: theme.primaryColor,
+                            ), // Match LoginScreen
                             filled: true,
-                            fillColor: Colors.grey[100],
+                            fillColor: Colors.grey[100], // Match LoginScreen
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: theme.primaryColor),
+                              borderSide: BorderSide(
+                                color: theme.primaryColor,
+                              ), // Match LoginScreen
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -372,10 +309,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 color: theme.primaryColor,
                                 width: 2,
                               ),
-                            ),
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey[300]!),
                             ),
                           ),
                           validator: (value) {
@@ -386,9 +319,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           },
                         ),
                         const SizedBox(height: 24),
+
+                        // Weight input with unit toggle
                         Text(
                           'Weight',
-                          style: TextStyle(color: theme.primaryColor),
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -396,16 +333,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Expanded(
                               child: TextFormField(
                                 controller: _weightController,
-                                enabled: _isEditing,
-                                style: TextStyle(color: theme.primaryColor),
+                                style: TextStyle(
+                                  color: theme.primaryColor,
+                                ), // Match LoginScreen
                                 keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
                                   hintText: 'Enter your weight',
                                   hintStyle: TextStyle(
                                     color: theme.primaryColor,
-                                  ),
+                                  ), // Match LoginScreen
                                   filled: true,
-                                  fillColor: Colors.grey[100],
+                                  fillColor:
+                                      Colors.grey[100], // Match LoginScreen
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                     borderSide: BorderSide(
@@ -419,16 +358,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       width: 2,
                                     ),
                                   ),
-                                  disabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                      color: Colors.grey[300]!,
-                                    ),
-                                  ),
                                   suffixText: _weightUnit,
                                   suffixStyle: TextStyle(
                                     color: theme.primaryColor,
-                                  ),
+                                  ), // Match LoginScreen
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -442,52 +375,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            if (_isEditing)
-                              DropdownButton<String>(
-                                value: _weightUnit,
-                                items:
-                                    ['kg', 'lb']
-                                        .map(
-                                          (unit) => DropdownMenuItem(
-                                            value: unit,
-                                            child: Text(
-                                              unit,
-                                              style: TextStyle(
-                                                color: theme.primaryColor,
-                                              ),
-                                            ),
+                            DropdownButton<String>(
+                              value: _weightUnit,
+                              items:
+                                  ['kg', 'lb']
+                                      .map(
+                                        (unit) => DropdownMenuItem(
+                                          value: unit,
+                                          child: Text(
+                                            unit,
+                                            style: TextStyle(
+                                              color: theme.primaryColor,
+                                            ), // Match LoginScreen
                                           ),
-                                        )
-                                        .toList(),
-                                onChanged: (value) {
-                                  if (value != null) {
-                                    setState(() {
-                                      _weightUnit = value;
-                                    });
-                                  }
-                                },
-                                style: TextStyle(color: theme.primaryColor),
-                                dropdownColor: Colors.grey[100],
-                                iconEnabledColor: theme.primaryColor,
-                              ),
+                                        ),
+                                      )
+                                      .toList(),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    _weightUnit = value;
+                                  });
+                                }
+                              },
+                              style: TextStyle(
+                                color: theme.primaryColor,
+                              ), // Match LoginScreen
+                              dropdownColor:
+                                  Colors.grey[100], // Match LoginScreen
+                              iconEnabledColor:
+                                  theme.primaryColor, // Match LoginScreen
+                            ),
                           ],
                         ),
                         const SizedBox(height: 24),
+
+                        // Height input
                         Text(
                           'Height (cm)',
-                          style: TextStyle(color: theme.primaryColor),
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _heightController,
-                          enabled: _isEditing,
-                          style: TextStyle(color: theme.primaryColor),
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             hintText: 'Enter your height',
-                            hintStyle: TextStyle(color: theme.primaryColor),
+                            hintStyle: TextStyle(
+                              color: theme.primaryColor,
+                            ), // Match LoginScreen
                             filled: true,
-                            fillColor: Colors.grey[100],
+                            fillColor: Colors.grey[100], // Match LoginScreen
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(color: theme.primaryColor),
@@ -499,12 +442,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 width: 2,
                               ),
                             ),
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey[300]!),
-                            ),
                             suffixText: 'cm',
-                            suffixStyle: TextStyle(color: theme.primaryColor),
+                            suffixStyle: TextStyle(
+                              color: theme.primaryColor,
+                            ), // Match LoginScreen
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -517,18 +458,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           },
                         ),
                         const SizedBox(height: 24),
+
+                        // Gender dropdown
                         Text(
                           'Gender',
-                          style: TextStyle(color: theme.primaryColor),
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
                         ),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<String>(
                           value: _selectedGender,
                           decoration: InputDecoration(
                             hintText: 'Select gender',
-                            hintStyle: TextStyle(color: theme.primaryColor),
+                            hintStyle: TextStyle(
+                              color: theme.primaryColor,
+                            ), // Match LoginScreen
                             filled: true,
-                            fillColor: Colors.grey[100],
+                            fillColor: Colors.grey[100], // Match LoginScreen
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(color: theme.primaryColor),
@@ -540,10 +487,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 width: 2,
                               ),
                             ),
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey[300]!),
-                            ),
                           ),
                           items:
                               _genders
@@ -554,22 +497,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         gender,
                                         style: TextStyle(
                                           color: theme.primaryColor,
-                                        ),
+                                        ), // Match LoginScreen
                                       ),
                                     ),
                                   )
                                   .toList(),
-                          onChanged:
-                              _isEditing
-                                  ? (value) {
-                                    setState(() {
-                                      _selectedGender = value;
-                                    });
-                                  }
-                                  : null,
-                          style: TextStyle(color: theme.primaryColor),
-                          dropdownColor: Colors.grey[100],
-                          iconEnabledColor: theme.primaryColor,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedGender = value;
+                            });
+                          },
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
+                          dropdownColor: Colors.grey[100], // Match LoginScreen
+                          iconEnabledColor:
+                              theme.primaryColor, // Match LoginScreen
                           validator: (value) {
                             if (value == null) {
                               return 'Please select your gender';
@@ -578,9 +521,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           },
                         ),
                         const SizedBox(height: 24),
+
+                        // Date of birth
                         Text(
                           'Date of Birth',
-                          style: TextStyle(color: theme.primaryColor),
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                          ), // Match LoginScreen
                         ),
                         const SizedBox(height: 8),
                         InkWell(
@@ -588,9 +535,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: InputDecorator(
                             decoration: InputDecoration(
                               hintText: 'Select date',
-                              hintStyle: TextStyle(color: theme.primaryColor),
+                              hintStyle: TextStyle(
+                                color: theme.primaryColor,
+                              ), // Match LoginScreen
                               filled: true,
-                              fillColor: Colors.grey[100],
+                              fillColor: Colors.grey[100], // Match LoginScreen
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
@@ -604,12 +553,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   width: 2,
                                 ),
                               ),
-                              disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey[300]!,
-                                ),
-                              ),
                             ),
                             child: Text(
                               _selectedDate == null
@@ -617,8 +560,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   : DateFormat(
                                     'yyyy-MM-dd',
                                   ).format(_selectedDate!),
-                              style: TextStyle(color: theme.primaryColor),
+                              style: TextStyle(
+                                color: theme.primaryColor,
+                              ), // Match LoginScreen
                             ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Continue button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50, // Match LoginScreen button height
+                          child: ElevatedButton(
+                            onPressed:
+                                (_isLoading || _isUploading)
+                                    ? null
+                                    : _handleContinue,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  theme.primaryColor, // Match LoginScreen
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              disabledBackgroundColor: theme.primaryColor
+                                  .withOpacity(0.5),
+                            ),
+                            child:
+                                _isLoading
+                                    ? CircularProgressIndicator(
+                                      color: Colors.white, // Match LoginScreen
+                                    )
+                                    : const Text(
+                                      'Continue',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color:
+                                            Colors.white, // Match LoginScreen
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                           ),
                         ),
                         const SizedBox(height: 24),
