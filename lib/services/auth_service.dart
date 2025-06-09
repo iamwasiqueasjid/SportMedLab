@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:test_project/services/cloudinary_service.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -28,8 +30,10 @@ class AuthService {
           .signInWithEmailAndPassword(email: email, password: password);
 
       if (userCredential.user != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Logged in successfully!')),
+        AppNotifier.show(
+          context,
+          'Logged in successfully!',
+          type: MessageType.success,
         );
 
         // Check user role and navigate to appropriate screen
@@ -42,9 +46,11 @@ class AuthService {
         return true;
       }
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Login failed: ${e.message}')));
+        'Login failed: ${e.message}',
+        type: MessageType.error,
+      );
       return false;
     }
     return false;
@@ -93,9 +99,10 @@ class AuthService {
             'updatedAt': FieldValue.serverTimestamp(),
             'authProvider': 'google',
           });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Account created successfully!')),
+          AppNotifier.show(
+            context,
+            'Account created successfully!',
+            type: MessageType.success,
           );
 
           // Navigate to profile setup for new users
@@ -107,8 +114,10 @@ class AuthService {
             'updatedAt': FieldValue.serverTimestamp(),
           });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Logged in successfully!')),
+          AppNotifier.show(
+            context,
+            'Logged in successfully!',
+            type: MessageType.success,
           );
 
           // Check user role and navigate to appropriate screen
@@ -123,14 +132,18 @@ class AuthService {
         return true;
       }
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Google sign-in failed: ${e.message}')),
+      AppNotifier.show(
+        context,
+        'Google sign-in failed: ${e.message}',
+        type: MessageType.error,
       );
       return false;
     } catch (e) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('An error occurred: $e')));
+        'An error occurred: $e',
+        type: MessageType.error,
+      );
       return false;
     }
     return false;
@@ -147,16 +160,20 @@ class AuthService {
           .createUserWithEmailAndPassword(email: email, password: password);
 
       if (credential.user != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User created successfully!')),
+        AppNotifier.show(
+          context,
+          'User created successfully!',
+          type: MessageType.success,
         );
         Navigator.pushNamed(context, '/profileSetup');
         return true;
       }
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Sign up failed: ${e.message}')));
+        'Sign up failed: ${e.message}',
+        type: MessageType.error,
+      );
       return false;
     }
     return false;
@@ -172,16 +189,21 @@ class AuthService {
 
       await _auth.signOut().then(
         (value) => {
-          ScaffoldMessenger.of(
+          AppNotifier.show(
             context,
-          ).showSnackBar(const SnackBar(content: Text('Log Out Successfully'))),
+            'Logged Out Successfully',
+            type: MessageType.info,
+          ),
+
           Navigator.pushReplacementNamed(context, '/login'),
         },
       );
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Sign out failed: ${e.message}')));
+        'Log out failed: ${e.message}',
+        type: MessageType.error,
+      );
     }
   }
 
@@ -192,9 +214,11 @@ class AuthService {
   }) async {
     final user = _auth.currentUser;
     if (user == null) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(const SnackBar(content: Text('User is not logged in')));
+        'User is not Logged In',
+        type: MessageType.warning,
+      );
       return null;
     }
 
@@ -204,8 +228,6 @@ class AuthService {
         filePath,
         dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? '',
       );
-
-      print('Cloudinary upload complete, URL: $imageUrl');
 
       if (imageUrl != null && imageUrl.isNotEmpty) {
         try {
@@ -229,32 +251,36 @@ class AuthService {
             });
           }
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Profile photo updated successfully!'),
-            ),
+          AppNotifier.show(
+            context,
+            'Profile photo updated successfully!',
+            type: MessageType.success,
           );
 
           return imageUrl;
         } catch (firestoreError) {
-          print('Firestore error: $firestoreError');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error saving photo URL: $firestoreError')),
+          AppNotifier.show(
+            context,
+            'Error saving photo URL: $firestoreError',
+            type: MessageType.error,
           );
           // Still return the URL even if Firestore update failed
           return imageUrl;
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to upload profile photo')),
+        AppNotifier.show(
+          context,
+          'Failed to upload profile photo',
+          type: MessageType.error,
         );
         return null;
       }
     } catch (e) {
-      print('Profile photo upload error: $e');
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error uploading photo: $e')));
+        'Error uploading photo: $e',
+        type: MessageType.error,
+      );
       return null;
     }
   }
@@ -292,8 +318,7 @@ class AuthService {
       }
       return null;
     } catch (e) {
-      print('Error fetching user data: $e');
-      return null;
+      throw Exception('Failed to fetch user data: $e');
     }
   }
 
@@ -311,9 +336,11 @@ class AuthService {
   }) async {
     final user = _auth.currentUser;
     if (user == null) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(const SnackBar(content: Text('User is not logged in')));
+        'User is not Logged In',
+        type: MessageType.warning,
+      );
       return false;
     }
 
@@ -351,8 +378,10 @@ class AuthService {
           .doc(user.uid)
           .set(userData, SetOptions(merge: true));
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile data saved successfully')),
+      AppNotifier.show(
+        context,
+        'Profile data saved successfully',
+        type: MessageType.success,
       );
 
       // Navigate based on role
@@ -364,9 +393,10 @@ class AuthService {
 
       return true;
     } catch (error) {
-      print('Error saving profile data: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save profile data: $error')),
+      AppNotifier.show(
+        context,
+        'Failed to save profile data: $error',
+        type: MessageType.error,
       );
       return false;
     }
@@ -379,29 +409,22 @@ class AuthService {
   }) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password reset email sent! Check your inbox.'),
-        ),
+      AppNotifier.show(
+        context,
+        'Password reset Email sent! \nCheck your inbox.',
+        type: MessageType.success,
       );
       return true;
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error: ${e.message}')));
+        'Error sending Password reset Mail: ${e.message}',
+        type: MessageType.error,
+      );
       return false;
     }
   }
 
   // Check if email is verified
   bool get isEmailVerified => _auth.currentUser?.emailVerified ?? false;
-
-  // Send email verification
-  Future<void> sendEmailVerification() async {
-    try {
-      await _auth.currentUser?.sendEmailVerification();
-    } catch (e) {
-      print('Error sending email verification: $e');
-    }
-  }
 }

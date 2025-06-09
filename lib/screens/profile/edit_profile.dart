@@ -3,7 +3,9 @@ import 'package:test_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:test_project/utils/custom_drawer.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
+import 'package:test_project/widgets/custom_drawer.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -71,9 +73,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error loading profile: $e')));
+        'Error loading profile: $e',
+        type: MessageType.error,
+      );
       setState(() {
         _isLoading = false;
       });
@@ -114,15 +118,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
           setState(() {
             _isUploading = false;
           });
-          ScaffoldMessenger.of(
+
+          AppNotifier.show(
             context,
-          ).showSnackBar(SnackBar(content: Text('Failed to upload image: $e')));
+            'Failed to upload image: $e',
+            type: MessageType.error,
+          );
         }
       }
     } catch (e) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
+        'Error picking image: $e',
+        type: MessageType.error,
+      );
     }
   }
 
@@ -166,20 +175,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _isEditing = false;
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully')),
+
+        AppNotifier.show(
+          context,
+          'Profile updated successfully',
+          type: MessageType.success,
         );
       } catch (e) {
-        ScaffoldMessenger.of(
+        AppNotifier.show(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error updating profile: $e')));
+          'Error updating profile: $e',
+          type: MessageType.error,
+        );
         setState(() {
           _isLoading = false;
         });
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please complete all required fields')),
+      AppNotifier.show(
+        context,
+        'Please complete all required fields',
+        type: MessageType.info,
       );
     }
   }

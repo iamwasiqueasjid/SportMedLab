@@ -3,7 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:test_project/services/cloudinary_service.dart';
+import 'package:test_project/utils/message_type.dart';
 import 'dart:io';
+
+import 'package:test_project/widgets/app_message_notifier.dart';
 
 class DatabaseService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -32,7 +35,6 @@ class DatabaseService {
 
       return true;
     } catch (e) {
-      print('Error updating lesson with AI content: $e');
       return false;
     }
   }
@@ -49,9 +51,11 @@ class DatabaseService {
   }) async {
     final user = _auth.currentUser;
     if (user == null) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(const SnackBar(content: Text('User is not logged in')));
+        'User is not logged in',
+        type: MessageType.warning,
+      );
       return false;
     }
 
@@ -80,15 +84,18 @@ class DatabaseService {
         'enrolledCount': 0,
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Course created successfully')),
+      AppNotifier.show(
+        context,
+        'Course created successfully',
+        type: MessageType.success,
       );
 
       return true;
     } catch (error) {
-      print('Error creating course: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to create course: $error')),
+      AppNotifier.show(
+        context,
+        'Failed to create course: $error',
+        type: MessageType.error,
       );
       return false;
     }
@@ -156,7 +163,6 @@ class DatabaseService {
   // Get course by ID
   Future<Map<String, dynamic>?> getCourseById(String courseId) async {
     try {
-      print("Fetching course with ID: $courseId");
       DocumentSnapshot doc =
           await _firestore.collection('courses').doc(courseId).get();
 
@@ -166,10 +172,8 @@ class DatabaseService {
         return data;
       }
 
-      print("Course not found with ID: $courseId");
       return null;
     } catch (e) {
-      print('Error getting course by ID: $e');
       return null;
     }
   }
@@ -202,15 +206,18 @@ class DatabaseService {
 
       await _firestore.collection('courses').doc(courseId).update(updateData);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Course updated successfully')),
+      AppNotifier.show(
+        context,
+        'Course updated successfully',
+        type: MessageType.success,
       );
 
       return true;
     } catch (error) {
-      print('Error updating course: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update course: $error')),
+      AppNotifier.show(
+        context,
+        'Failed to update course: $error',
+        type: MessageType.error,
       );
       return false;
     }
@@ -238,16 +245,19 @@ class DatabaseService {
       // Commit the batch
       await batch.commit();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Course deleted successfully')),
+      AppNotifier.show(
+        context,
+        'Course deleted successfully',
+        type: MessageType.success,
       );
 
       return true;
     } catch (e) {
-      print('Error deleting course: $e');
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Failed to delete course: $e')));
+        'Failed to delete course: $e',
+        type: MessageType.error,
+      );
       return false;
     }
   }
@@ -256,7 +266,6 @@ class DatabaseService {
 
   // Get lessons for a course
   Stream<List<Map<String, dynamic>>> fetchLessonsForCourse(String courseId) {
-    print("Starting stream for lessons with courseId: $courseId");
     return _firestore
         .collection('lessons')
         .where('courseId', isEqualTo: courseId)
@@ -276,7 +285,6 @@ class DatabaseService {
             return orderA.compareTo(orderB);
           });
 
-          print("Fetched ${lessons.length} lessons for course $courseId");
           return lessons;
         });
   }
@@ -295,7 +303,6 @@ class DatabaseService {
 
       return null;
     } catch (e) {
-      print('Error getting lesson by ID: $e');
       return null;
     }
   }
@@ -355,16 +362,19 @@ class DatabaseService {
         'order': newOrder,
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lesson created successfully')),
+      AppNotifier.show(
+        context,
+        'Lesson created successfully',
+        type: MessageType.success,
       );
 
       return true;
     } catch (e) {
-      print('Error creating lesson: $e');
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Failed to create lesson: $e')));
+        'Failed to create lesson: $e',
+        type: MessageType.error,
+      );
       return false;
     }
   }
@@ -397,16 +407,19 @@ class DatabaseService {
 
       await _firestore.collection('lessons').doc(lessonId).update(updateData);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lesson updated successfully')),
+      AppNotifier.show(
+        context,
+        'Lesson updated successfully',
+        type: MessageType.success,
       );
 
       return true;
     } catch (e) {
-      print('Error updating lesson: $e');
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Failed to update lesson: $e')));
+        'Failed to update lesson: $e',
+        type: MessageType.error,
+      );
       return false;
     }
   }
@@ -416,16 +429,19 @@ class DatabaseService {
     try {
       await _firestore.collection('lessons').doc(lessonId).delete();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lesson deleted successfully')),
+      AppNotifier.show(
+        context,
+        'Lesson deleted successfully',
+        type: MessageType.success,
       );
 
       return true;
     } catch (e) {
-      print('Error deleting lesson: $e');
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Failed to delete lesson: $e')));
+        'Failed to delete lesson: $e',
+        type: MessageType.error,
+      );
       return false;
     }
   }
@@ -439,9 +455,11 @@ class DatabaseService {
   }) async {
     final user = _auth.currentUser;
     if (user == null) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(const SnackBar(content: Text('User is not logged in')));
+        'User is not logged in',
+        type: MessageType.warning,
+      );
       return false;
     }
 
@@ -456,8 +474,10 @@ class DatabaseService {
         List<dynamic> enrolledStudents = courseData['enrolledStudents'] ?? [];
 
         if (enrolledStudents.contains(user.uid)) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Already enrolled in this course')),
+          AppNotifier.show(
+            context,
+            'Already enrolled in this course',
+            type: MessageType.info,
           );
           return false;
         }
@@ -469,17 +489,20 @@ class DatabaseService {
           'updatedAt': FieldValue.serverTimestamp(),
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Successfully enrolled in course!')),
+        AppNotifier.show(
+          context,
+          'Successfully enrolled in course!',
+          type: MessageType.success,
         );
 
         return true;
       }
     } catch (e) {
-      print('Error enrolling in course: $e');
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Failed to enroll in course: $e')));
+        'Failed to enroll in course: $e',
+        type: MessageType.error,
+      );
     }
     return false;
   }

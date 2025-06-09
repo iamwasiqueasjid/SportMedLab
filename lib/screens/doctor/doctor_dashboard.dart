@@ -5,7 +5,9 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:test_project/utils/custom_drawer.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
+import 'package:test_project/widgets/custom_drawer.dart';
 
 class DoctorDashboard extends StatefulWidget {
   const DoctorDashboard({super.key});
@@ -22,7 +24,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
   String? _userName;
   String? _photoUrl;
   bool _isLoading = true;
-  final List<Map<String, dynamic>> _plans = [];
+  // final List<Map<String, dynamic>> _plans = [];
 
   @override
   void initState() {
@@ -242,12 +244,10 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                           : () async {
                             if (titleController.text.isEmpty ||
                                 descriptionController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Please fill all required fields',
-                                  ),
-                                ),
+                              AppNotifier.show(
+                                context,
+                                'Please fill all required fields',
+                                type: MessageType.warning,
                               );
                               return;
                             }

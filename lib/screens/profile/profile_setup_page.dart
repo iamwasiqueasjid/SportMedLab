@@ -1,5 +1,7 @@
 import 'dart:io';
-import 'package:test_project/utils/side_bar.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
+import 'package:test_project/widgets/side_bar.dart';
 import 'package:test_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -71,15 +73,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           setState(() {
             _isUploading = false;
           });
-          ScaffoldMessenger.of(
+
+          AppNotifier.show(
             context,
-          ).showSnackBar(SnackBar(content: Text('Failed to upload image: $e')));
+            'Failed to upload image: $e',
+            type: MessageType.error,
+          );
         }
       }
     } catch (e) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
+        'Error picking image: $e',
+        type: MessageType.error,
+      );
     }
   }
 
@@ -120,16 +127,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           context: context,
         );
       } catch (e) {
-        ScaffoldMessenger.of(
+        AppNotifier.show(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error saving profile: $e')));
+          'Error saving profile: $e',
+          type: MessageType.error,
+        );
         setState(() {
           _isLoading = false;
         });
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please complete all required fields')),
+      AppNotifier.show(
+        context,
+        'Please complete all required fields',
+        type: MessageType.info,
       );
     }
   }

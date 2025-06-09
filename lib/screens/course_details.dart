@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
 
 class CourseDetailsScreen extends StatefulWidget {
   final String courseId;
@@ -25,26 +27,25 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    print("CourseDetailsScreen initialized with courseId: ${widget.courseId}");
     _loadCourseData();
   }
 
   Future<void> _loadCourseData() async {
     try {
       final data = await _databaseService.getCourseById(widget.courseId);
-      print("Course data loaded: $data");
       setState(() {
         _courseData = data;
         _isLoading = false;
       });
     } catch (e) {
-      print("Error loading course data: $e");
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error loading course: $e')));
+        'Error loading course: $e',
+        type: MessageType.error,
+      );
     }
   }
 
@@ -217,27 +218,29 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                           ? null
                           : () async {
                             if (titleController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Lesson title is required'),
-                                ),
+                              AppNotifier.show(
+                                context,
+                                'Lesson title is required',
+                                type: MessageType.warning,
                               );
                               return;
                             }
 
                             if (contentType == 'text' &&
                                 contentController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Lesson content is required'),
-                                ),
+                              AppNotifier.show(
+                                context,
+                                'Lesson content is required',
+                                type: MessageType.warning,
                               );
                               return;
                             }
 
                             if (contentType != 'text' && selectedFile == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Please upload a file')),
+                              AppNotifier.show(
+                                context,
+                                'Please upload a $contentType file',
+                                type: MessageType.warning,
                               );
                               return;
                             }
@@ -313,7 +316,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                                   ),
                             )
                             : Container(
-                              color: Colors.indigo.withOpacity(0.2),
+                              color: Colors.indigo,
                               child: Center(
                                 child: Icon(
                                   Icons.school,
@@ -385,16 +388,12 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                         }
 
                         if (snapshot.hasError) {
-                          print(
-                            "Error in lessons StreamBuilder: ${snapshot.error}",
-                          );
                           return Center(
                             child: Text('Error: ${snapshot.error}'),
                           );
                         }
 
                         final lessons = snapshot.data ?? [];
-                        print("Lessons loaded: ${lessons.length}");
 
                         if (lessons.isEmpty) {
                           return Center(
@@ -483,7 +482,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
           ListTile(
             contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             leading: CircleAvatar(
-              backgroundColor: Colors.indigo.withOpacity(0.1),
+              backgroundColor: Colors.indigo,
               child: Icon(contentIcon, color: Colors.indigo),
             ),
             title: Text(
@@ -510,10 +509,10 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   icon: Icon(Icons.edit, color: Colors.blue),
                   onPressed: () {
                     // Edit lesson functionality could be added later
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Edit lesson feature coming soon'),
-                      ),
+                    AppNotifier.show(
+                      context,
+                      'Edit lesson feature coming soon',
+                      type: MessageType.info,
                     );
                   },
                 ),
@@ -545,8 +544,10 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                       label: Text('Generate AI Content'),
                       onPressed: () async {
                         // Show loading indicator
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Generating AI content...')),
+                        AppNotifier.show(
+                          context,
+                          'Generating AI content...',
+                          type: MessageType.info,
                         );
 
                         // Call the method to generate and update AI content
@@ -557,23 +558,21 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                             );
 
                         if (success) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'AI content generated successfully',
-                              ),
-                            ),
+                          AppNotifier.show(
+                            context,
+                            'AI content generated successfully',
+                            type: MessageType.success,
                           );
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Failed to generate AI content'),
-                            ),
+                          AppNotifier.show(
+                            context,
+                            'Failed to generate AI summary or flashcards',
+                            type: MessageType.error,
                           );
                         }
                       },
                       style: TextButton.styleFrom(
-                        backgroundColor: Colors.indigo.withOpacity(0.1),
+                        backgroundColor: Colors.indigo,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -622,7 +621,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   Container(
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
+                      color: Colors.blue,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -660,7 +659,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                     Container(
                       padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
+                        color: Colors.green,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(

@@ -27,7 +27,7 @@ void main() async {
       await Firebase.initializeApp();
     }
   } catch (e) {
-    print('Firebase initialization error: $e');
+    throw Exception('Firebase initialization error: $e');
   }
 
   try {
@@ -73,7 +73,7 @@ class _MyAppState extends State<MyApp> {
       // Define all routes
       routes: {
         '/splash': (context) => const SplashScreen(),
-        '/starterPage': (context) => const starterPage(),
+        '/starterPage': (context) => const StarterPage(),
         '/auth': (context) => AuthenticationPage(),
         '/signUp': (context) => const SignUpScreen(),
         '/login': (context) => const LoginScreen(),
