@@ -1,15 +1,18 @@
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/services/auth_service.dart';
-import 'package:test_project/utils/custom_drawer.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
+import 'package:test_project/widgets/custom_drawer.dart';
 import 'package:flutter/material.dart';
 
 class PatientDashboard extends StatefulWidget {
-  const PatientDashboard({Key? key}) : super(key: key);
+  const PatientDashboard({super.key});
 
   @override
-  _PatientDashboardState createState() => _PatientDashboardState();
+  PatientDashboardState createState() => PatientDashboardState();
 }
 
-class _PatientDashboardState extends State<PatientDashboard> {
+class PatientDashboardState extends State<PatientDashboard> {
   final AuthService _authService = AuthService();
   String? _userName;
   String? _photoUrl;
@@ -25,8 +28,12 @@ class _PatientDashboardState extends State<PatientDashboard> {
     final userData = await _authService.fetchUserData();
     if (userData != null) {
       setState(() {
-        _userName = userData['displayName'];
-        _photoUrl = userData['photoURL'];
+        _userName = userData.displayName;
+        _photoUrl = userData.photoURL;
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
         _isLoading = false;
       });
     }
@@ -59,8 +66,9 @@ class _PatientDashboardState extends State<PatientDashboard> {
       body:
           _isLoading
               ? Center(
-                child: CircularProgressIndicator(
-                  color: theme.primaryColor, // Match LoginScreen
+                child: SpinKitDoubleBounce(
+                  color: Color(0xFF0A2D7B),
+                  size: 40.0,
                 ),
               )
               : Column(
@@ -90,7 +98,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
     final theme = Theme.of(context);
     return Container(
       padding: EdgeInsets.all(16),
-      color: theme.primaryColor.withOpacity(0.1), // Match DoctorDashboard
+      color: theme.primaryColor, // Match DoctorDashboard
       child: Row(
         children: [
           CircleAvatar(
@@ -309,8 +317,10 @@ class _PatientDashboardState extends State<PatientDashboard> {
                 ElevatedButton(
                   onPressed: () {
                     // TODO: Implement enroll functionality
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Enrollment not implemented')),
+                    AppNotifier.show(
+                      context,
+                      'Enrollment not implemented',
+                      type: MessageType.error,
                     );
                   },
                   style: ElevatedButton.styleFrom(

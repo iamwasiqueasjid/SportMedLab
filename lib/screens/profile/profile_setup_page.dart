@@ -1,5 +1,7 @@
 import 'dart:io';
-import 'package:test_project/utils/side_bar.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
 import 'package:test_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -24,7 +26,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   bool _isLoading = false;
   bool _isUploading = false;
   String? _uploadedImageUrl;
-  String _weightUnit = 'kg'; // Default weight unit
   String? _selectedGender;
   DateTime? _selectedDate;
   final List<String> _genders = ['Male', 'Female', 'Other'];
@@ -44,37 +45,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         source: ImageSource.gallery,
         imageQuality: 80,
       );
-
       if (image != null) {
         setState(() {
           _imageFile = File(image.path);
-          _isUploading = true;
         });
-
-        try {
-          final imageUrl = await _authService.uploadProfilePhoto(
-            filePath: image.path,
-            context: context,
-          );
-
-          if (imageUrl != null) {
-            setState(() {
-              _uploadedImageUrl = imageUrl;
-              _isUploading = false;
-            });
-          } else {
-            setState(() {
-              _isUploading = false;
-            });
-          }
-        } catch (e) {
-          setState(() {
-            _isUploading = false;
-          });
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Failed to upload image: $e')));
-        }
       }
     } catch (e) {
       ScaffoldMessenger.of(
@@ -105,12 +79,25 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       });
 
       try {
+        // Upload image to Cloudinary if selected
+        if (_imageFile != null) {
+          setState(() {
+            _isUploading = true;
+          });
+          final imageUrl = await _authService.uploadProfilePhoto(
+            filePath: _imageFile!.path,
+            context: context,
+          );
+          setState(() {
+            _uploadedImageUrl = imageUrl;
+            _isUploading = false;
+          });
+        }
         await _authService.saveProfileData(
           name: _nameController.text,
           role: 'Patient',
           photoURL: _uploadedImageUrl,
           weight: double.tryParse(_weightController.text) ?? 0.0,
-          weightUnit: _weightUnit,
           height: double.tryParse(_heightController.text) ?? 0.0,
           gender: _selectedGender ?? '',
           dateOfBirth:
@@ -120,16 +107,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           context: context,
         );
       } catch (e) {
-        ScaffoldMessenger.of(
+        AppNotifier.show(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error saving profile: $e')));
+          'Error saving profile: $e',
+          type: MessageType.error,
+        );
         setState(() {
           _isLoading = false;
         });
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please complete all required fields')),
+      AppNotifier.show(
+        context,
+        'Please complete all required fields',
+        type: MessageType.info,
       );
     }
   }
@@ -156,12 +147,17 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               ),
         ),
       ),
-      drawer: CustomSidebar(
-        userName: _nameController.text.isEmpty ? "User" : _nameController.text,
-      ),
+      // drawer: CustomSidebar(
+      //   userName: _nameController.text.isEmpty ? "User" : _nameController.text,
+      // ),
       body:
           _isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                child: SpinKitDoubleBounce(
+                  color: Color(0xFF0A2D7B),
+                  size: 40.0,
+                ),
+              )
               : SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(
@@ -216,10 +212,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                   child:
                                       _isUploading
                                           ? Center(
-                                            child: CircularProgressIndicator(
-                                              color:
-                                                  theme
-                                                      .primaryColor, // Match LoginScreen
+                                            child: SpinKitDoubleBounce(
+                                              color: Color(0xFF0A2D7B),
+                                              size: 40.0,
                                             ),
                                           )
                                           : ClipOval(
@@ -358,7 +353,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                       width: 2,
                                     ),
                                   ),
-                                  suffixText: _weightUnit,
+                                  suffixText: 'kg',
                                   suffixStyle: TextStyle(
                                     color: theme.primaryColor,
                                   ), // Match LoginScreen
@@ -373,38 +368,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                   return null;
                                 },
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            DropdownButton<String>(
-                              value: _weightUnit,
-                              items:
-                                  ['kg', 'lb']
-                                      .map(
-                                        (unit) => DropdownMenuItem(
-                                          value: unit,
-                                          child: Text(
-                                            unit,
-                                            style: TextStyle(
-                                              color: theme.primaryColor,
-                                            ), // Match LoginScreen
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
-                              onChanged: (value) {
-                                if (value != null) {
-                                  setState(() {
-                                    _weightUnit = value;
-                                  });
-                                }
-                              },
-                              style: TextStyle(
-                                color: theme.primaryColor,
-                              ), // Match LoginScreen
-                              dropdownColor:
-                                  Colors.grey[100], // Match LoginScreen
-                              iconEnabledColor:
-                                  theme.primaryColor, // Match LoginScreen
                             ),
                           ],
                         ),
@@ -588,8 +551,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                             ),
                             child:
                                 _isLoading
-                                    ? CircularProgressIndicator(
-                                      color: Colors.white, // Match LoginScreen
+                                    ? SpinKitDoubleBounce(
+                                      color: theme.primaryColor,
+                                      size: 40.0,
                                     )
                                     : const Text(
                                       'Continue',

@@ -1,9 +1,12 @@
 import 'dart:io';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:test_project/utils/custom_drawer.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
+import 'package:test_project/widgets/custom_drawer.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -26,7 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isUploading = false;
   bool _isEditing = false;
   String? _uploadedImageUrl;
-  String _weightUnit = 'kg';
+  String _role = 'Patient';
   String? _selectedGender;
   DateTime? _selectedDate;
   final List<String> _genders = ['Male', 'Female', 'Other'];
@@ -54,26 +57,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final userData = await _authService.fetchUserData();
       if (userData != null) {
         setState(() {
-          _emailController.text = userData['email'] ?? '';
-          _nameController.text = userData['displayName'] ?? '';
-          _weightController.text = userData['weight']?.toString() ?? '';
-          _heightController.text = userData['height']?.toString() ?? '';
-          _weightUnit = userData['weightUnit'] ?? 'kg';
-          _selectedGender = userData['gender'];
-          _uploadedImageUrl = userData['photoURL'];
-          if (userData['dateOfBirth'] != null &&
-              userData['dateOfBirth'].isNotEmpty) {
-            _selectedDate = DateFormat(
-              'yyyy-MM-dd',
-            ).parse(userData['dateOfBirth']);
+          _emailController.text = userData.email;
+          _nameController.text = userData.displayName;
+          _uploadedImageUrl = userData.photoURL;
+          _role = userData.role;
+
+          // Check if userData has additional properties (for Patient role)
+          // Since User type doesn't have weight, height, gender, dateOfBirth properties,
+          // we'll use dynamic access or create default values
+          try {
+            final userDataMap = userData as dynamic;
+            if (userDataMap.role == 'Patient') {
+              _weightController.text = (userDataMap.weight?.toString()) ?? '';
+              _heightController.text = (userDataMap.height?.toString()) ?? '';
+              _selectedGender = userDataMap.gender;
+              if (userDataMap.dateOfBirth != null &&
+                  userDataMap.dateOfBirth.isNotEmpty) {
+                try {
+                  _selectedDate = DateFormat(
+                    'yyyy-MM-dd',
+                  ).parse(userDataMap.dateOfBirth);
+                } catch (e) {
+                  _selectedDate = null; // Handle invalid date format
+                }
+              }
+            } else {
+              // Default values for Doctor or other roles
+              _weightController.text = '';
+              _heightController.text = '';
+              _selectedGender = null;
+              _selectedDate = null;
+            }
+          } catch (e) {
+            // If dynamic access fails, set default values
+            _weightController.text = '';
+            _heightController.text = '';
+            _selectedGender = null;
+            _selectedDate = null;
           }
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
           _isLoading = false;
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error loading profile: $e')));
+        'Error loading profile: $e',
+        type: MessageType.error,
+      );
       setState(() {
         _isLoading = false;
       });
@@ -81,43 +115,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _pickImage() async {
-    if (!_isEditing) return;
     try {
       final XFile? image = await _picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 80,
       );
-
       if (image != null) {
         setState(() {
           _imageFile = File(image.path);
-          _isUploading = true;
         });
-
-        try {
-          final imageUrl = await _authService.uploadProfilePhoto(
-            filePath: image.path,
-            context: context,
-          );
-
-          if (imageUrl != null) {
-            setState(() {
-              _uploadedImageUrl = imageUrl;
-              _isUploading = false;
-            });
-          } else {
-            setState(() {
-              _isUploading = false;
-            });
-          }
-        } catch (e) {
-          setState(() {
-            _isUploading = false;
-          });
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Failed to upload image: $e')));
-        }
       }
     } catch (e) {
       ScaffoldMessenger.of(
@@ -148,12 +154,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
 
       try {
+        // Upload image to Cloudinary if selected
+        if (_imageFile != null) {
+          setState(() {
+            _isUploading = true;
+          });
+          final imageUrl = await _authService.uploadProfilePhoto(
+            filePath: _imageFile!.path,
+            context: context,
+          );
+          setState(() {
+            _uploadedImageUrl = imageUrl;
+            _isUploading = false;
+          });
+        }
         await _authService.saveProfileData(
           name: _nameController.text,
-          role: 'Patient', // Role remains Patient as per your logic
+          role: _role,
           photoURL: _uploadedImageUrl,
           weight: double.tryParse(_weightController.text) ?? 0.0,
-          weightUnit: _weightUnit,
           height: double.tryParse(_heightController.text) ?? 0.0,
           gender: _selectedGender ?? '',
           dateOfBirth:
@@ -166,20 +185,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _isEditing = false;
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully')),
+
+        AppNotifier.show(
+          context,
+          'Profile updated successfully',
+          type: MessageType.success,
         );
       } catch (e) {
-        ScaffoldMessenger.of(
+        AppNotifier.show(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error updating profile: $e')));
+          'Error updating profile: $e',
+          type: MessageType.error,
+        );
         setState(() {
           _isLoading = false;
         });
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please complete all required fields')),
+      AppNotifier.show(
+        context,
+        'Please complete all required fields',
+        type: MessageType.info,
       );
     }
   }
@@ -239,7 +265,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body:
           _isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                child: SpinKitDoubleBounce(
+                  color: Color(0xFF0A2D7B),
+                  size: 40.0,
+                ),
+              )
               : SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(
@@ -285,8 +316,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   child:
                                       _isUploading
                                           ? Center(
-                                            child: CircularProgressIndicator(
-                                              color: theme.primaryColor,
+                                            child: SpinKitDoubleBounce(
+                                              color: Color(0xFF0A2D7B),
+                                              size: 40.0,
                                             ),
                                           )
                                           : ClipOval(
@@ -334,19 +366,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ],
                           ),
                         ),
-                        if (_uploadedImageUrl != null && _isEditing)
-                          Center(
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                'Image uploaded successfully!',
-                                style: TextStyle(
-                                  color: Colors.green,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                          ),
+
                         const SizedBox(height: 24),
                         Text(
                           'Your Name',
@@ -425,7 +445,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       color: Colors.grey[300]!,
                                     ),
                                   ),
-                                  suffixText: _weightUnit,
+                                  suffixText: 'kg',
                                   suffixStyle: TextStyle(
                                     color: theme.primaryColor,
                                   ),
@@ -441,35 +461,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 },
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            if (_isEditing)
-                              DropdownButton<String>(
-                                value: _weightUnit,
-                                items:
-                                    ['kg', 'lb']
-                                        .map(
-                                          (unit) => DropdownMenuItem(
-                                            value: unit,
-                                            child: Text(
-                                              unit,
-                                              style: TextStyle(
-                                                color: theme.primaryColor,
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                        .toList(),
-                                onChanged: (value) {
-                                  if (value != null) {
-                                    setState(() {
-                                      _weightUnit = value;
-                                    });
-                                  }
-                                },
-                                style: TextStyle(color: theme.primaryColor),
-                                dropdownColor: Colors.grey[100],
-                                iconEnabledColor: theme.primaryColor,
-                              ),
+                            // const SizedBox(width: 8),
+                            // if (_isEditing)
                           ],
                         ),
                         const SizedBox(height: 24),
@@ -620,15 +613,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               style: TextStyle(color: theme.primaryColor),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 24),
-                        ElevatedButton(
-                          onPressed:
-                              () => _authService.resetPassword(
-                                email: _emailController.text,
-                                context: context,
-                              ),
-                          child: Text("RESET PASSWORD"),
                         ),
                       ],
                     ),

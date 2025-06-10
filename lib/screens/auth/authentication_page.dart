@@ -1,14 +1,17 @@
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
 
 class AuthenticationPage extends StatefulWidget {
   const AuthenticationPage({super.key});
 
   @override
-  _AuthenticationPageState createState() => _AuthenticationPageState();
+  AuthenticationPageState createState() => AuthenticationPageState();
 }
 
-class _AuthenticationPageState extends State<AuthenticationPage> {
+class AuthenticationPageState extends State<AuthenticationPage> {
   final PageController _pageController = PageController();
   final _authService = AuthService();
   int _currentPage = 0;
@@ -209,27 +212,15 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                                     });
 
                                     try {
-                                      bool success = await _authService
-                                          .signInWithGoogle(context: context);
-
-                                      if (success) {
-                                        // Navigation is handled automatically in AuthService
-                                        // based on user role and whether it's a new user
-                                        print('Google sign-in successful');
-                                      }
+                                      await _authService.signInWithGoogle(
+                                        context: context,
+                                      );
                                     } catch (e) {
-                                      print('Google sign-in error: $e');
                                       if (mounted) {
-                                        ScaffoldMessenger.of(
+                                        AppNotifier.show(
                                           context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              'Google sign-in failed. Please try again.',
-                                            ),
-                                            backgroundColor: Colors.red,
-                                            duration: Duration(seconds: 3),
-                                          ),
+                                          'Google sign-in failed. Please try again.',
+                                          type: MessageType.error,
                                         );
                                       }
                                     } finally {
@@ -262,9 +253,12 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
           // Loading Overlay
           if (_isLoading)
             Container(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.white,
               child: Center(
-                child: CircularProgressIndicator(color: primaryColor),
+                child: SpinKitDoubleBounce(
+                  color: Color(0xFF0A2D7B),
+                  size: 40.0,
+                ),
               ),
             ),
         ],

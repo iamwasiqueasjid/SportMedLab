@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:test_project/services/auth_service.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
 // import 'package:test_project/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  LoginScreenState createState() => LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
   final TextEditingController _emailController = TextEditingController();
@@ -38,9 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
               left: 16,
               child: IconButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(
-                    theme.primaryColor,
-                  ),
+                  backgroundColor: WidgetStateProperty.all(theme.primaryColor),
                 ),
                 icon: Icon(Icons.arrow_back, color: Colors.white, size: 35),
                 onPressed: () {
@@ -64,19 +64,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // 👋 Welcome Text
-                          Row(
-                            children: [
-                              Text(
-                                "Welcome Back,",
-                                style: TextStyle(
-                                  fontSize: 45,
-                                  fontWeight: FontWeight.bold,
-                                  color: theme.primaryColor,
-                                ),
-                              ),
-                            ],
+                          Text(
+                            "Welcome Back,",
+                            style: TextStyle(
+                              fontSize: 50,
+                              fontWeight: FontWeight.bold,
+                              color: theme.primaryColor,
+                            ),
                           ),
-                          const SizedBox(height: 6),
                           Text(
                             "Make it work, make it fast, make it right.",
                             style: TextStyle(
@@ -118,8 +113,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             validator: (value) {
-                              if (value?.isEmpty ?? true)
+                              if (value?.isEmpty ?? true) {
                                 return 'Please enter your email';
+                              }
                               if (!RegExp(
                                 r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                               ).hasMatch(value!)) {
@@ -176,10 +172,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             validator: (value) {
-                              if (value?.isEmpty ?? true)
+                              if (value?.isEmpty ?? true) {
                                 return 'Please enter your password';
-                              if (value!.length < 6)
+                              }
+                              if (value!.length < 6) {
                                 return 'Password must be at least 6 characters';
+                              }
                               return null;
                             },
                           ),
@@ -207,7 +205,18 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  // Forgot password logic
+                                  if (_emailController.text.trim().isEmpty) {
+                                    AppNotifier.show(
+                                      context,
+                                      'Please enter your Email first...',
+                                      type: MessageType.warning,
+                                    );
+                                    return;
+                                  }
+                                  _authService.resetPassword(
+                                    email: _emailController.text,
+                                    context: context,
+                                  );
                                 },
                                 child: Text(
                                   'Forgot Password?',

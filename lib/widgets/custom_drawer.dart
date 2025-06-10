@@ -1,5 +1,7 @@
 import 'package:test_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
 
 class CustomDrawer extends StatelessWidget {
   final String? userName;
@@ -7,16 +9,16 @@ class CustomDrawer extends StatelessWidget {
   final String role;
 
   const CustomDrawer({
-    Key? key,
+    super.key,
     this.userName,
     this.photoUrl,
     required this.role,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final AuthService _authService = AuthService();
+    final AuthService authService = AuthService();
     final currentRoute = ModalRoute.of(context)?.settings.name;
 
     return Drawer(
@@ -63,12 +65,12 @@ class CustomDrawer extends StatelessWidget {
             selected:
                 currentRoute == '/doctorDashboard' ||
                 currentRoute == '/patientDashboard',
-            selectedTileColor: theme.primaryColor.withOpacity(0.1),
+            selectedTileColor: theme.primaryColor,
             onTap: () async {
               Navigator.pop(context); // Close the drawer
 
               try {
-                final userRole = await _authService.getUserRole();
+                final userRole = await authService.getUserRole();
                 final targetRoute =
                     userRole == 'Doctor'
                         ? '/doctorDashboard'
@@ -78,15 +80,19 @@ class CustomDrawer extends StatelessWidget {
                   Navigator.pushReplacementNamed(context, targetRoute);
                 } else {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Already on $userRole Dashboard')),
+                    AppNotifier.show(
+                      context,
+                      'Already on $userRole Dashboard',
+                      type: MessageType.info,
                     );
                   });
                 }
               } catch (e) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error fetching role: $e')),
+                  AppNotifier.show(
+                    context,
+                    'Error fetching role: $e',
+                    type: MessageType.error,
                   );
                 });
 
@@ -100,7 +106,7 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.person, color: theme.primaryColor),
             title: Text('Profile', style: TextStyle(color: theme.primaryColor)),
             selected: currentRoute == '/profile',
-            selectedTileColor: theme.primaryColor.withOpacity(0.1),
+            selectedTileColor: theme.primaryColor,
             onTap: () {
               Navigator.pop(context);
 
@@ -112,7 +118,7 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.logout, color: theme.primaryColor),
             title: Text('Logout', style: TextStyle(color: theme.primaryColor)),
             onTap: () {
-              _authService.signOut(context);
+              authService.signOut(context);
             },
           ),
         ],

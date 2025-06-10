@@ -1,3 +1,5 @@
+import 'package:test_project/models/course.dart';
+import 'package:test_project/models/lesson.dart';
 import 'package:test_project/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -5,12 +7,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class CourseDetailsScreen extends StatefulWidget {
   final String courseId;
 
-  const CourseDetailsScreen({Key? key, required this.courseId})
-    : super(key: key);
+  const CourseDetailsScreen({super.key, required this.courseId});
 
   @override
   State<CourseDetailsScreen> createState() => _CourseDetailsScreenState();
@@ -20,32 +24,31 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
   final DatabaseService _databaseService = DatabaseService();
   final ImagePicker _imagePicker = ImagePicker();
 
-  Map<String, dynamic>? _courseData;
+  Course? _courseData;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    print("CourseDetailsScreen initialized with courseId: ${widget.courseId}");
     _loadCourseData();
   }
 
   Future<void> _loadCourseData() async {
     try {
       final data = await _databaseService.getCourseById(widget.courseId);
-      print("Course data loaded: $data");
       setState(() {
         _courseData = data;
         _isLoading = false;
       });
     } catch (e) {
-      print("Error loading course data: $e");
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error loading course: $e')));
+        'Error loading course: $e',
+        type: MessageType.error,
+      );
     }
   }
 
@@ -200,7 +203,12 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                     if (isSaving)
                       Padding(
                         padding: const EdgeInsets.only(top: 16.0),
-                        child: Center(child: CircularProgressIndicator()),
+                        child: Center(
+                          child: SpinKitDoubleBounce(
+                            color: Color(0xFF0A2D7B),
+                            size: 40.0,
+                          ),
+                        ),
                       ),
                   ],
                 ),
@@ -213,33 +221,34 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   },
                 ),
                 TextButton(
-                  child: Text('Save'),
                   onPressed:
                       isSaving
                           ? null
                           : () async {
                             if (titleController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Lesson title is required'),
-                                ),
+                              AppNotifier.show(
+                                context,
+                                'Lesson title is required',
+                                type: MessageType.warning,
                               );
                               return;
                             }
 
                             if (contentType == 'text' &&
                                 contentController.text.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Lesson content is required'),
-                                ),
+                              AppNotifier.show(
+                                context,
+                                'Lesson content is required',
+                                type: MessageType.warning,
                               );
                               return;
                             }
 
                             if (contentType != 'text' && selectedFile == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Please upload a file')),
+                              AppNotifier.show(
+                                context,
+                                'Please upload a $contentType file',
+                                type: MessageType.warning,
                               );
                               return;
                             }
@@ -265,6 +274,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                               });
                             }
                           },
+                  child: Text('Save'),
                 ),
               ],
             );
@@ -279,28 +289,31 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _isLoading
-              ? 'Course Details'
-              : 'Course: ${_courseData?['title'] ?? ''}',
+          _isLoading ? 'Course Details' : 'Course: ${_courseData?.title ?? ''}',
         ),
         backgroundColor: Colors.indigo,
       ),
       body:
           _isLoading
-              ? Center(child: CircularProgressIndicator())
+              ? Center(
+                child: SpinKitDoubleBounce(
+                  color: Color(0xFF0A2D7B),
+                  size: 40.0,
+                ),
+              )
               : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Course header
-                  Container(
+                  SizedBox(
                     height: 180,
                     width: double.infinity,
                     child:
                         _courseData != null &&
-                                _courseData!['coverImageUrl'] != null &&
-                                _courseData!['coverImageUrl'].isNotEmpty
+                                _courseData!.coverImageUrl != null &&
+                                _courseData!.coverImageUrl!.isNotEmpty
                             ? Image.network(
-                              _courseData!['coverImageUrl'],
+                              _courseData!.coverImageUrl!,
                               fit: BoxFit.cover,
                               errorBuilder:
                                   (_, __, ___) => Container(
@@ -314,7 +327,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                                   ),
                             )
                             : Container(
-                              color: Colors.indigo.withOpacity(0.2),
+                              color: Colors.indigo,
                               child: Center(
                                 child: Icon(
                                   Icons.school,
@@ -331,7 +344,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                       children: [
                         Text(
                           _courseData != null
-                              ? (_courseData!['title'] ?? 'Untitled Course')
+                              ? (_courseData!.title ?? 'Untitled Course')
                               : 'Untitled Course',
                           style: TextStyle(
                             fontSize: 24,
@@ -341,8 +354,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                         SizedBox(height: 8),
                         Text(
                           _courseData != null
-                              ? (_courseData!['description'] ??
-                                  'No description')
+                              ? (_courseData!.description ?? 'No description')
                               : 'No description',
                           style: TextStyle(
                             fontSize: 16,
@@ -375,27 +387,28 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   ),
                   // Lessons list
                   Expanded(
-                    child: StreamBuilder<List<Map<String, dynamic>>>(
+                    child: StreamBuilder<List<Lesson>>(
                       stream: _databaseService.fetchLessonsForCourse(
                         widget.courseId,
                       ),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
+                          return Center(
+                            child: SpinKitDoubleBounce(
+                              color: Color(0xFF0A2D7B),
+                              size: 40.0,
+                            ),
+                          );
                         }
 
                         if (snapshot.hasError) {
-                          print(
-                            "Error in lessons StreamBuilder: ${snapshot.error}",
-                          );
                           return Center(
                             child: Text('Error: ${snapshot.error}'),
                           );
                         }
 
                         final lessons = snapshot.data ?? [];
-                        print("Lessons loaded: ${lessons.length}");
 
                         if (lessons.isEmpty) {
                           return Center(
@@ -433,7 +446,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                           itemCount: lessons.length,
                           itemBuilder: (context, index) {
                             final lesson = lessons[index];
-                            return _buildLessonCard(lesson);
+                            return _buildLessonCard(lesson.toMap());
                           },
                         );
                       },
@@ -444,8 +457,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddLessonDialog,
         backgroundColor: Colors.indigo,
-        child: Icon(Icons.add),
         tooltip: 'Add New Lesson',
+        child: Icon(Icons.add),
       ),
     );
   }
@@ -484,7 +497,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
           ListTile(
             contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             leading: CircleAvatar(
-              backgroundColor: Colors.indigo.withOpacity(0.1),
+              backgroundColor: Colors.indigo,
               child: Icon(contentIcon, color: Colors.indigo),
             ),
             title: Text(
@@ -511,10 +524,10 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   icon: Icon(Icons.edit, color: Colors.blue),
                   onPressed: () {
                     // Edit lesson functionality could be added later
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Edit lesson feature coming soon'),
-                      ),
+                    AppNotifier.show(
+                      context,
+                      'Edit lesson feature coming soon',
+                      type: MessageType.info,
                     );
                   },
                 ),
@@ -546,8 +559,10 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                       label: Text('Generate AI Content'),
                       onPressed: () async {
                         // Show loading indicator
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Generating AI content...')),
+                        AppNotifier.show(
+                          context,
+                          'Generating AI content...',
+                          type: MessageType.info,
                         );
 
                         // Call the method to generate and update AI content
@@ -558,23 +573,21 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                             );
 
                         if (success) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'AI content generated successfully',
-                              ),
-                            ),
+                          AppNotifier.show(
+                            context,
+                            'AI content generated successfully',
+                            type: MessageType.success,
                           );
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Failed to generate AI content'),
-                            ),
+                          AppNotifier.show(
+                            context,
+                            'Failed to generate AI summary or flashcards',
+                            type: MessageType.error,
                           );
                         }
                       },
                       style: TextButton.styleFrom(
-                        backgroundColor: Colors.indigo.withOpacity(0.1),
+                        backgroundColor: Colors.indigo,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -623,7 +636,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   Container(
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
+                      color: Colors.blue,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -656,12 +669,12 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
 
                   // If no flashcards are available
                   if (lesson['flashcards'] == null ||
-                      !(lesson['flashcards'] is List) ||
+                      lesson['flashcards'] is! List ||
                       (lesson['flashcards'] as List).isEmpty)
                     Container(
                       padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
+                        color: Colors.green,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(

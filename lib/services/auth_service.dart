@@ -1,21 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:test_project/models/user.dart'; // Import the new model
 import 'package:test_project/services/cloudinary_service.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final firebase_auth.FirebaseAuth _auth = firebase_auth.FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final CloudinaryService _cloudinaryService = CloudinaryService();
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // Get current user
-  User? get currentUser => _auth.currentUser;
+  firebase_auth.User? get currentUser => _auth.currentUser;
 
   // Auth state changes stream
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  Stream<firebase_auth.User?> get authStateChanges => _auth.authStateChanges();
 
   // Email/Password Login
   Future<bool> login({
@@ -24,27 +27,31 @@ class AuthService {
     required BuildContext context,
   }) async {
     try {
-      final UserCredential userCredential = await _auth
+      final firebase_auth.UserCredential userCredential = await _auth
           .signInWithEmailAndPassword(email: email, password: password);
 
       if (userCredential.user != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Logged in successfully!')),
+        AppNotifier.show(
+          context,
+          'Logged in successfully!',
+          type: MessageType.success,
         );
 
         // Check user role and navigate to appropriate screen
         final userData = await fetchUserData();
-        if (userData != null && userData['role'] == 'Doctor') {
+        if (userData != null && userData.role == 'Doctor') {
           Navigator.pushReplacementNamed(context, '/doctorDashboard');
         } else {
           Navigator.pushReplacementNamed(context, '/patientDashboard');
         }
         return true;
       }
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Login failed: ${e.message}')));
+        'Login failed: ${e.message}',
+        type: MessageType.error,
+      );
       return false;
     }
     return false;
@@ -60,7 +67,11 @@ class AuthService {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
-        // User canceled the sign-in
+        AppNotifier.show(
+          context,
+          'User canceled the Sign-In process.',
+          type: MessageType.error,
+        );
         return false;
       }
 
@@ -69,33 +80,43 @@ class AuthService {
           await googleUser.authentication;
 
       // Create a new credential
-      final credential = GoogleAuthProvider.credential(
+      final credential = firebase_auth.GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
       // Sign in to Firebase with the Google credential
-      final UserCredential userCredential = await _auth.signInWithCredential(
-        credential,
-      );
+      final firebase_auth.UserCredential userCredential = await _auth
+          .signInWithCredential(credential);
 
       if (userCredential.user != null) {
         final user = userCredential.user!;
 
         // Check if this is a new user
         if (userCredential.additionalUserInfo?.isNewUser == true) {
-          // Create user document in Firestore for new users
-          await _firestore.collection('users').doc(user.uid).set({
-            'displayName': user.displayName ?? '',
-            'email': user.email ?? '',
-            'photoURL': user.photoURL ?? '',
-            'createdAt': FieldValue.serverTimestamp(),
-            'updatedAt': FieldValue.serverTimestamp(),
-            'authProvider': 'google',
-          });
+          // Create a new Doctor or Patient based on default role
+          final newUser = Patient(
+            uid: user.uid,
+            email: user.email ?? '',
+            displayName: user.displayName ?? '',
+            photoURL: user.photoURL,
+            weight: 0.0, // Default weight, can be updated later
+            height: 0.0, // Default height, can be updated later
+            gender: '', // Default gender value, can be updated later
+            dateOfBirth: '', // Default DOB value, can be updated later
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Account created successfully!')),
+          await _firestore
+              .collection('users')
+              .doc(user.uid)
+              .set(newUser.toMap());
+
+          AppNotifier.show(
+            context,
+            'Account created successfully!',
+            type: MessageType.success,
           );
 
           // Navigate to profile setup for new users
@@ -107,13 +128,15 @@ class AuthService {
             'updatedAt': FieldValue.serverTimestamp(),
           });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Logged in successfully!')),
+          AppNotifier.show(
+            context,
+            'Logged in successfully!',
+            type: MessageType.success,
           );
 
           // Check user role and navigate to appropriate screen
           final userData = await fetchUserData();
-          if (userData != null && userData['role'] == 'Doctor') {
+          if (userData != null && userData.role == 'Doctor') {
             Navigator.pushReplacementNamed(context, '/doctorDashboard');
           } else {
             Navigator.pushReplacementNamed(context, '/patientDashboard');
@@ -122,15 +145,19 @@ class AuthService {
 
         return true;
       }
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Google sign-in failed: ${e.message}')),
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      AppNotifier.show(
+        context,
+        'Google sign-in failed: ${e.message}',
+        type: MessageType.error,
       );
       return false;
     } catch (e) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('An error occurred: $e')));
+        'An error occurred: $e',
+        type: MessageType.error,
+      );
       return false;
     }
     return false;
@@ -143,20 +170,39 @@ class AuthService {
     required BuildContext context,
   }) async {
     try {
-      final UserCredential credential = await _auth
+      final firebase_auth.UserCredential credential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
 
       if (credential.user != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User created successfully!')),
+        // Create a new Patient by default
+        final newUser = Patient(
+          uid: credential.user!.uid,
+          email: email,
+          displayName: '',
+          weight: 0.0,
+          height: 0.0,
+          gender: '',
+          dateOfBirth: '',
+        );
+        await _firestore
+            .collection('users')
+            .doc(credential.user!.uid)
+            .set(newUser.toMap());
+
+        AppNotifier.show(
+          context,
+          'User created successfully!',
+          type: MessageType.success,
         );
         Navigator.pushNamed(context, '/profileSetup');
         return true;
       }
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Sign up failed: ${e.message}')));
+        'Sign up failed: ${e.message}',
+        type: MessageType.error,
+      );
       return false;
     }
     return false;
@@ -172,16 +218,21 @@ class AuthService {
 
       await _auth.signOut().then(
         (value) => {
-          ScaffoldMessenger.of(
+          AppNotifier.show(
             context,
-          ).showSnackBar(const SnackBar(content: Text('Log Out Successfully'))),
+            'Logged Out Successfully',
+            type: MessageType.info,
+          ),
+
           Navigator.pushReplacementNamed(context, '/login'),
         },
       );
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Sign out failed: ${e.message}')));
+        'Log out failed: ${e.message}',
+        type: MessageType.error,
+      );
     }
   }
 
@@ -192,9 +243,11 @@ class AuthService {
   }) async {
     final user = _auth.currentUser;
     if (user == null) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(const SnackBar(content: Text('User is not logged in')));
+        'User is not Logged In',
+        type: MessageType.warning,
+      );
       return null;
     }
 
@@ -202,108 +255,88 @@ class AuthService {
       // Upload to Cloudinary
       final String? imageUrl = await _cloudinaryService.uploadToCloudinary(
         filePath,
-        dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? '',
+        dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
       );
-
-      print('Cloudinary upload complete, URL: $imageUrl');
-
       if (imageUrl != null && imageUrl.isNotEmpty) {
-        try {
-          // First check if the document exists
-          DocumentSnapshot docSnapshot =
-              await _firestore.collection('users').doc(user.uid).get();
-
-          if (docSnapshot.exists) {
-            // If document exists, update it
-            await _firestore.collection('users').doc(user.uid).update({
-              'photoURL': imageUrl,
-              'updatedAt': FieldValue.serverTimestamp(),
-            });
-          } else {
-            // If document doesn't exist, create it with set()
-            await _firestore.collection('users').doc(user.uid).set({
-              'photoURL': imageUrl,
-              'email': user.email,
-              'createdAt': FieldValue.serverTimestamp(),
-              'updatedAt': FieldValue.serverTimestamp(),
-            });
-          }
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Profile photo updated successfully!'),
-            ),
-          );
-
-          return imageUrl;
-        } catch (firestoreError) {
-          print('Firestore error: $firestoreError');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error saving photo URL: $firestoreError')),
-          );
-          // Still return the URL even if Firestore update failed
-          return imageUrl;
-        }
+        await _firestore.collection('users').doc(user.uid).update({
+          'photoURL': imageUrl,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+        AppNotifier.show(
+          context,
+          'Profile photo updated successfully!',
+          type: MessageType.success,
+        );
+        return imageUrl;
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to upload profile photo')),
+        AppNotifier.show(
+          context,
+          'Failed to upload profile photo',
+          type: MessageType.error,
         );
         return null;
       }
     } catch (e) {
-      print('Profile photo upload error: $e');
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error uploading photo: $e')));
+        'Error uploading photo: $e',
+        type: MessageType.error,
+      );
       return null;
     }
   }
 
-  // Check the user role
+  // Fetch user data
+  Future<User?> fetchUserData() async {
+    try {
+      firebase_auth.User? currentUser = _auth.currentUser;
+      if (currentUser != null) {
+        DocumentSnapshot userDoc =
+            await _firestore.collection('users').doc(currentUser.uid).get();
+
+        if (userDoc.exists) {
+          return User.fromMap(
+            userDoc.data() as Map<String, dynamic>,
+            currentUser.uid,
+          );
+        }
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Failed to fetch user data: $e');
+    }
+  }
+
+  // Get user role
   Future<String?> getUserRole() async {
-    try {
-      User? currentUser = _auth.currentUser;
-      if (currentUser != null) {
-        DocumentSnapshot userDoc =
-            await _firestore.collection('users').doc(currentUser.uid).get();
-
-        if (userDoc.exists) {
-          final userData = userDoc.data() as Map<String, dynamic>;
-          return userData['role'] as String?;
-        }
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
+    final userData = await fetchUserData();
+    return userData?.role;
   }
 
-  // Fetch user data from Firestore
-  Future<Map<String, dynamic>?> fetchUserData() async {
-    try {
-      User? currentUser = _auth.currentUser;
-      if (currentUser != null) {
-        DocumentSnapshot userDoc =
-            await _firestore.collection('users').doc(currentUser.uid).get();
+  // // Fetch user data from Firestore
+  // Future<Map<String, dynamic>?> fetchUserData() async {
+  //   try {
+  //     firebase_auth.User? currentUser = _auth.currentUser;
+  //     if (currentUser != null) {
+  //       DocumentSnapshot userDoc =
+  //           await _firestore.collection('users').doc(currentUser.uid).get();
 
-        if (userDoc.exists) {
-          return userDoc.data() as Map<String, dynamic>;
-        }
-      }
-      return null;
-    } catch (e) {
-      print('Error fetching user data: $e');
-      return null;
-    }
-  }
+  //       if (userDoc.exists) {
+  //         return userDoc.data() as Map<String, dynamic>;
+  //       }
+  //     }
+  //     return null;
+  //   } catch (e) {
+  //     throw Exception('Failed to fetch user data: $e');
+  //   }
+  // }
 
-  // Save profile data to Firestore
+  // Save profile data
   Future<bool> saveProfileData({
     required String name,
     required String role,
     String? photoURL,
     required double weight,
-    required String weightUnit,
     required double height,
     required String gender,
     required String dateOfBirth,
@@ -311,62 +344,61 @@ class AuthService {
   }) async {
     final user = _auth.currentUser;
     if (user == null) {
-      ScaffoldMessenger.of(
+      AppNotifier.show(
         context,
-      ).showSnackBar(const SnackBar(content: Text('User is not logged in')));
+        'User is not logged in',
+        type: MessageType.warning,
+      );
       return false;
     }
 
     try {
-      // Create the data map with all profile fields
-      Map<String, dynamic> userData = {
-        'displayName': name,
-        'email': user.email,
-        'role': role,
-        'weight': weight,
-        'weightUnit': weightUnit,
-        'height': height,
-        'gender': gender,
-        'dateOfBirth': dateOfBirth,
-        'updatedAt': FieldValue.serverTimestamp(),
-      };
-
-      // Only add photoURL if it's provided and not empty
-      if (photoURL != null && photoURL.isNotEmpty) {
-        userData['photoURL'] = photoURL;
+      User userModel;
+      if (role == 'Doctor') {
+        userModel = Doctor(
+          uid: user.uid,
+          email: user.email ?? '',
+          displayName: name,
+          photoURL: photoURL,
+          createdAt: user.metadata.creationTime,
+          updatedAt: DateTime.now(),
+        );
+      } else {
+        userModel = Patient(
+          uid: user.uid,
+          email: user.email ?? '',
+          displayName: name,
+          photoURL: photoURL,
+          weight: weight,
+          height: height,
+          gender: gender,
+          dateOfBirth: dateOfBirth,
+          createdAt: user.metadata.creationTime,
+          updatedAt: DateTime.now(),
+        );
       }
 
-      // Check if this is a new user
-      DocumentSnapshot userDoc =
-          await _firestore.collection('users').doc(user.uid).get();
-
-      if (!userDoc.exists) {
-        // Add createdAt for new users
-        userData['createdAt'] = FieldValue.serverTimestamp();
-      }
-
-      // Use set with merge option to handle both new and existing documents
       await _firestore
           .collection('users')
           .doc(user.uid)
-          .set(userData, SetOptions(merge: true));
+          .set(userModel.toMap(), SetOptions(merge: true));
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile data saved successfully')),
+      AppNotifier.show(
+        context,
+        'Profile data saved successfully',
+        type: MessageType.success,
       );
 
-      // Navigate based on role
-      if (role == 'Doctor') {
-        Navigator.of(context).pushReplacementNamed('/doctorDashboard');
-      } else {
-        Navigator.of(context).pushReplacementNamed('/patientDashboard');
-      }
-
+      Navigator.pushReplacementNamed(
+        context,
+        role == 'Doctor' ? '/doctorDashboard' : '/patientDashboard',
+      );
       return true;
     } catch (error) {
-      print('Error saving profile data: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save profile data: $error')),
+      AppNotifier.show(
+        context,
+        'Failed to save profile data: $error',
+        type: MessageType.error,
       );
       return false;
     }
@@ -379,29 +411,19 @@ class AuthService {
   }) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password reset email sent! Check your inbox.'),
-        ),
+      AppNotifier.show(
+        context,
+        'Password reset email sent successfully',
+        type: MessageType.success,
       );
       return true;
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      AppNotifier.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error: ${e.message}')));
+        'Error sending Password reset Mail: ${e.message}',
+        type: MessageType.error,
+      );
       return false;
-    }
-  }
-
-  // Check if email is verified
-  bool get isEmailVerified => _auth.currentUser?.emailVerified ?? false;
-
-  // Send email verification
-  Future<void> sendEmailVerification() async {
-    try {
-      await _auth.currentUser?.sendEmailVerification();
-    } catch (e) {
-      print('Error sending email verification: $e');
     }
   }
 }
