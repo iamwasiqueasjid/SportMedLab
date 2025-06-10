@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:test_project/models/user.dart'; // Import the User model
-import 'package:test_project/services/auth_service.dart'; // Import AuthService for user data
+import 'package:test_project/models/course.dart'; // Import Course and Lesson models
+import 'package:test_project/models/lesson.dart'; // Import Course and Lesson models
+import 'package:test_project/models/user.dart';
+import 'package:test_project/services/auth_service.dart';
 import 'package:test_project/services/cloudinary_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'dart:io';
@@ -84,18 +86,22 @@ class DatabaseService {
         );
       }
 
+      // Create course model
+      final course = Course(
+        id: '', // ID will be set by Firestore
+        title: title,
+        description: description,
+        coverImageUrl: coverImageUrl ?? '',
+        tutorId: user.uid,
+        // createdAt: DateTime.now(),
+        // updatedAt: DateTime.now(),
+        enrolledStudents: [],
+        subjects: subjects,
+        enrolledCount: 0,
+      );
+
       // Create course document in Firestore
-      await _firestore.collection('courses').add({
-        'title': title,
-        'description': description,
-        'coverImageUrl': coverImageUrl ?? '',
-        'tutorId': user.uid,
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-        'enrolledStudents': [],
-        'subjects': subjects,
-        'enrolledCount': 0,
-      });
+      await _firestore.collection('courses').add(course.toMap());
 
       AppNotifier.show(
         context,
@@ -115,7 +121,7 @@ class DatabaseService {
   }
 
   // Get tutor courses with real-time updates
-  Stream<List<Map<String, dynamic>>> fetchTutorCoursesRealTime() {
+  Stream<List<Course>> fetchTutorCoursesRealTime() {
     final user = _auth.currentUser;
     if (user == null) {
       return Stream.value([]);
@@ -129,53 +135,46 @@ class DatabaseService {
           var courses =
               snapshot.docs.map((doc) {
                 final data = doc.data();
-                data['id'] = doc.id;
-                return data;
+                // Debug: Log the type of createdAt
+                print(
+                  'Document ${doc.id} createdAt type: ${data['createdAt'].runtimeType}',
+                );
+                return Course.fromMap(data, doc.id);
               }).toList();
-
-          // Sort courses by createdAt (descending) on the client side
+          // Sort courses by createdAt (descending)
           courses.sort((a, b) {
-            if (a['createdAt'] == null) return 1;
-            if (b['createdAt'] == null) return -1;
-            Timestamp aTimestamp = a['createdAt'] as Timestamp;
-            Timestamp bTimestamp = b['createdAt'] as Timestamp;
-            return bTimestamp.compareTo(aTimestamp); // Descending order
+            if (a.createdAt == null) return 1;
+            if (b.createdAt == null) return -1;
+            return b.createdAt!.compareTo(a.createdAt!);
           });
           return courses;
         });
   }
 
   // Get all courses (for students)
-  Stream<List<Map<String, dynamic>>> fetchAllCoursesRealTime() {
+  Stream<List<Course>> fetchAllCoursesRealTime() {
     return _firestore.collection('courses').snapshots().map((snapshot) {
       var courses =
-          snapshot.docs.map((doc) {
-            final data = doc.data();
-            data['id'] = doc.id;
-            return data;
-          }).toList();
-
+          snapshot.docs
+              .map((doc) => Course.fromMap(doc.data(), doc.id))
+              .toList();
       // Sort courses by createdAt (descending)
-      courses.sort((a, b) {
-        if (a['createdAt'] == null) return 1;
-        if (b['createdAt'] == null) return -1;
-        Timestamp aTimestamp = a['createdAt'] as Timestamp;
-        Timestamp bTimestamp = b['createdAt'] as Timestamp;
-        return bTimestamp.compareTo(aTimestamp);
-      });
+      // courses.sort((a, b) {
+      //   if (a.createdAt == null) return 1;
+      //   if (b.createdAt == null) return -1;
+      //   return b.createdAt!.compareTo(a.createdAt!);
+      // });
       return courses;
     });
   }
 
   // Get course by ID
-  Future<Map<String, dynamic>?> getCourseById(String courseId) async {
+  Future<Course?> getCourseById(String courseId) async {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('courses').doc(courseId).get();
       if (doc.exists) {
-        final data = doc.data() as Map<String, dynamic>;
-        data['id'] = doc.id;
-        return data;
+        return Course.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       }
       return null;
     } catch (e) {
@@ -193,23 +192,29 @@ class DatabaseService {
     required BuildContext context,
   }) async {
     try {
-      Map<String, dynamic> updateData = {
-        'title': title,
-        'description': description,
-        'subjects': subjects,
-        'updatedAt': FieldValue.serverTimestamp(),
-      };
-
       // Upload new image if provided
+      String? coverImageUrl;
       if (imageFile != null) {
-        String? coverImageUrl = await _cloudinaryService.uploadToCloudinary(
+        coverImageUrl = await _cloudinaryService.uploadToCloudinary(
           imageFile.path,
           dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
         );
-        updateData['coverImageUrl'] = coverImageUrl ?? '';
       }
 
-      await _firestore.collection('courses').doc(courseId).update(updateData);
+      // Create updated course model
+      final course = Course(
+        id: courseId,
+        title: title,
+        description: description,
+        coverImageUrl: coverImageUrl,
+        tutorId: '', // Will not update tutorId
+        subjects: subjects,
+      );
+
+      await _firestore
+          .collection('courses')
+          .doc(courseId)
+          .update(course.toMap());
       AppNotifier.show(
         context,
         'Course updated successfully',
@@ -261,37 +266,29 @@ class DatabaseService {
   // LESSON MANAGEMENT METHODS
 
   // Get lessons for a course
-  Stream<List<Map<String, dynamic>>> fetchLessonsForCourse(String courseId) {
+  Stream<List<Lesson>> fetchLessonsForCourse(String courseId) {
     return _firestore
         .collection('lessons')
         .where('courseId', isEqualTo: courseId)
         .snapshots()
         .map((snapshot) {
           var lessons =
-              snapshot.docs.map((doc) {
-                final data = doc.data();
-                data['id'] = doc.id;
-                return data;
-              }).toList();
+              snapshot.docs
+                  .map((doc) => Lesson.fromMap(doc.data(), doc.id))
+                  .toList();
           // Sort lessons by order
-          lessons.sort((a, b) {
-            int orderA = a['order'] ?? 0;
-            int orderB = b['order'] ?? 0;
-            return orderA.compareTo(orderB);
-          });
+          lessons.sort((a, b) => a.order.compareTo(b.order));
           return lessons;
         });
   }
 
   // Get lesson by ID
-  Future<Map<String, dynamic>?> getLessonById(String lessonId) async {
+  Future<Lesson?> getLessonById(String lessonId) async {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('lessons').doc(lessonId).get();
       if (doc.exists) {
-        final data = doc.data() as Map<String, dynamic>;
-        data['id'] = doc.id;
-        return data;
+        return Lesson.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       }
       return null;
     } catch (e) {
@@ -337,17 +334,19 @@ class DatabaseService {
             1;
       }
 
+      // Create lesson model
+      final lesson = Lesson(
+        id: '', // ID will be set by Firestore
+        courseId: courseId,
+        title: title,
+        contentType: contentType,
+        content: content,
+        contentUrl: fileUrl,
+        order: newOrder,
+      );
+
       // Create lesson document
-      await _firestore.collection('lessons').add({
-        'courseId': courseId,
-        'title': title,
-        'contentType': contentType,
-        'content': content,
-        'contentUrl': fileUrl ?? '',
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-        'order': newOrder,
-      });
+      await _firestore.collection('lessons').add(lesson.toMap());
       AppNotifier.show(
         context,
         'Lesson created successfully',
@@ -374,23 +373,29 @@ class DatabaseService {
     required BuildContext context,
   }) async {
     try {
-      Map<String, dynamic> updateData = {
-        'title': title,
-        'contentType': contentType,
-        'content': content,
-        'updatedAt': FieldValue.serverTimestamp(),
-      };
-
       // Upload new file if provided
+      String? fileUrl;
       if (file != null && (contentType == 'image' || contentType == 'pdf')) {
-        String? fileUrl = await _cloudinaryService.uploadToCloudinary(
+        fileUrl = await _cloudinaryService.uploadToCloudinary(
           file.path,
           dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
         );
-        updateData['contentUrl'] = fileUrl ?? '';
       }
 
-      await _firestore.collection('lessons').doc(lessonId).update(updateData);
+      // Create updated lesson model
+      final lesson = Lesson(
+        id: lessonId,
+        courseId: '', // Will not update courseId
+        title: title,
+        contentType: contentType,
+        content: content,
+        contentUrl: fileUrl,
+      );
+
+      await _firestore
+          .collection('lessons')
+          .doc(lessonId)
+          .update(lesson.toMap());
       AppNotifier.show(
         context,
         'Lesson updated successfully',
@@ -448,10 +453,11 @@ class DatabaseService {
       DocumentSnapshot courseDoc =
           await _firestore.collection('courses').doc(courseId).get();
       if (courseDoc.exists) {
-        Map<String, dynamic> courseData =
-            courseDoc.data() as Map<String, dynamic>;
-        List<dynamic> enrolledStudents = courseData['enrolledStudents'] ?? [];
-        if (enrolledStudents.contains(user.uid)) {
+        final course = Course.fromMap(
+          courseDoc.data() as Map<String, dynamic>,
+          courseDoc.id,
+        );
+        if (course.enrolledStudents.contains(user.uid)) {
           AppNotifier.show(
             context,
             'Already enrolled in this course',
@@ -472,18 +478,19 @@ class DatabaseService {
         );
         return true;
       }
+      return false;
     } catch (e) {
       AppNotifier.show(
         context,
         'Failed to enroll in course: $e',
         type: MessageType.error,
       );
+      return false;
     }
-    return false;
   }
 
   // Get enrolled courses for student
-  Stream<List<Map<String, dynamic>>> fetchEnrolledCoursesRealTime() {
+  Stream<List<Course>> fetchEnrolledCoursesRealTime() {
     final user = _auth.currentUser;
     if (user == null) {
       return Stream.value([]);
@@ -495,18 +502,14 @@ class DatabaseService {
         .snapshots()
         .map((snapshot) {
           var courses =
-              snapshot.docs.map((doc) {
-                final data = doc.data();
-                data['id'] = doc.id;
-                return data;
-              }).toList();
+              snapshot.docs
+                  .map((doc) => Course.fromMap(doc.data(), doc.id))
+                  .toList();
           // Sort courses by updatedAt (descending)
           courses.sort((a, b) {
-            if (a['updatedAt'] == null) return 1;
-            if (b['updatedAt'] == null) return -1;
-            Timestamp aTimestamp = a['updatedAt'] as Timestamp;
-            Timestamp bTimestamp = b['updatedAt'] as Timestamp;
-            return bTimestamp.compareTo(aTimestamp);
+            if (a.updatedAt == null) return 1;
+            if (b.updatedAt == null) return -1;
+            return b.updatedAt!.compareTo(a.updatedAt!);
           });
           return courses;
         });

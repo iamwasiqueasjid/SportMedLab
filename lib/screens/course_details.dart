@@ -1,3 +1,5 @@
+import 'package:test_project/models/course.dart';
+import 'package:test_project/models/lesson.dart';
 import 'package:test_project/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -22,7 +24,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
   final DatabaseService _databaseService = DatabaseService();
   final ImagePicker _imagePicker = ImagePicker();
 
-  Map<String, dynamic>? _courseData;
+  Course? _courseData;
   bool _isLoading = true;
 
   @override
@@ -287,9 +289,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _isLoading
-              ? 'Course Details'
-              : 'Course: ${_courseData?['title'] ?? ''}',
+          _isLoading ? 'Course Details' : 'Course: ${_courseData?.title ?? ''}',
         ),
         backgroundColor: Colors.indigo,
       ),
@@ -310,10 +310,10 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                     width: double.infinity,
                     child:
                         _courseData != null &&
-                                _courseData!['coverImageUrl'] != null &&
-                                _courseData!['coverImageUrl'].isNotEmpty
+                                _courseData!.coverImageUrl != null &&
+                                _courseData!.coverImageUrl!.isNotEmpty
                             ? Image.network(
-                              _courseData!['coverImageUrl'],
+                              _courseData!.coverImageUrl!,
                               fit: BoxFit.cover,
                               errorBuilder:
                                   (_, __, ___) => Container(
@@ -344,7 +344,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                       children: [
                         Text(
                           _courseData != null
-                              ? (_courseData!['title'] ?? 'Untitled Course')
+                              ? (_courseData!.title ?? 'Untitled Course')
                               : 'Untitled Course',
                           style: TextStyle(
                             fontSize: 24,
@@ -354,8 +354,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                         SizedBox(height: 8),
                         Text(
                           _courseData != null
-                              ? (_courseData!['description'] ??
-                                  'No description')
+                              ? (_courseData!.description ?? 'No description')
                               : 'No description',
                           style: TextStyle(
                             fontSize: 16,
@@ -388,7 +387,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   ),
                   // Lessons list
                   Expanded(
-                    child: StreamBuilder<List<Map<String, dynamic>>>(
+                    child: StreamBuilder<List<Lesson>>(
                       stream: _databaseService.fetchLessonsForCourse(
                         widget.courseId,
                       ),
@@ -447,7 +446,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                           itemCount: lessons.length,
                           itemBuilder: (context, index) {
                             final lesson = lessons[index];
-                            return _buildLessonCard(lesson);
+                            return _buildLessonCard(lesson.toMap());
                           },
                         );
                       },

@@ -1,10 +1,10 @@
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:test_project/models/course.dart';
 import 'package:test_project/services/database_service.dart';
 import 'package:test_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
@@ -25,7 +25,6 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
   String? _userName;
   String? _photoUrl;
   bool _isLoading = true;
-  // final List<Map<String, dynamic>> _plans = [];
 
   @override
   void initState() {
@@ -63,28 +62,24 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: Colors.white, // Match LoginScreen
+              backgroundColor: Colors.white,
               title: Text(
                 'Create New Fitness Plan',
-                style: TextStyle(
-                  color: theme.primaryColor,
-                ), // Match LoginScreen
+                style: TextStyle(color: theme.primaryColor),
               ),
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
                     TextField(
                       controller: titleController,
-                      style: TextStyle(
-                        color: theme.primaryColor,
-                      ), // Match LoginScreen
+                      style: TextStyle(color: theme.primaryColor),
                       decoration: InputDecoration(
                         labelText: 'Plan Title',
                         hintText: 'Enter plan title',
                         hintStyle: TextStyle(color: theme.primaryColor),
                         labelStyle: TextStyle(color: theme.primaryColor),
                         filled: true,
-                        fillColor: Colors.grey[100], // Match LoginScreen
+                        fillColor: Colors.grey[100],
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(color: theme.primaryColor),
@@ -98,19 +93,17 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     TextField(
                       controller: descriptionController,
-                      style: TextStyle(
-                        color: theme.primaryColor,
-                      ), // Match LoginScreen
+                      style: TextStyle(color: theme.primaryColor),
                       decoration: InputDecoration(
                         labelText: 'Description',
                         hintText: 'Enter plan description',
                         hintStyle: TextStyle(color: theme.primaryColor),
                         labelStyle: TextStyle(color: theme.primaryColor),
                         filled: true,
-                        fillColor: Colors.grey[100], // Match LoginScreen
+                        fillColor: Colors.grey[100],
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(color: theme.primaryColor),
@@ -125,14 +118,12 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                       ),
                       maxLines: 3,
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Text(
                       'Plan Cover Image',
-                      style: TextStyle(
-                        color: theme.primaryColor,
-                      ), // Match LoginScreen
+                      style: TextStyle(color: theme.primaryColor),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     GestureDetector(
                       onTap: () async {
                         final pickedFile = await _imagePicker.pickImage(
@@ -148,11 +139,9 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                         height: 150,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.grey[100], // Match LoginScreen
+                          color: Colors.grey[100],
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: theme.primaryColor,
-                          ), // Match LoginScreen
+                          border: Border.all(color: theme.primaryColor),
                         ),
                         child:
                             selectedImage != null
@@ -164,30 +153,26 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                                       Icon(
                                         Icons.add_photo_alternate,
                                         size: 50,
-                                        color:
-                                            theme
-                                                .primaryColor, // Match LoginScreen
+                                        color: theme.primaryColor,
                                       ),
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
                                       Text(
                                         'Add Cover Image',
                                         style: TextStyle(
                                           color: theme.primaryColor,
-                                        ), // Match LoginScreen
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Text(
                       'Plan Categories',
-                      style: TextStyle(
-                        color: theme.primaryColor,
-                      ), // Match LoginScreen
+                      style: TextStyle(color: theme.primaryColor),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       children: [
@@ -219,8 +204,8 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                       ],
                     ),
                     if (isSaving)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16.0),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 16.0),
                         child: Center(
                           child: SpinKitDoubleBounce(
                             color: Color(0xFF0A2D7B),
@@ -235,9 +220,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                 TextButton(
                   child: Text(
                     'Cancel',
-                    style: TextStyle(
-                      color: theme.primaryColor,
-                    ), // Match LoginScreen
+                    style: TextStyle(color: theme.primaryColor),
                   ),
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -280,9 +263,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                           },
                   child: Text(
                     'Save',
-                    style: TextStyle(
-                      color: theme.primaryColor,
-                    ), // Match LoginScreen
+                    style: TextStyle(color: theme.primaryColor),
                   ),
                 ),
               ],
@@ -304,25 +285,14 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     return FilterChip(
       label: Text(label),
       selected: isSelected,
-      selectedColor:
-          theme.primaryColor, // Solid primary color for selected state
-      checkmarkColor:
-          Colors.white, // White checkmark to contrast with primary color
-      backgroundColor: Colors.grey[200], // Grey background for unselected state
+      selectedColor: theme.primaryColor,
+      checkmarkColor: Colors.white,
+      backgroundColor: Colors.grey[200],
       labelStyle: TextStyle(
-        color:
-            isSelected
-                ? Colors.white
-                : theme
-                    .primaryColor, // White when selected, primary color when unselected
+        color: isSelected ? Colors.white : theme.primaryColor,
       ),
-      side: BorderSide(
-        color: Color.fromRGBO(
-          10,
-          45,
-          123,
-          1.0,
-        ), // Primary color border with full opacity
+      side: const BorderSide(
+        color: Color.fromRGBO(10, 45, 123, 1.0),
         width: 1.0,
       ),
       onSelected: (selected) {
@@ -337,71 +307,6 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: Colors.white, // Match LoginScreen
-      appBar: AppBar(
-        backgroundColor: theme.primaryColor, // Match LoginScreen
-        elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Text(
-          'Doctor Dashboard',
-          style: TextStyle(color: Colors.white), // Match LoginScreen
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout, color: Colors.white), // Match LoginScreen
-            onPressed: () => _authService.signOut(context),
-          ),
-        ],
-      ),
-      drawer: CustomDrawer(
-        userName: _userName,
-        photoUrl: _photoUrl,
-        role: 'Doctor',
-      ),
-      body:
-          _isLoading
-              ? Center(
-                child: SpinKitDoubleBounce(
-                  color: Color(0xFF0A2D7B),
-                  size: 40.0,
-                ),
-              )
-              : StreamBuilder<List<Map<String, dynamic>>>(
-                stream: _databaseService.fetchTutorCoursesRealTime(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: SpinKitDoubleBounce(
-                        color: Color(0xFF0A2D7B),
-                        size: 40.0,
-                      ),
-                    );
-                  }
-
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  }
-
-                  final plans = snapshot.data ?? [];
-
-                  return plans.isEmpty
-                      ? _buildEmptyState()
-                      : _buildPlansList(plans);
-                },
-              ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddPlanDialog,
-        backgroundColor: theme.primaryColor, // Match LoginScreen
-        tooltip: 'Add New Fitness Plan', // Match LoginScreen
-        child: Icon(Icons.add, color: Colors.white),
-      ),
-    );
-  }
-
   Widget _buildEmptyState() {
     final theme = Theme.of(context);
     return Center(
@@ -411,38 +316,35 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
           Icon(
             Icons.fitness_center_outlined,
             size: 80,
-            color: Colors.grey[600], // Match LoginScreen
+            color: Colors.grey[600],
           ),
-          SizedBox(height: 16),
-          Text(
+          const SizedBox(height: 16),
+          const Text(
             'No Fitness Plans Yet',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.black, // Match LoginScreen
+              color: Colors.black,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Create your first fitness plan',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600], // Match LoginScreen
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: _showAddPlanDialog,
-            icon: Icon(Icons.add, color: Colors.white), // Match LoginScreen
-            label: Text(
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: const Text(
               'Create Plan',
-              style: TextStyle(color: Colors.white), // Match LoginScreen
+              style: TextStyle(color: Colors.white),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: theme.primaryColor, // Match LoginScreen
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              backgroundColor: theme.primaryColor,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12), // Match LoginScreen
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
           ),
@@ -451,43 +353,36 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     );
   }
 
-  Widget _buildPlansList(List<Map<String, dynamic>> plans) {
+  Widget _buildPlansList(List<Course> courses) {
     return ListView.builder(
-      padding: EdgeInsets.all(16),
-      itemCount: plans.length,
+      padding: const EdgeInsets.all(16),
+      itemCount: courses.length,
       itemBuilder: (context, index) {
-        final plan = plans[index];
-        return _buildPlanCard(plan);
+        final course = courses[index];
+        return _buildPlanCard(course);
       },
     );
   }
 
-  Widget _buildPlanCard(Map<String, dynamic> plan) {
+  Widget _buildPlanCard(Course course) {
     final theme = Theme.of(context);
-    // Format timestamp
+    // Format DateTime
     String formattedDate = 'Date not available';
-    if (plan['createdAt'] != null) {
-      final timestamp = plan['createdAt'] as Timestamp;
-      formattedDate = DateFormat('MMM d, yyyy').format(timestamp.toDate());
+    if (course.createdAt != null) {
+      formattedDate = DateFormat('MMM d, yyyy').format(course.createdAt!);
     }
 
-    final enrolledPatients = plan['enrolledStudents'] as List? ?? [];
+    final enrolledPatients = course.enrolledStudents;
 
     return Card(
-      margin: EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12), // Match LoginScreen
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 4,
-      color: Colors.white, // Match LoginScreen
+      color: Colors.white,
       child: InkWell(
         onTap: () {
-          Navigator.pushNamed(
-            context,
-            '/planDetails', // Updated to reflect fitness plans
-            arguments: plan['id'],
-          );
+          Navigator.pushNamed(context, '/planDetails', arguments: course.id);
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -497,84 +392,75 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
               height: 160,
               width: double.infinity,
               child:
-                  plan['coverImageUrl'] != null &&
-                          plan['coverImageUrl'].isNotEmpty
+                  course.coverImageUrl != null &&
+                          course.coverImageUrl!.isNotEmpty
                       ? Image.network(
-                        plan['coverImageUrl'],
+                        course.coverImageUrl!,
                         fit: BoxFit.cover,
                         errorBuilder:
                             (_, __, ___) => Container(
-                              color: Colors.grey[100], // Match LoginScreen
+                              color: Colors.grey[100],
                               child: Icon(
                                 Icons.image_not_supported,
                                 size: 50,
-                                color: theme.primaryColor, // Match LoginScreen
+                                color: theme.primaryColor,
                               ),
                             ),
                       )
                       : Container(
-                        color: Colors.grey[100], // Match LoginScreen
+                        color: Colors.grey[100],
                         child: Icon(
                           Icons.fitness_center,
                           size: 50,
-                          color: theme.primaryColor, // Match LoginScreen
+                          color: theme.primaryColor,
                         ),
                       ),
             ),
             Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    plan['title'] ?? 'Untitled Plan',
-                    style: TextStyle(
+                    course.title.isNotEmpty ? course.title : 'Untitled Plan',
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black, // Match LoginScreen
+                      color: Colors.black,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    plan['description'] ?? 'No description',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600], // Match LoginScreen
-                    ),
+                    course.description.isNotEmpty
+                        ? course.description
+                        : 'No description',
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
-                      Icon(
-                        Icons.people,
-                        size: 16,
-                        color: theme.primaryColor, // Match LoginScreen
-                      ),
-                      SizedBox(width: 4),
+                      Icon(Icons.people, size: 16, color: theme.primaryColor),
+                      const SizedBox(width: 4),
                       Text(
                         '${enrolledPatients.length} Patients',
-                        style: TextStyle(
-                          color: theme.primaryColor,
-                        ), // Match LoginScreen
+                        style: TextStyle(color: theme.primaryColor),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       Icon(
                         Icons.calendar_today,
                         size: 16,
-                        color: theme.primaryColor, // Match LoginScreen
+                        color: theme.primaryColor,
                       ),
-                      SizedBox(width: 4),
+                      const SizedBox(width: 4),
                       Text(
                         formattedDate,
-                        style: TextStyle(
-                          color: theme.primaryColor,
-                        ), // Match LoginScreen
+                        style: TextStyle(color: theme.primaryColor),
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -582,37 +468,25 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                         onPressed: () {
                           Navigator.pushNamed(
                             context,
-                            '/planDetails', // Updated to reflect fitness plans
-                            arguments: plan['id'],
+                            '/planDetails',
+                            arguments: course.id,
                           );
                         },
-                        icon: Icon(
-                          Icons.edit,
-                          color: theme.primaryColor, // Match LoginScreen
-                        ),
+                        icon: Icon(Icons.edit, color: theme.primaryColor),
                         label: Text(
                           'Manage',
-                          style: TextStyle(
-                            color: theme.primaryColor,
-                          ), // Match LoginScreen
+                          style: TextStyle(color: theme.primaryColor),
                         ),
                         style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: theme.primaryColor,
-                          ), // Match LoginScreen
+                          side: BorderSide(color: theme.primaryColor),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              12,
-                            ), // Match LoginScreen
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                       ),
                       IconButton(
-                        icon: Icon(
-                          Icons.delete,
-                          color: Colors.red, // Keep red for delete
-                        ),
-                        onPressed: () => _showDeleteConfirmation(plan['id']),
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _showDeleteConfirmation(course.id),
                       ),
                     ],
                   ),
@@ -631,32 +505,27 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white, // Match LoginScreen
+          backgroundColor: Colors.white,
           title: Text(
             'Delete Fitness Plan',
-            style: TextStyle(color: theme.primaryColor), // Match LoginScreen
+            style: TextStyle(color: theme.primaryColor),
           ),
           content: Text(
             'Are you sure you want to delete this fitness plan? This action cannot be undone.',
-            style: TextStyle(color: Colors.grey[700]), // Match LoginScreen
+            style: TextStyle(color: Colors.grey[700]),
           ),
           actions: [
             TextButton(
               child: Text(
                 'Cancel',
-                style: TextStyle(
-                  color: theme.primaryColor,
-                ), // Match LoginScreen
+                style: TextStyle(color: theme.primaryColor),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text(
-                'Delete',
-                style: TextStyle(color: Colors.red), // Keep red for delete
-              ),
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
               onPressed: () async {
                 Navigator.of(context).pop();
                 await _databaseService.deleteCourse(planId, context);
@@ -665,6 +534,75 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
           ],
         );
       },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: theme.primaryColor,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          'Doctor Dashboard',
+          style: TextStyle(color: Colors.white),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () => _authService.signOut(context),
+          ),
+        ],
+      ),
+      drawer: CustomDrawer(
+        userName: _userName,
+        photoUrl: _photoUrl,
+        role: 'Doctor',
+      ),
+      body:
+          _isLoading
+              ? const Center(
+                child: SpinKitDoubleBounce(
+                  color: Color(0xFF0A2D7B),
+                  size: 40.0,
+                ),
+              )
+              : StreamBuilder<List<Course>>(
+                stream: _databaseService.fetchTutorCoursesRealTime(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: SpinKitDoubleBounce(
+                        color: Color(0xFF0A2D7B),
+                        size: 40.0,
+                      ),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    AppNotifier.show(
+                      context,
+                      'Error loading courses: ${snapshot.error}',
+                      type: MessageType.error,
+                    );
+                    return const Center(child: Text('Error loading courses'));
+                  }
+
+                  final courses = snapshot.data ?? [];
+                  return courses.isEmpty
+                      ? _buildEmptyState()
+                      : _buildPlansList(courses);
+                },
+              ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddPlanDialog,
+        backgroundColor: theme.primaryColor,
+        tooltip: 'Add New Fitness Plan',
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
     );
   }
 }
