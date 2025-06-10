@@ -1,3 +1,4 @@
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:test_project/utils/message_type.dart';
@@ -252,9 +253,12 @@ class AuthenticationPageState extends State<AuthenticationPage> {
           // Loading Overlay
           if (_isLoading)
             Container(
-              color: Colors.black,
+              color: Colors.white,
               child: Center(
-                child: CircularProgressIndicator(color: primaryColor),
+                child: SpinKitDoubleBounce(
+                  color: Color(0xFF0A2D7B),
+                  size: 40.0,
+                ),
               ),
             ),
         ],

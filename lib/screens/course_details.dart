@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class CourseDetailsScreen extends StatefulWidget {
   final String courseId;
@@ -200,7 +201,12 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                     if (isSaving)
                       Padding(
                         padding: const EdgeInsets.only(top: 16.0),
-                        child: Center(child: CircularProgressIndicator()),
+                        child: Center(
+                          child: SpinKitDoubleBounce(
+                            color: Color(0xFF0A2D7B),
+                            size: 40.0,
+                          ),
+                        ),
                       ),
                   ],
                 ),
@@ -289,7 +295,12 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
       ),
       body:
           _isLoading
-              ? Center(child: CircularProgressIndicator())
+              ? Center(
+                child: SpinKitDoubleBounce(
+                  color: Color(0xFF0A2D7B),
+                  size: 40.0,
+                ),
+              )
               : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -384,7 +395,12 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
+                          return Center(
+                            child: SpinKitDoubleBounce(
+                              color: Color(0xFF0A2D7B),
+                              size: 40.0,
+                            ),
+                          );
                         }
 
                         if (snapshot.hasError) {

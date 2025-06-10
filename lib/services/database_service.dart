@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:test_project/models/user.dart'; // Import the User model
+import 'package:test_project/services/auth_service.dart'; // Import AuthService for user data
 import 'package:test_project/services/cloudinary_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'dart:io';
@@ -9,11 +11,13 @@ import 'dart:io';
 import 'package:test_project/widgets/app_message_notifier.dart';
 
 class DatabaseService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final firebase_auth.FirebaseAuth _auth = firebase_auth.FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final CloudinaryService _cloudinaryService = CloudinaryService();
+  final AuthService _authService = AuthService();
 
   // Get current user
-  User? get currentUser => _auth.currentUser;
+  firebase_auth.User? get currentUser => _auth.currentUser;
 
   // Update lesson with AI-generated content
   Future<bool> updateLessonWithAIContent({
@@ -58,20 +62,29 @@ class DatabaseService {
       return false;
     }
 
+    // Check if user is a Doctor
+    final userData = await _authService.fetchUserData();
+    if (userData == null || userData.role != 'Doctor') {
+      AppNotifier.show(
+        context,
+        'Only doctors can create courses',
+        type: MessageType.error,
+      );
+      return false;
+    }
+
     try {
       // Upload course cover image if provided
       String? coverImageUrl;
 
       if (imageFile != null) {
-        final CloudinaryService cloudinaryService = CloudinaryService();
-        coverImageUrl = await cloudinaryService.uploadToCloudinary(
+        coverImageUrl = await _cloudinaryService.uploadToCloudinary(
           imageFile.path,
           dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
         );
       }
 
       // Create course document in Firestore
-      // DocumentReference courseRef = await _firestore.collection('courses').add({
       await _firestore.collection('courses').add({
         'title': title,
         'description': description,
@@ -124,13 +137,10 @@ class DatabaseService {
           courses.sort((a, b) {
             if (a['createdAt'] == null) return 1;
             if (b['createdAt'] == null) return -1;
-
             Timestamp aTimestamp = a['createdAt'] as Timestamp;
             Timestamp bTimestamp = b['createdAt'] as Timestamp;
-
             return bTimestamp.compareTo(aTimestamp); // Descending order
           });
-
           return courses;
         });
   }
@@ -149,13 +159,10 @@ class DatabaseService {
       courses.sort((a, b) {
         if (a['createdAt'] == null) return 1;
         if (b['createdAt'] == null) return -1;
-
         Timestamp aTimestamp = a['createdAt'] as Timestamp;
         Timestamp bTimestamp = b['createdAt'] as Timestamp;
-
         return bTimestamp.compareTo(aTimestamp);
       });
-
       return courses;
     });
   }
@@ -165,13 +172,11 @@ class DatabaseService {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('courses').doc(courseId).get();
-
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>;
         data['id'] = doc.id;
         return data;
       }
-
       return null;
     } catch (e) {
       return null;
@@ -197,8 +202,7 @@ class DatabaseService {
 
       // Upload new image if provided
       if (imageFile != null) {
-        final CloudinaryService cloudinaryService = CloudinaryService();
-        String? coverImageUrl = await cloudinaryService.uploadToCloudinary(
+        String? coverImageUrl = await _cloudinaryService.uploadToCloudinary(
           imageFile.path,
           dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
         );
@@ -206,13 +210,11 @@ class DatabaseService {
       }
 
       await _firestore.collection('courses').doc(courseId).update(updateData);
-
       AppNotifier.show(
         context,
         'Course updated successfully',
         type: MessageType.success,
       );
-
       return true;
     } catch (error) {
       AppNotifier.show(
@@ -227,31 +229,24 @@ class DatabaseService {
   // Delete a course
   Future<bool> deleteCourse(String courseId, BuildContext context) async {
     try {
-      // First delete all lessons in the course
+      // Delete all lessons in the course
       final lessonsQuery =
           await _firestore
               .collection('lessons')
               .where('courseId', isEqualTo: courseId)
               .get();
-
       final batch = _firestore.batch();
-
       for (var doc in lessonsQuery.docs) {
         batch.delete(doc.reference);
       }
-
       // Delete the course document
       batch.delete(_firestore.collection('courses').doc(courseId));
-
-      // Commit the batch
       await batch.commit();
-
       AppNotifier.show(
         context,
         'Course deleted successfully',
         type: MessageType.success,
       );
-
       return true;
     } catch (e) {
       AppNotifier.show(
@@ -278,14 +273,12 @@ class DatabaseService {
                 data['id'] = doc.id;
                 return data;
               }).toList();
-
-          // Sort lessons by order (client-side sorting to avoid needing an index)
+          // Sort lessons by order
           lessons.sort((a, b) {
             int orderA = a['order'] ?? 0;
             int orderB = b['order'] ?? 0;
             return orderA.compareTo(orderB);
           });
-
           return lessons;
         });
   }
@@ -295,13 +288,11 @@ class DatabaseService {
     try {
       DocumentSnapshot doc =
           await _firestore.collection('lessons').doc(lessonId).get();
-
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>;
         data['id'] = doc.id;
         return data;
       }
-
       return null;
     } catch (e) {
       return null;
@@ -320,27 +311,21 @@ class DatabaseService {
     try {
       // Upload file if provided
       String? fileUrl;
-
       if (file != null && (contentType == 'image' || contentType == 'pdf')) {
-        final CloudinaryService cloudinaryService = CloudinaryService();
-        fileUrl = await cloudinaryService.uploadToCloudinary(
+        fileUrl = await _cloudinaryService.uploadToCloudinary(
           file.path,
           dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
         );
       }
 
-      // Get all lessons for this course to determine the order
+      // Get all lessons to determine order
       final QuerySnapshot querySnapshot =
           await _firestore
               .collection('lessons')
               .where('courseId', isEqualTo: courseId)
               .get();
-
-      // Calculate the next order number client-side
       int newOrder = 0;
-
       if (querySnapshot.docs.isNotEmpty) {
-        // Find the highest order number
         newOrder =
             querySnapshot.docs
                 .map(
@@ -352,8 +337,8 @@ class DatabaseService {
             1;
       }
 
-      // Create the lesson document
-      DocumentReference docRef = await _firestore.collection('lessons').add({
+      // Create lesson document
+      await _firestore.collection('lessons').add({
         'courseId': courseId,
         'title': title,
         'contentType': contentType,
@@ -363,13 +348,11 @@ class DatabaseService {
         'updatedAt': FieldValue.serverTimestamp(),
         'order': newOrder,
       });
-
       AppNotifier.show(
         context,
         'Lesson created successfully',
         type: MessageType.success,
       );
-
       return true;
     } catch (e) {
       AppNotifier.show(
@@ -400,8 +383,7 @@ class DatabaseService {
 
       // Upload new file if provided
       if (file != null && (contentType == 'image' || contentType == 'pdf')) {
-        final CloudinaryService cloudinaryService = CloudinaryService();
-        String? fileUrl = await cloudinaryService.uploadToCloudinary(
+        String? fileUrl = await _cloudinaryService.uploadToCloudinary(
           file.path,
           dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
         );
@@ -409,13 +391,11 @@ class DatabaseService {
       }
 
       await _firestore.collection('lessons').doc(lessonId).update(updateData);
-
       AppNotifier.show(
         context,
         'Lesson updated successfully',
         type: MessageType.success,
       );
-
       return true;
     } catch (e) {
       AppNotifier.show(
@@ -431,13 +411,11 @@ class DatabaseService {
   Future<bool> deleteLesson(String lessonId, BuildContext context) async {
     try {
       await _firestore.collection('lessons').doc(lessonId).delete();
-
       AppNotifier.show(
         context,
         'Lesson deleted successfully',
         type: MessageType.success,
       );
-
       return true;
     } catch (e) {
       AppNotifier.show(
@@ -467,15 +445,12 @@ class DatabaseService {
     }
 
     try {
-      // Check if already enrolled
       DocumentSnapshot courseDoc =
           await _firestore.collection('courses').doc(courseId).get();
-
       if (courseDoc.exists) {
         Map<String, dynamic> courseData =
             courseDoc.data() as Map<String, dynamic>;
         List<dynamic> enrolledStudents = courseData['enrolledStudents'] ?? [];
-
         if (enrolledStudents.contains(user.uid)) {
           AppNotifier.show(
             context,
@@ -485,19 +460,16 @@ class DatabaseService {
           return false;
         }
 
-        // Add student to enrolled list
         await _firestore.collection('courses').doc(courseId).update({
           'enrolledStudents': FieldValue.arrayUnion([user.uid]),
           'enrolledCount': FieldValue.increment(1),
           'updatedAt': FieldValue.serverTimestamp(),
         });
-
         AppNotifier.show(
           context,
           'Successfully enrolled in course!',
           type: MessageType.success,
         );
-
         return true;
       }
     } catch (e) {
@@ -528,18 +500,14 @@ class DatabaseService {
                 data['id'] = doc.id;
                 return data;
               }).toList();
-
-          // Sort courses by enrollment date (latest first)
+          // Sort courses by updatedAt (descending)
           courses.sort((a, b) {
             if (a['updatedAt'] == null) return 1;
             if (b['updatedAt'] == null) return -1;
-
             Timestamp aTimestamp = a['updatedAt'] as Timestamp;
             Timestamp bTimestamp = b['updatedAt'] as Timestamp;
-
             return bTimestamp.compareTo(aTimestamp);
           });
-
           return courses;
         });
   }

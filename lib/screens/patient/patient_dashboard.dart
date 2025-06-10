@@ -1,3 +1,4 @@
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/services/auth_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
@@ -27,8 +28,12 @@ class PatientDashboardState extends State<PatientDashboard> {
     final userData = await _authService.fetchUserData();
     if (userData != null) {
       setState(() {
-        _userName = userData['displayName'];
-        _photoUrl = userData['photoURL'];
+        _userName = userData.displayName;
+        _photoUrl = userData.photoURL;
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
         _isLoading = false;
       });
     }
@@ -61,8 +66,9 @@ class PatientDashboardState extends State<PatientDashboard> {
       body:
           _isLoading
               ? Center(
-                child: CircularProgressIndicator(
-                  color: theme.primaryColor, // Match LoginScreen
+                child: SpinKitDoubleBounce(
+                  color: Color(0xFF0A2D7B),
+                  size: 40.0,
                 ),
               )
               : Column(

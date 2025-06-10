@@ -1,3 +1,4 @@
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/services/database_service.dart';
 import 'package:test_project/services/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -36,8 +37,12 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     final userData = await _authService.fetchUserData();
     if (userData != null) {
       setState(() {
-        _userName = userData['displayName'];
-        _photoUrl = userData['photoURL'];
+        _userName = userData.displayName;
+        _photoUrl = userData.photoURL;
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
         _isLoading = false;
       });
     }
@@ -217,8 +222,9 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                       Padding(
                         padding: const EdgeInsets.only(top: 16.0),
                         child: Center(
-                          child: CircularProgressIndicator(
-                            color: theme.primaryColor, // Match LoginScreen
+                          child: SpinKitDoubleBounce(
+                            color: Color(0xFF0A2D7B),
+                            size: 40.0,
                           ),
                         ),
                       ),
@@ -359,8 +365,9 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
       body:
           _isLoading
               ? Center(
-                child: CircularProgressIndicator(
-                  color: theme.primaryColor, // Match LoginScreen
+                child: SpinKitDoubleBounce(
+                  color: Color(0xFF0A2D7B),
+                  size: 40.0,
                 ),
               )
               : StreamBuilder<List<Map<String, dynamic>>>(
@@ -368,8 +375,9 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
-                      child: CircularProgressIndicator(
-                        color: theme.primaryColor, // Match LoginScreen
+                      child: SpinKitDoubleBounce(
+                        color: Color(0xFF0A2D7B),
+                        size: 40.0,
                       ),
                     );
                   }

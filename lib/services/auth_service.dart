@@ -1,22 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:test_project/models/user.dart'; // Import the new model
 import 'package:test_project/services/cloudinary_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final firebase_auth.FirebaseAuth _auth = firebase_auth.FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final CloudinaryService _cloudinaryService = CloudinaryService();
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // Get current user
-  User? get currentUser => _auth.currentUser;
+  firebase_auth.User? get currentUser => _auth.currentUser;
 
   // Auth state changes stream
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  Stream<firebase_auth.User?> get authStateChanges => _auth.authStateChanges();
 
   // Email/Password Login
   Future<bool> login({
@@ -25,7 +27,7 @@ class AuthService {
     required BuildContext context,
   }) async {
     try {
-      final UserCredential userCredential = await _auth
+      final firebase_auth.UserCredential userCredential = await _auth
           .signInWithEmailAndPassword(email: email, password: password);
 
       if (userCredential.user != null) {
@@ -37,14 +39,14 @@ class AuthService {
 
         // Check user role and navigate to appropriate screen
         final userData = await fetchUserData();
-        if (userData != null && userData['role'] == 'Doctor') {
+        if (userData != null && userData.role == 'Doctor') {
           Navigator.pushReplacementNamed(context, '/doctorDashboard');
         } else {
           Navigator.pushReplacementNamed(context, '/patientDashboard');
         }
         return true;
       }
-    } on FirebaseAuthException catch (e) {
+    } on firebase_auth.FirebaseAuthException catch (e) {
       AppNotifier.show(
         context,
         'Login failed: ${e.message}',
@@ -65,7 +67,11 @@ class AuthService {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
-        // User canceled the sign-in
+        AppNotifier.show(
+          context,
+          'User canceled the Sign-In process.',
+          type: MessageType.error,
+        );
         return false;
       }
 
@@ -74,30 +80,39 @@ class AuthService {
           await googleUser.authentication;
 
       // Create a new credential
-      final credential = GoogleAuthProvider.credential(
+      final credential = firebase_auth.GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
       // Sign in to Firebase with the Google credential
-      final UserCredential userCredential = await _auth.signInWithCredential(
-        credential,
-      );
+      final firebase_auth.UserCredential userCredential = await _auth
+          .signInWithCredential(credential);
 
       if (userCredential.user != null) {
         final user = userCredential.user!;
 
         // Check if this is a new user
         if (userCredential.additionalUserInfo?.isNewUser == true) {
-          // Create user document in Firestore for new users
-          await _firestore.collection('users').doc(user.uid).set({
-            'displayName': user.displayName ?? '',
-            'email': user.email ?? '',
-            'photoURL': user.photoURL ?? '',
-            'createdAt': FieldValue.serverTimestamp(),
-            'updatedAt': FieldValue.serverTimestamp(),
-            'authProvider': 'google',
-          });
+          // Create a new Doctor or Patient based on default role
+          final newUser = Patient(
+            uid: user.uid,
+            email: user.email ?? '',
+            displayName: user.displayName ?? '',
+            photoURL: user.photoURL,
+            weight: 0.0, // Default weight, can be updated later
+            height: 0.0, // Default height, can be updated later
+            gender: '', // Default gender value, can be updated later
+            dateOfBirth: '', // Default DOB value, can be updated later
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
+
+          await _firestore
+              .collection('users')
+              .doc(user.uid)
+              .set(newUser.toMap());
+
           AppNotifier.show(
             context,
             'Account created successfully!',
@@ -121,7 +136,7 @@ class AuthService {
 
           // Check user role and navigate to appropriate screen
           final userData = await fetchUserData();
-          if (userData != null && userData['role'] == 'Doctor') {
+          if (userData != null && userData.role == 'Doctor') {
             Navigator.pushReplacementNamed(context, '/doctorDashboard');
           } else {
             Navigator.pushReplacementNamed(context, '/patientDashboard');
@@ -130,7 +145,7 @@ class AuthService {
 
         return true;
       }
-    } on FirebaseAuthException catch (e) {
+    } on firebase_auth.FirebaseAuthException catch (e) {
       AppNotifier.show(
         context,
         'Google sign-in failed: ${e.message}',
@@ -155,10 +170,25 @@ class AuthService {
     required BuildContext context,
   }) async {
     try {
-      final UserCredential credential = await _auth
+      final firebase_auth.UserCredential credential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
 
       if (credential.user != null) {
+        // Create a new Patient by default
+        final newUser = Patient(
+          uid: credential.user!.uid,
+          email: email,
+          displayName: '',
+          weight: 0.0,
+          height: 0.0,
+          gender: '',
+          dateOfBirth: '',
+        );
+        await _firestore
+            .collection('users')
+            .doc(credential.user!.uid)
+            .set(newUser.toMap());
+
         AppNotifier.show(
           context,
           'User created successfully!',
@@ -167,7 +197,7 @@ class AuthService {
         Navigator.pushNamed(context, '/profileSetup');
         return true;
       }
-    } on FirebaseAuthException catch (e) {
+    } on firebase_auth.FirebaseAuthException catch (e) {
       AppNotifier.show(
         context,
         'Sign up failed: ${e.message}',
@@ -197,7 +227,7 @@ class AuthService {
           Navigator.pushReplacementNamed(context, '/login'),
         },
       );
-    } on FirebaseAuthException catch (e) {
+    } on firebase_auth.FirebaseAuthException catch (e) {
       AppNotifier.show(
         context,
         'Log out failed: ${e.message}',
@@ -223,50 +253,21 @@ class AuthService {
 
     try {
       // Upload to Cloudinary
-      final CloudinaryService cloudinaryService = CloudinaryService();
-      final String? imageUrl = await cloudinaryService.uploadToCloudinary(
+      final String? imageUrl = await _cloudinaryService.uploadToCloudinary(
         filePath,
         dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
       );
-      print('imageUrl issssssssssssss: $imageUrl');
       if (imageUrl != null && imageUrl.isNotEmpty) {
-        try {
-          // First check if the document exists
-          DocumentSnapshot docSnapshot =
-              await _firestore.collection('users').doc(user.uid).get();
-
-          if (docSnapshot.exists) {
-            // If document exists, update it
-            await _firestore.collection('users').doc(user.uid).update({
-              'photoURL': imageUrl,
-              'updatedAt': FieldValue.serverTimestamp(),
-            });
-          } else {
-            // If document doesn't exist, create it with set()
-            await _firestore.collection('users').doc(user.uid).set({
-              'photoURL': imageUrl,
-              'email': user.email,
-              'createdAt': FieldValue.serverTimestamp(),
-              'updatedAt': FieldValue.serverTimestamp(),
-            });
-          }
-
-          AppNotifier.show(
-            context,
-            'Profile photo updated successfully!',
-            type: MessageType.success,
-          );
-
-          return imageUrl;
-        } catch (firestoreError) {
-          AppNotifier.show(
-            context,
-            'Error saving photo URL: $firestoreError',
-            type: MessageType.error,
-          );
-          // Still return the URL even if Firestore update failed
-          return imageUrl;
-        }
+        await _firestore.collection('users').doc(user.uid).update({
+          'photoURL': imageUrl,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+        AppNotifier.show(
+          context,
+          'Profile photo updated successfully!',
+          type: MessageType.success,
+        );
+        return imageUrl;
       } else {
         AppNotifier.show(
           context,
@@ -285,35 +286,19 @@ class AuthService {
     }
   }
 
-  // Check the user role
-  Future<String?> getUserRole() async {
+  // Fetch user data
+  Future<User?> fetchUserData() async {
     try {
-      User? currentUser = _auth.currentUser;
+      firebase_auth.User? currentUser = _auth.currentUser;
       if (currentUser != null) {
         DocumentSnapshot userDoc =
             await _firestore.collection('users').doc(currentUser.uid).get();
 
         if (userDoc.exists) {
-          final userData = userDoc.data() as Map<String, dynamic>;
-          return userData['role'] as String?;
-        }
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  // Fetch user data from Firestore
-  Future<Map<String, dynamic>?> fetchUserData() async {
-    try {
-      User? currentUser = _auth.currentUser;
-      if (currentUser != null) {
-        DocumentSnapshot userDoc =
-            await _firestore.collection('users').doc(currentUser.uid).get();
-
-        if (userDoc.exists) {
-          return userDoc.data() as Map<String, dynamic>;
+          return User.fromMap(
+            userDoc.data() as Map<String, dynamic>,
+            currentUser.uid,
+          );
         }
       }
       return null;
@@ -322,13 +307,36 @@ class AuthService {
     }
   }
 
-  // Save profile data to Firestore
+  // Get user role
+  Future<String?> getUserRole() async {
+    final userData = await fetchUserData();
+    return userData?.role;
+  }
+
+  // // Fetch user data from Firestore
+  // Future<Map<String, dynamic>?> fetchUserData() async {
+  //   try {
+  //     firebase_auth.User? currentUser = _auth.currentUser;
+  //     if (currentUser != null) {
+  //       DocumentSnapshot userDoc =
+  //           await _firestore.collection('users').doc(currentUser.uid).get();
+
+  //       if (userDoc.exists) {
+  //         return userDoc.data() as Map<String, dynamic>;
+  //       }
+  //     }
+  //     return null;
+  //   } catch (e) {
+  //     throw Exception('Failed to fetch user data: $e');
+  //   }
+  // }
+
+  // Save profile data
   Future<bool> saveProfileData({
     required String name,
     required String role,
     String? photoURL,
     required double weight,
-    required String weightUnit,
     required double height,
     required String gender,
     required String dateOfBirth,
@@ -338,45 +346,42 @@ class AuthService {
     if (user == null) {
       AppNotifier.show(
         context,
-        'User is not Logged In',
+        'User is not logged in',
         type: MessageType.warning,
       );
       return false;
     }
 
     try {
-      // Create the data map with all profile fields
-      Map<String, dynamic> userData = {
-        'displayName': name,
-        'email': user.email,
-        'role': role,
-        'weight': weight,
-        'weightUnit': weightUnit,
-        'height': height,
-        'gender': gender,
-        'dateOfBirth': dateOfBirth,
-        'updatedAt': FieldValue.serverTimestamp(),
-      };
-
-      // Only add photoURL if it's provided and not empty
-      if (photoURL != null && photoURL.isNotEmpty) {
-        userData['photoURL'] = photoURL;
+      User userModel;
+      if (role == 'Doctor') {
+        userModel = Doctor(
+          uid: user.uid,
+          email: user.email ?? '',
+          displayName: name,
+          photoURL: photoURL,
+          createdAt: user.metadata.creationTime,
+          updatedAt: DateTime.now(),
+        );
+      } else {
+        userModel = Patient(
+          uid: user.uid,
+          email: user.email ?? '',
+          displayName: name,
+          photoURL: photoURL,
+          weight: weight,
+          height: height,
+          gender: gender,
+          dateOfBirth: dateOfBirth,
+          createdAt: user.metadata.creationTime,
+          updatedAt: DateTime.now(),
+        );
       }
 
-      // Check if this is a new user
-      DocumentSnapshot userDoc =
-          await _firestore.collection('users').doc(user.uid).get();
-
-      if (!userDoc.exists) {
-        // Add createdAt for new users
-        userData['createdAt'] = FieldValue.serverTimestamp();
-      }
-
-      // Use set with merge option to handle both new and existing documents
       await _firestore
           .collection('users')
           .doc(user.uid)
-          .set(userData, SetOptions(merge: true));
+          .set(userModel.toMap(), SetOptions(merge: true));
 
       AppNotifier.show(
         context,
@@ -384,13 +389,10 @@ class AuthService {
         type: MessageType.success,
       );
 
-      // Navigate based on role
-      if (role == 'Doctor') {
-        Navigator.of(context).pushReplacementNamed('/doctorDashboard');
-      } else {
-        Navigator.of(context).pushReplacementNamed('/patientDashboard');
-      }
-
+      Navigator.pushReplacementNamed(
+        context,
+        role == 'Doctor' ? '/doctorDashboard' : '/patientDashboard',
+      );
       return true;
     } catch (error) {
       AppNotifier.show(
@@ -411,11 +413,11 @@ class AuthService {
       await _auth.sendPasswordResetEmail(email: email);
       AppNotifier.show(
         context,
-        'Password reset Email sent! \nCheck your inbox.',
+        'Password reset email sent successfully',
         type: MessageType.success,
       );
       return true;
-    } on FirebaseAuthException catch (e) {
+    } on firebase_auth.FirebaseAuthException catch (e) {
       AppNotifier.show(
         context,
         'Error sending Password reset Mail: ${e.message}',
@@ -424,7 +426,4 @@ class AuthService {
       return false;
     }
   }
-
-  // Check if email is verified
-  bool get isEmailVerified => _auth.currentUser?.emailVerified ?? false;
 }
