@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:test_project/models/course.dart';
 import 'package:test_project/models/lesson.dart';
-import 'package:test_project/services/auth_service.dart';
+import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/services/cloudinary_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'dart:io';

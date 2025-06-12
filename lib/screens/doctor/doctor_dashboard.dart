@@ -1,7 +1,7 @@
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/models/course.dart';
 import 'package:test_project/services/database_service.dart';
-import 'package:test_project/services/auth_service.dart';
+import 'package:test_project/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';

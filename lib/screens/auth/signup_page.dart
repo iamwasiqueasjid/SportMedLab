@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:test_project/services/auth_service.dart';
+import 'package:test_project/services/auth/auth_service.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:test_project/services/auth_service.dart';
+import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
 // import 'package:test_project/services/auth_service.dart';

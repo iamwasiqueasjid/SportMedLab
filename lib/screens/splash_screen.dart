@@ -25,9 +25,9 @@ class SplashScreenState extends State<SplashScreen>
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
 
-    // Navigate to the next screen after 4 seconds
+    // Navigate to AuthWrapper after 5 seconds
     Timer(const Duration(seconds: 5), () {
-      Navigator.pushReplacementNamed(context, '/starterPage');
+      Navigator.pushReplacementNamed(context, '/authWrapper');
     });
   }
 
@@ -38,10 +38,9 @@ class SplashScreenState extends State<SplashScreen>
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A2D7B), // Set splash background color
+      backgroundColor: const Color(0xFF0A2D7B),
       body: Center(
         child: FadeTransition(
           opacity: _animation,

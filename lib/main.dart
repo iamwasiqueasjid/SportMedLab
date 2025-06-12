@@ -1,27 +1,24 @@
-// Packages
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:test_project/screens/profile/edit_profile.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-// Pages
-import 'package:test_project/screens/splash_screen.dart';
 import 'package:test_project/screens/auth/authentication_page.dart';
-import 'package:test_project/screens/course_details.dart';
 import 'package:test_project/screens/auth/login_page.dart';
-import 'package:test_project/screens/profile/profile_setup_page.dart';
 import 'package:test_project/screens/auth/signup_page.dart';
-import 'package:test_project/screens/starter_page.dart';
-import 'package:test_project/screens/patient/patient_dashboard.dart';
+import 'package:test_project/screens/course_details.dart';
 import 'package:test_project/screens/doctor/doctor_dashboard.dart';
-
-// Theme files
+import 'package:test_project/screens/patient/patient_dashboard.dart';
+import 'package:test_project/screens/profile/edit_profile.dart';
+import 'package:test_project/screens/profile/profile_setup_page.dart';
+import 'package:test_project/screens/splash_screen.dart';
+import 'package:test_project/screens/starter_page.dart';
+import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/theme/app_theme.dart' show lightTheme, darkTheme;
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Check if Firebase is already initialized
   try {
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp();
@@ -36,7 +33,7 @@ void main() async {
     throw Exception('Error loading .env file: $e');
   }
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -49,7 +46,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   bool isDarkMode = true;
 
-  // Method that toggles the theme;
   void toggleTheme(bool enableDark) {
     setState(() {
       isDarkMode = enableDark;
@@ -59,38 +55,86 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
-      title: 'Comsicon',
-
-      // Provide both light and dark themes
+      title: 'Christos Poulis',
       theme: lightTheme,
-      // darkTheme: darkTheme,
-
-      // Dynamically pick which theme to use
+      darkTheme: darkTheme,
       themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
       initialRoute: '/splash',
-      // Define all routes
       routes: {
         '/splash': (context) => const SplashScreen(),
+        '/authWrapper': (context) => const AuthWrapper(),
         '/starterPage': (context) => const StarterPage(),
         '/auth': (context) => AuthenticationPage(),
         '/signUp': (context) => const SignUpScreen(),
         '/login': (context) => const LoginScreen(),
         '/profileSetup': (context) => const ProfileSetupScreen(),
-        '/doctorDashboard': (context) => DoctorDashboard(),
-        '/patientDashboard': (context) => PatientDashboard(),
+        '/doctorDashboard': (context) => const DoctorDashboard(),
+        '/patientDashboard': (context) => const PatientDashboard(),
         '/profile': (context) => const ProfileScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/courseDetails') {
-          // Extract the courseId from arguments
           final String courseId = settings.arguments as String;
           return MaterialPageRoute(
             builder: (context) => CourseDetailsScreen(courseId: courseId),
           );
         }
         return null;
+      },
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final AuthService authService = AuthService();
+
+    return StreamBuilder<firebase_auth.User?>(
+      stream: authService.authStateChanges,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: SpinKitDoubleBounce(color: Color(0xFF0A2D7B), size: 40.0),
+            ),
+          );
+        }
+
+        if (snapshot.hasData && snapshot.data != null) {
+          return FutureBuilder(
+            future: authService.fetchUserData(),
+            builder: (context, userSnapshot) {
+              if (userSnapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  body: Center(
+                    child: SpinKitDoubleBounce(
+                      color: Color(0xFF0A2D7B),
+                      size: 40.0,
+                    ),
+                  ),
+                );
+              }
+
+              if (userSnapshot.hasData && userSnapshot.data != null) {
+                final user = userSnapshot.data!;
+                if (user.displayName.isEmpty) {
+                  return const ProfileSetupScreen();
+                }
+                return user.role == 'Doctor'
+                    ? const DoctorDashboard()
+                    : const PatientDashboard();
+              } else {
+                return const ProfileSetupScreen();
+              }
+            },
+          );
+        } else {
+          return const StarterPage();
+        }
       },
     );
   }
