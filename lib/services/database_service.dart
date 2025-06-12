@@ -2,9 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:test_project/models/course.dart'; // Import Course and Lesson models
-import 'package:test_project/models/lesson.dart'; // Import Course and Lesson models
-import 'package:test_project/models/user.dart';
+import 'package:test_project/models/course.dart';
+import 'package:test_project/models/lesson.dart';
 import 'package:test_project/services/auth_service.dart';
 import 'package:test_project/services/cloudinary_service.dart';
 import 'package:test_project/utils/message_type.dart';
