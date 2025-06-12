@@ -118,12 +118,12 @@ class PatientDashboardState extends State<PatientDashboard> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black, // Match LoginScreen
+                  color: Colors.white, // Match LoginScreen
                 ),
               ),
               Text(
                 'Explore your fitness journey',
-                style: TextStyle(color: Colors.grey[600]), // Match LoginScreen
+                style: TextStyle(color: Colors.grey[400]), // Match LoginScreen
               ),
             ],
           ),

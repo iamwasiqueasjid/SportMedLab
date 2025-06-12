@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
-// import 'package:test_project/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -44,7 +43,7 @@ class LoginScreenState extends State<LoginScreen> {
                 ),
                 icon: Icon(Icons.arrow_back, color: Colors.white, size: 35),
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pushReplacementNamed(context, '/auth');
                 },
               ),
             ),
@@ -53,6 +52,7 @@ class LoginScreenState extends State<LoginScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Card(
                   elevation: 4,
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -63,30 +63,42 @@ class LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // 👋 Welcome Text
-                          Text(
-                            "Welcome Back,",
-                            style: TextStyle(
-                              fontSize: 50,
-                              fontWeight: FontWeight.bold,
-                              color: theme.primaryColor,
+                          // 🖼️ App Logo
+                          Center(
+                            child: Image.asset(
+                              'assets/icons/Splash_Logo.png',
+                              width: 150,
+                              height: 40,
+                              fit: BoxFit.contain,
                             ),
                           ),
-                          Text(
-                            "Make it work, make it fast, make it right.",
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontSize: 16,
-                            ),
+                          const SizedBox(height: 14),
+                          // 👋 Welcome Text and Subtitle in a Column
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Welcome Back,",
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.primaryColor,
+                                ),
+                              ),
+                              Text(
+                                "Make it work, make it fast, make it right.",
+                                style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
                           ),
-
                           const SizedBox(height: 30),
                           // 📧 Email Field
                           TextFormField(
                             controller: _emailController,
-                            style: TextStyle(
-                              color: theme.primaryColor,
-                            ), // Fix text color
+                            style: TextStyle(color: theme.primaryColor),
                             decoration: InputDecoration(
                               labelText: 'Email',
                               prefixIcon: Icon(
@@ -125,14 +137,11 @@ class LoginScreenState extends State<LoginScreen> {
                             },
                           ),
                           const SizedBox(height: 16),
-
                           // 🔒 Password Field
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
-                            style: TextStyle(
-                              color: theme.primaryColor,
-                            ), // Fix text color
+                            style: TextStyle(color: theme.primaryColor),
                             decoration: InputDecoration(
                               labelText: 'Password',
                               prefixIcon: Icon(
@@ -182,7 +191,6 @@ class LoginScreenState extends State<LoginScreen> {
                             },
                           ),
                           const SizedBox(height: 12),
-
                           // 🔁 Remember Me & Forgot Password
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -226,7 +234,6 @@ class LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                           const SizedBox(height: 12),
-
                           // 🔓 Sign In Button
                           SizedBox(
                             width: double.infinity,
@@ -261,7 +268,6 @@ class LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-
                           // 🆕 Create Account Button
                           SizedBox(
                             width: double.infinity,

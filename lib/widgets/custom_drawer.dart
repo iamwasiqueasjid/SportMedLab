@@ -19,7 +19,7 @@ class CustomDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final AuthService authService = AuthService();
-    final currentRoute = ModalRoute.of(context)?.settings.name;
+    final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
 
     return Drawer(
       backgroundColor: const Color(0xFFF0F4F8),
@@ -56,70 +56,101 @@ class CustomDrawer extends StatelessWidget {
               ],
             ),
           ),
-          ListTile(
-            leading: Icon(Icons.dashboard, color: theme.primaryColor),
-            title: Text(
-              'Dashboard',
-              style: TextStyle(color: theme.primaryColor),
-            ),
-            selected:
-                currentRoute == '/doctorDashboard' ||
-                currentRoute == '/patientDashboard',
-            selectedTileColor: theme.primaryColor,
-            onTap: () async {
-              Navigator.pop(context); // Close the drawer
-
-              try {
-                final userRole = await authService.getUserRole();
-                final targetRoute =
-                    userRole == 'Doctor'
-                        ? '/doctorDashboard'
-                        : '/patientDashboard';
-
-                if (currentRoute != targetRoute) {
-                  Navigator.pushReplacementNamed(context, targetRoute);
-                } else {
+          Container(
+            color:
+                (currentRoute == '/doctorDashboard' ||
+                        currentRoute == '/patientDashboard')
+                    ? theme.primaryColor.withOpacity(
+                      0.3,
+                    ) // Full overlay for selected
+                    : Colors.transparent,
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+              leading: Icon(Icons.dashboard, color: theme.primaryColor),
+              title: Text(
+                'Dashboard',
+                style: TextStyle(color: theme.primaryColor),
+              ),
+              onTap: () async {
+                Navigator.pop(context); // Close the drawer
+                try {
+                  final userRole = await authService.getUserRole();
+                  final targetRoute =
+                      userRole == 'Doctor'
+                          ? '/doctorDashboard'
+                          : '/patientDashboard';
+                  if (currentRoute != targetRoute) {
+                    Navigator.pushReplacementNamed(context, targetRoute);
+                  } else {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      AppNotifier.show(
+                        context,
+                        'Already on $userRole Dashboard',
+                        type: MessageType.info,
+                      );
+                    });
+                  }
+                } catch (e) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     AppNotifier.show(
                       context,
-                      'Already on $userRole Dashboard',
-                      type: MessageType.info,
+                      'Error fetching role: $e',
+                      type: MessageType.error,
                     );
                   });
+                  if (currentRoute != '/patientDashboard') {
+                    Navigator.pushReplacementNamed(
+                      context,
+                      '/patientDashboard',
+                    );
+                  }
                 }
-              } catch (e) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  AppNotifier.show(
-                    context,
-                    'Error fetching role: $e',
-                    type: MessageType.error,
-                  );
-                });
-
-                if (currentRoute != '/patientDashboard') {
-                  Navigator.pushReplacementNamed(context, '/patientDashboard');
-                }
-              }
-            },
+              },
+            ),
           ),
-          ListTile(
-            leading: Icon(Icons.person, color: theme.primaryColor),
-            title: Text('Profile', style: TextStyle(color: theme.primaryColor)),
-            selected: currentRoute == '/profile',
-            selectedTileColor: theme.primaryColor,
-            onTap: () {
-              Navigator.pop(context);
-
-              Navigator.pushReplacementNamed(context, '/profile');
-            },
+          Container(
+            color:
+                currentRoute == '/profile'
+                    ? theme.primaryColor.withOpacity(
+                      0.3,
+                    ) // Full overlay for selected
+                    : Colors.transparent,
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+              leading: Icon(Icons.person, color: theme.primaryColor),
+              title: Text(
+                'Profile',
+                style: TextStyle(color: theme.primaryColor),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushReplacementNamed(context, '/profile');
+              },
+            ),
           ),
           Divider(color: Colors.grey[400]),
-          ListTile(
-            leading: Icon(Icons.logout, color: theme.primaryColor),
-            title: Text('Logout', style: TextStyle(color: theme.primaryColor)),
-            onTap: () {
-              authService.signOut(context);
-            },
+          Container(
+            color: Colors.transparent, // No overlay for Logout
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+              leading: Icon(Icons.logout, color: theme.primaryColor),
+              title: Text(
+                'Logout',
+                style: TextStyle(color: theme.primaryColor),
+              ),
+              onTap: () {
+                authService.signOut(context);
+              },
+            ),
           ),
         ],
       ),

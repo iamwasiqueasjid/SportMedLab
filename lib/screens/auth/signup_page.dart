@@ -37,7 +37,7 @@ class SignUpScreenState extends State<SignUpScreen> {
                 ),
                 icon: Icon(Icons.arrow_back, color: Colors.white, size: 35),
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pushReplacementNamed(context, '/auth');
                 },
               ),
             ),
@@ -46,44 +46,57 @@ class SignUpScreenState extends State<SignUpScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Card(
                   elevation: 4,
+                  color: Colors.white, // Match LoginScreen's Card background
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24.0,
-                      vertical: 16,
-                    ),
+                    padding: const EdgeInsets.all(
+                      22.0,
+                    ), // Match LoginScreen padding
                     child: Form(
                       key: _formKey,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment:
+                            CrossAxisAlignment.stretch, // Match LoginScreen
                         children: [
-                          // 👋 Welcome Text
-                          Text(
-                            "Get On Board!",
-                            style: TextStyle(
-                              fontSize: 50,
-                              fontWeight: FontWeight.bold,
-                              color: theme.primaryColor,
+                          // 🖼️ App Logo
+                          Center(
+                            child: Image.asset(
+                              'assets/icons/Splash_Logo.png', // Replace with your logo path
+                              width: 150, // Match LoginScreen
+                              height:
+                                  40, // Match LoginScreen (for 2042x484 aspect ratio)
+                              fit: BoxFit.contain,
                             ),
                           ),
-                          // const SizedBox(height: 5),
-                          Text(
-                            "Create your profile to start your Journey.",
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontSize: 16,
-                            ),
+                          const SizedBox(height: 14), // Match LoginScreen
+                          // 👋 Welcome Text and Subtitle
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Get On Board!",
+                                style: TextStyle(
+                                  fontSize: 32, // Match LoginScreen
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.primaryColor,
+                                ),
+                              ),
+                              Text(
+                                "Create your profile to start your Journey.",
+                                style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 16, // Match LoginScreen
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 30),
-
-                          // Email Field
+                          const SizedBox(height: 30), // Match LoginScreen
+                          // 📧 Email Field
                           TextFormField(
                             controller: _emailController,
-                            style: TextStyle(
-                              color: theme.primaryColor,
-                            ), // Fix text color
+                            style: TextStyle(color: theme.primaryColor),
                             decoration: InputDecoration(
                               labelText: 'Email',
                               prefixIcon: Icon(
@@ -122,14 +135,11 @@ class SignUpScreenState extends State<SignUpScreen> {
                             },
                           ),
                           const SizedBox(height: 16),
-
-                          // Password Field
+                          // 🔒 Password Field
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
-                            style: TextStyle(
-                              color: theme.primaryColor,
-                            ), // Fix text color
+                            style: TextStyle(color: theme.primaryColor),
                             decoration: InputDecoration(
                               labelText: 'Password',
                               prefixIcon: Icon(
@@ -179,15 +189,12 @@ class SignUpScreenState extends State<SignUpScreen> {
                             },
                           ),
                           const SizedBox(height: 16),
-
-                          // Confirm Password Field
+                          // 🔒 Confirm Password Field
                           TextFormField(
                             controller: _confirmPasswordController,
                             obscureText: _obscureConfirmPassword,
                             cursorColor: theme.primaryColor,
-                            style: TextStyle(
-                              color: theme.primaryColor,
-                            ), // Fix text color
+                            style: TextStyle(color: theme.primaryColor),
                             decoration: InputDecoration(
                               labelText: 'Re-Enter Password',
                               prefixIcon: Icon(
@@ -238,14 +245,14 @@ class SignUpScreenState extends State<SignUpScreen> {
                             },
                           ),
                           const SizedBox(height: 16),
-
-                          // Continue Button
+                          // 🔓 Continue Button
                           SizedBox(
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: theme.colorScheme.primary,
+                                backgroundColor:
+                                    theme.primaryColor, // Match LoginScreen
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -255,9 +262,6 @@ class SignUpScreenState extends State<SignUpScreen> {
                                   String email = _emailController.text.trim();
                                   String password =
                                       _passwordController.text.trim();
-                                  // String confirmPassword =
-                                  //     _confirmPasswordController.text.trim();
-
                                   bool result = await _authService.signUp(
                                     email: email,
                                     password: password,
@@ -270,18 +274,17 @@ class SignUpScreenState extends State<SignUpScreen> {
                                   }
                                 }
                               },
-                              child: Text(
+                              child: const Text(
                                 'Continue',
-                                style: theme.textTheme.bodyLarge?.copyWith(
+                                style: TextStyle(
                                   fontSize: 16,
-                                  color: theme.colorScheme.onPrimary,
+                                  color: Colors.white, // Match LoginScreen
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 16),
-
-                          // 🆕 Create Account Button
+                          const SizedBox(height: 12), // Match LoginScreen
+                          // 🆕 Sign In Button
                           SizedBox(
                             width: double.infinity,
                             height: 50,
