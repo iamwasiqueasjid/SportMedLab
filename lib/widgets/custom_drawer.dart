@@ -113,6 +113,19 @@ class CustomDrawer extends StatelessWidget {
               Navigator.pushReplacementNamed(context, '/profile');
             },
           ),
+          
+          ListTile(
+            leading: Icon(Icons.upload, color: theme.primaryColor),
+            title: Text('Upload Blog', style: TextStyle(color: theme.primaryColor)),
+            selected: currentRoute == '/blogUpload',
+            selectedTileColor: theme.primaryColor,
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushReplacementNamed(context, '/blogUpload');
+            },
+          ),
+
+
           Divider(color: Colors.grey[400]),
           ListTile(
             leading: Icon(Icons.logout, color: theme.primaryColor),
