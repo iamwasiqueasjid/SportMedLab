@@ -36,21 +36,13 @@ abstract class User {
 
 class Doctor extends User {
   Doctor({
-    required String uid,
-    required String email,
-    required String displayName,
-    String? photoURL,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) : super(
-         uid: uid,
-         email: email,
-         displayName: displayName,
-         photoURL: photoURL,
-         role: 'Doctor',
-         createdAt: createdAt,
-         updatedAt: updatedAt,
-       );
+    required super.uid,
+    required super.email,
+    required super.displayName,
+    super.photoURL,
+    super.createdAt,
+    super.updatedAt,
+  }) : super(role: 'Doctor');
 
   factory Doctor.fromMap(Map<String, dynamic> data, String uid) {
     return Doctor(
@@ -84,25 +76,17 @@ class Patient extends User {
   final String dateOfBirth;
 
   Patient({
-    required String uid,
-    required String email,
-    required String displayName,
-    String? photoURL,
+    required super.uid,
+    required super.email,
+    required super.displayName,
+    super.photoURL,
     required this.weight,
     required this.height,
     required this.gender,
     required this.dateOfBirth,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) : super(
-         uid: uid,
-         email: email,
-         displayName: displayName,
-         photoURL: photoURL,
-         role: 'Patient',
-         createdAt: createdAt,
-         updatedAt: updatedAt,
-       );
+    super.createdAt,
+    super.updatedAt,
+  }) : super(role: 'Patient');
 
   factory Patient.fromMap(Map<String, dynamic> data, String uid) {
     return Patient(

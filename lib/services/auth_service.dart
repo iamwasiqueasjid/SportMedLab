@@ -410,10 +410,27 @@ class AuthService {
     required BuildContext context,
   }) async {
     try {
+      // First check if the email exists in our database
+      final QuerySnapshot userQuery =
+          await _firestore
+              .collection('users')
+              .where('email', isEqualTo: email)
+              .get();
+
+      if (userQuery.docs.isEmpty) {
+        AppNotifier.show(
+          context,
+          'No account found with this email address!',
+          type: MessageType.error,
+        );
+        return false;
+      }
+
+      // If email exists, send password reset email
       await _auth.sendPasswordResetEmail(email: email);
       AppNotifier.show(
         context,
-        'Password reset email sent successfully',
+        'Password reset email sent successfully!\nPlease check your inbox.',
         type: MessageType.success,
       );
       return true;
@@ -421,6 +438,13 @@ class AuthService {
       AppNotifier.show(
         context,
         'Error sending Password reset Mail: ${e.message}',
+        type: MessageType.error,
+      );
+      return false;
+    } catch (e) {
+      AppNotifier.show(
+        context,
+        'An error occurred while checking email: $e',
         type: MessageType.error,
       );
       return false;
