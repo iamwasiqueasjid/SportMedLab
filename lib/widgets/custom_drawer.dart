@@ -137,6 +137,28 @@ class CustomDrawer extends StatelessWidget {
           ),
           Divider(color: Colors.grey[400]),
           Container(
+            color:
+                currentRoute == '/poseDetection'
+                    ? theme.primaryColor.withOpacity(0.3)
+                    : Colors.transparent,
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+              leading: Icon(Icons.person, color: theme.primaryColor),
+              title: Text(
+                'Pose Detection',
+                style: TextStyle(color: theme.primaryColor),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushReplacementNamed(context, '/poseDetection');
+              },
+            ),
+          ),
+          Divider(color: Colors.grey[400]),
+          Container(
             color: Colors.transparent,
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(
