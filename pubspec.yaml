@@ -54,6 +54,10 @@ dependencies:
   http: ^1.4.0
   syncfusion_flutter_pdf: ^29.2.10
   docx_to_text: ^1.0.1
+  flutter_html: ^3.0.0
+  xml: ^6.5.0
+  dart_quill_delta: ^10.8.3
+
 
 
 
