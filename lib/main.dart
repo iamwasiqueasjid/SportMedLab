@@ -15,6 +15,7 @@ import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/theme/app_theme.dart' show lightTheme, darkTheme;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:test_project/pose_detection/pose_detector_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,6 +73,7 @@ class _MyAppState extends State<MyApp> {
         '/doctorDashboard': (context) => const DoctorDashboard(),
         '/patientDashboard': (context) => const PatientDashboard(),
         '/profile': (context) => const ProfileScreen(),
+        '/poseDetection': (context) => PoseDetectorView(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/courseDetails') {
