@@ -46,7 +46,9 @@ class SignUpScreenState extends State<SignUpScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Card(
                   elevation: 4,
-                  color: Colors.white, // Match LoginScreen's Card background
+                  color: Colors.white,
+                  shadowColor:
+                      theme.primaryColor, // Match LoginScreen's Card background
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),

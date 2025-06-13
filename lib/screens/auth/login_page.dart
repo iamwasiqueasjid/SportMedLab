@@ -53,6 +53,7 @@ class LoginScreenState extends State<LoginScreen> {
                 child: Card(
                   elevation: 4,
                   color: Colors.white,
+                  shadowColor: theme.primaryColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),

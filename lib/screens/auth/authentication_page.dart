@@ -146,7 +146,7 @@ class AuthenticationPageState extends State<AuthenticationPage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12.0),
                           ),
-                          elevation: 3,
+                          elevation: 4,
                         ),
                         onPressed: () {
                           Navigator.pushNamed(context, '/login');
@@ -168,7 +168,7 @@ class AuthenticationPageState extends State<AuthenticationPage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12.0),
                           ),
-                          elevation: 3,
+                          elevation: 4,
                         ),
                         onPressed: () {
                           Navigator.pushNamed(context, '/signUp');

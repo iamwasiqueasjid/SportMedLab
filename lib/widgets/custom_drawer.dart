@@ -60,9 +60,7 @@ class CustomDrawer extends StatelessWidget {
             color:
                 (currentRoute == '/doctorDashboard' ||
                         currentRoute == '/patientDashboard')
-                    ? theme.primaryColor.withOpacity(
-                      0.3,
-                    ) // Full overlay for selected
+                    ? theme.primaryColor.withOpacity(0.3)
                     : Colors.transparent,
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(
@@ -75,32 +73,37 @@ class CustomDrawer extends StatelessWidget {
                 style: TextStyle(color: theme.primaryColor),
               ),
               onTap: () async {
-                Navigator.pop(context); // Close the drawer
                 try {
                   final userRole = await authService.getUserRole();
                   final targetRoute =
                       userRole == 'Doctor'
                           ? '/doctorDashboard'
                           : '/patientDashboard';
-                  if (currentRoute != targetRoute) {
-                    Navigator.pushReplacementNamed(context, targetRoute);
-                  } else {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      AppNotifier.show(
-                        context,
-                        'Already on $userRole Dashboard',
-                        type: MessageType.info,
-                      );
-                    });
-                  }
-                } catch (e) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
+
+                  // Close the drawer first
+                  Navigator.pop(context);
+
+                  // Check if already on the target route
+                  if (currentRoute == targetRoute) {
                     AppNotifier.show(
                       context,
-                      'Error fetching role: $e',
-                      type: MessageType.error,
+                      'Already on $userRole Dashboard',
+                      type: MessageType.info,
                     );
-                  });
+                    return;
+                  }
+
+                  // Navigate to the target route
+                  Navigator.pushReplacementNamed(context, targetRoute);
+                } catch (e) {
+                  // Handle error and show notification
+                  AppNotifier.show(
+                    context,
+                    'Error fetching role: $e',
+                    type: MessageType.error,
+                  );
+
+                  // Fallback navigation
                   if (currentRoute != '/patientDashboard') {
                     Navigator.pushReplacementNamed(
                       context,
@@ -114,9 +117,7 @@ class CustomDrawer extends StatelessWidget {
           Container(
             color:
                 currentRoute == '/profile'
-                    ? theme.primaryColor.withOpacity(
-                      0.3,
-                    ) // Full overlay for selected
+                    ? theme.primaryColor.withOpacity(0.3)
                     : Colors.transparent,
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(
@@ -136,7 +137,7 @@ class CustomDrawer extends StatelessWidget {
           ),
           Divider(color: Colors.grey[400]),
           Container(
-            color: Colors.transparent, // No overlay for Logout
+            color: Colors.transparent,
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,

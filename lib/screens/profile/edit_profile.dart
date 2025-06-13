@@ -45,6 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _nameController.dispose();
     _weightController.dispose();
     _heightController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
@@ -62,9 +63,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _uploadedImageUrl = userData.photoURL;
           _role = userData.role;
 
-          // Check if userData has additional properties (for Patient role)
-          // Since User type doesn't have weight, height, gender, dateOfBirth properties,
-          // we'll use dynamic access or create default values
           try {
             final userDataMap = userData as dynamic;
             if (userDataMap.role == 'Patient') {
@@ -78,18 +76,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     'yyyy-MM-dd',
                   ).parse(userDataMap.dateOfBirth);
                 } catch (e) {
-                  _selectedDate = null; // Handle invalid date format
+                  _selectedDate = null;
                 }
               }
             } else {
-              // Default values for Doctor or other roles
               _weightController.text = '';
               _heightController.text = '';
               _selectedGender = null;
               _selectedDate = null;
             }
           } catch (e) {
-            // If dynamic access fails, set default values
             _weightController.text = '';
             _heightController.text = '';
             _selectedGender = null;
@@ -115,6 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _pickImage() async {
+    if (!_isEditing) return; // Restrict image picking to edit mode
     try {
       final XFile? image = await _picker.pickImage(
         source: ImageSource.gallery,
@@ -139,6 +136,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Theme.of(context).primaryColor,
+              onPrimary: Colors.white,
+              surface: Colors.grey[100]!, // Use ! to assert non-null
+            ),
+            dialogBackgroundColor: Colors.white,
+          ),
+          child: child!,
+        );
+      },
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -154,7 +164,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
 
       try {
-        // Upload image to Cloudinary if selected
         if (_imageFile != null) {
           setState(() {
             _isUploading = true;
@@ -213,6 +222,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _toggleEdit() {
     setState(() {
       _isEditing = !_isEditing;
+      if (!_isEditing) {
+        _imageFile = null; // Reset image file when canceling edit
+      }
     });
   }
 
@@ -221,18 +233,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
+        backgroundColor: theme.primaryColor,
+        foregroundColor: Colors.white, // Sets default foreground color to white
+        elevation: 2,
+        shadowColor: Colors.black26,
         leading: Builder(
           builder:
               (context) => IconButton(
-                icon: Icon(Icons.menu, color: theme.primaryColor),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
+                icon: const Icon(
+                  Icons.menu,
+                ), // Color inherited from foregroundColor (white)
+                onPressed: () => Scaffold.of(context).openDrawer(),
               ),
+        ),
+        title: const Text(
+          'Profile',
+          style: TextStyle(
+            color: Colors.white, // Explicitly set to white
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
         actions: [
           TextButton(
@@ -240,8 +262,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Text(
               _isEditing ? 'Cancel' : 'Edit',
               style: TextStyle(
-                color: theme.primaryColor,
-                fontWeight: FontWeight.bold,
+                color:
+                    _isLoading
+                        ? Colors.grey
+                        : Colors.white, // White when not loading
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
               ),
             ),
           ),
@@ -251,374 +277,493 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Text(
                 'Save',
                 style: TextStyle(
-                  color: theme.primaryColor,
-                  fontWeight: FontWeight.bold,
+                  color:
+                      _isLoading || _isUploading
+                          ? Colors.grey
+                          : Colors.white, // White when not loading/uploading
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
                 ),
               ),
             ),
         ],
       ),
       drawer: CustomDrawer(
-        userName: _nameController.text.isEmpty ? "User" : _nameController.text,
+        userName: _nameController.text.isEmpty ? 'User' : _nameController.text,
         photoUrl: _uploadedImageUrl,
-        role: 'Patient',
+        role: _role,
       ),
       body:
           _isLoading
-              ? const Center(
+              ? Center(
                 child: SpinKitDoubleBounce(
                   color: Color(0xFF0A2D7B),
                   size: 40.0,
                 ),
               )
-              : SafeArea(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 20,
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Your Profile',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+              : SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header Section
+                      Text(
+                        'Your Profile',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: theme.primaryColor,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Manage your personal details',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Profile Photo Section
+                      Center(
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          width: 140,
+                          height: 140,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [
+                                theme.primaryColor.withOpacity(0.1),
+                                Colors.white,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'View or update your profile details.',
-                          style: TextStyle(color: Colors.grey[700]),
-                        ),
-                        const SizedBox(height: 32),
-                        Center(
                           child: Stack(
-                            alignment: Alignment.bottomRight,
+                            alignment: Alignment.center,
                             children: [
                               GestureDetector(
-                                onTap: _pickImage,
+                                onTap:
+                                    _isEditing
+                                        ? _pickImage
+                                        : null, // Restrict to edit mode
                                 child: Container(
-                                  width: 120,
-                                  height: 120,
+                                  width: 130,
+                                  height: 130,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Colors.grey[100],
                                     border: Border.all(
-                                      color: theme.primaryColor,
-                                      width: 1,
+                                      color: theme.primaryColor.withOpacity(
+                                        _isEditing ? 0.8 : 0.3,
+                                      ),
+                                      width: 2,
                                     ),
                                   ),
-                                  child:
-                                      _isUploading
-                                          ? Center(
-                                            child: SpinKitDoubleBounce(
-                                              color: Color(0xFF0A2D7B),
-                                              size: 40.0,
+                                  child: ClipOval(
+                                    child:
+                                        _isUploading
+                                            ? Center(
+                                              child: SpinKitFadingCircle(
+                                                color: theme.primaryColor,
+                                                size: 40.0,
+                                              ),
+                                            )
+                                            : _imageFile != null
+                                            ? Image.file(
+                                              _imageFile!,
+                                              width: 130,
+                                              height: 130,
+                                              fit: BoxFit.cover,
+                                            )
+                                            : _uploadedImageUrl != null
+                                            ? Image.network(
+                                              _uploadedImageUrl!,
+                                              width: 130,
+                                              height: 130,
+                                              fit: BoxFit.cover,
+                                              errorBuilder:
+                                                  (
+                                                    context,
+                                                    error,
+                                                    stackTrace,
+                                                  ) => Image.asset(
+                                                    'assets/images/Avatar.png',
+                                                    width: 130,
+                                                    height: 130,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                            )
+                                            : Image.asset(
+                                              'assets/images/Avatar.png',
+                                              width: 130,
+                                              height: 130,
+                                              fit: BoxFit.cover,
                                             ),
-                                          )
-                                          : ClipOval(
-                                            child:
-                                                _imageFile != null
-                                                    ? Image.file(
-                                                      _imageFile!,
-                                                      width: 120,
-                                                      height: 120,
-                                                      fit: BoxFit.cover,
-                                                    )
-                                                    : _uploadedImageUrl != null
-                                                    ? Image.network(
-                                                      _uploadedImageUrl!,
-                                                      width: 120,
-                                                      height: 120,
-                                                      fit: BoxFit.cover,
-                                                    )
-                                                    : Image.asset(
-                                                      'assets/images/Avatar.png',
-                                                      width: 120,
-                                                      height: 120,
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                          ),
+                                  ),
                                 ),
                               ),
                               if (_isEditing)
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: theme.primaryColor,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Icon(
-                                      _isUploading
-                                          ? Icons.hourglass_top
-                                          : Icons.camera_alt,
-                                      color: Colors.white,
-                                      size: 20,
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: theme.primaryColor,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black26,
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Icon(
+                                        _isUploading
+                                            ? Icons.hourglass_top
+                                            : Icons.camera_alt,
+                                        color: Colors.white,
+                                        size: 24,
+                                      ),
                                     ),
                                   ),
                                 ),
                             ],
                           ),
                         ),
+                      ),
+                      const SizedBox(height: 32),
 
-                        const SizedBox(height: 24),
-                        Text(
-                          'Your Name',
-                          style: TextStyle(color: theme.primaryColor),
-                        ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: _nameController,
-                          enabled: _isEditing,
-                          style: TextStyle(color: theme.primaryColor),
-                          decoration: InputDecoration(
-                            hintText: 'Enter your name',
-                            hintStyle: TextStyle(color: theme.primaryColor),
-                            filled: true,
-                            fillColor: Colors.grey[100],
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: theme.primaryColor),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: theme.primaryColor,
-                                width: 2,
-                              ),
-                            ),
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey[300]!),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your name';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          'Weight',
-                          style: TextStyle(color: theme.primaryColor),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _weightController,
-                                enabled: _isEditing,
-                                style: TextStyle(color: theme.primaryColor),
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                  hintText: 'Enter your weight',
-                                  hintStyle: TextStyle(
-                                    color: theme.primaryColor,
-                                  ),
-                                  filled: true,
-                                  fillColor: Colors.grey[100],
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                      color: theme.primaryColor,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                      color: theme.primaryColor,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  disabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                      color: Colors.grey[300]!,
-                                    ),
-                                  ),
-                                  suffixText: 'kg',
-                                  suffixStyle: TextStyle(
-                                    color: theme.primaryColor,
-                                  ),
-                                ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your weight';
-                                  }
-                                  if (double.tryParse(value) == null) {
-                                    return 'Please enter a valid number';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            // const SizedBox(width: 8),
-                            // if (_isEditing)
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          'Height (cm)',
-                          style: TextStyle(color: theme.primaryColor),
-                        ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: _heightController,
-                          enabled: _isEditing,
-                          style: TextStyle(color: theme.primaryColor),
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            hintText: 'Enter your height',
-                            hintStyle: TextStyle(color: theme.primaryColor),
-                            filled: true,
-                            fillColor: Colors.grey[100],
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: theme.primaryColor),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: theme.primaryColor,
-                                width: 2,
-                              ),
-                            ),
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey[300]!),
-                            ),
-                            suffixText: 'cm',
-                            suffixStyle: TextStyle(color: theme.primaryColor),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your height';
-                            }
-                            if (double.tryParse(value) == null) {
-                              return 'Please enter a valid number';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          'Gender',
-                          style: TextStyle(color: theme.primaryColor),
-                        ),
-                        const SizedBox(height: 8),
-                        DropdownButtonFormField<String>(
-                          value: _selectedGender,
-                          decoration: InputDecoration(
-                            hintText: 'Select gender',
-                            hintStyle: TextStyle(color: theme.primaryColor),
-                            filled: true,
-                            fillColor: Colors.grey[100],
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: theme.primaryColor),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: theme.primaryColor,
-                                width: 2,
-                              ),
-                            ),
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey[300]!),
-                            ),
-                          ),
-                          items:
-                              _genders
-                                  .map(
-                                    (gender) => DropdownMenuItem(
-                                      value: gender,
-                                      child: Text(
-                                        gender,
-                                        style: TextStyle(
-                                          color: theme.primaryColor,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                          onChanged:
-                              _isEditing
-                                  ? (value) {
-                                    setState(() {
-                                      _selectedGender = value;
-                                    });
-                                  }
-                                  : null,
-                          style: TextStyle(color: theme.primaryColor),
-                          dropdownColor: Colors.grey[100],
-                          iconEnabledColor: theme.primaryColor,
-                          validator: (value) {
-                            if (value == null) {
-                              return 'Please select your gender';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          'Date of Birth',
-                          style: TextStyle(color: theme.primaryColor),
-                        ),
-                        const SizedBox(height: 8),
-                        InkWell(
-                          onTap: () => _selectDate(context),
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              hintText: 'Select date',
-                              hintStyle: TextStyle(color: theme.primaryColor),
-                              filled: true,
-                              fillColor: Colors.grey[100],
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: theme.primaryColor,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: theme.primaryColor,
-                                  width: 2,
-                                ),
-                              ),
-                              disabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey[300]!,
-                                ),
-                              ),
-                            ),
-                            child: Text(
-                              _selectedDate == null
-                                  ? 'Select date'
-                                  : DateFormat(
-                                    'yyyy-MM-dd',
-                                  ).format(_selectedDate!),
-                              style: TextStyle(color: theme.primaryColor),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      // Form Fields
+                      _buildTextField(
+                        label: 'Your Name',
+                        controller: _nameController,
+                        enabled: _isEditing,
+                        validator:
+                            (value) =>
+                                value == null || value.isEmpty
+                                    ? 'Please enter your name'
+                                    : null,
+                      ),
+                      const SizedBox(height: 24),
+
+                      _buildTextField(
+                        label: 'Weight (kg)',
+                        controller: _weightController,
+                        enabled: _isEditing,
+                        keyboardType: TextInputType.number,
+                        suffixText: 'kg',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your weight';
+                          }
+                          if (double.tryParse(value) == null) {
+                            return 'Please enter a valid number';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 24),
+
+                      _buildTextField(
+                        label: 'Height (cm)',
+                        controller: _heightController,
+                        enabled: _isEditing,
+                        keyboardType: TextInputType.number,
+                        suffixText: 'cm',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your height';
+                          }
+                          if (double.tryParse(value) == null) {
+                            return 'Please enter a valid number';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 24),
+
+                      _buildDropdownField(
+                        label: 'Gender',
+                        value: _selectedGender,
+                        items: _genders,
+                        enabled: _isEditing,
+                        onChanged:
+                            (value) => setState(() => _selectedGender = value),
+                        validator:
+                            (value) =>
+                                value == null
+                                    ? 'Please select your gender'
+                                    : null,
+                      ),
+                      const SizedBox(height: 24),
+
+                      _buildDateField(
+                        label: 'Date of Birth',
+                        date: _selectedDate,
+                        onTap: () => _selectDate(context),
+                        enabled: _isEditing,
+                      ),
+                    ],
                   ),
                 ),
               ),
+    );
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    required bool enabled,
+    TextInputType? keyboardType,
+    String? suffixText,
+    String? Function(String?)? validator,
+  }) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: theme.primaryColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            boxShadow:
+                enabled
+                    ? [
+                      BoxShadow(
+                        color: theme.primaryColor.withOpacity(0.1),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                    : [],
+          ),
+          child: TextFormField(
+            controller: controller,
+            enabled: enabled,
+            keyboardType: keyboardType,
+            style: TextStyle(color: theme.primaryColor, fontSize: 16),
+            decoration: InputDecoration(
+              hintText: 'Enter $label',
+              hintStyle: TextStyle(color: theme.primaryColor.withOpacity(0.5)),
+              filled: true,
+              fillColor: Colors.white,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: theme.primaryColor.withOpacity(0.3),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: theme.primaryColor, width: 2),
+              ),
+              disabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              suffixText: suffixText,
+              suffixStyle: TextStyle(color: theme.primaryColor),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+            ),
+            validator: validator,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdownField({
+    required String label,
+    required String? value,
+    required List<String> items,
+    required bool enabled,
+    required void Function(String?) onChanged,
+    required String? Function(String?)? validator,
+  }) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: theme.primaryColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            boxShadow:
+                enabled
+                    ? [
+                      BoxShadow(
+                        color: theme.primaryColor.withOpacity(0.1),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                    : [],
+          ),
+          child: DropdownButtonFormField<String>(
+            value: value,
+            decoration: InputDecoration(
+              hintText: 'Select $label',
+              hintStyle: TextStyle(color: theme.primaryColor.withOpacity(0.5)),
+              filled: true,
+              fillColor: Colors.white,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: theme.primaryColor.withOpacity(0.3),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: theme.primaryColor, width: 2),
+              ),
+              disabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+            ),
+            items:
+                items
+                    .map(
+                      (item) => DropdownMenuItem(
+                        value: item,
+                        child: Text(
+                          item,
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+            onChanged: enabled ? onChanged : null,
+            style: TextStyle(color: theme.primaryColor),
+            dropdownColor: Colors.white,
+            iconEnabledColor: theme.primaryColor,
+            validator: validator,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateField({
+    required String label,
+    required DateTime? date,
+    required VoidCallback onTap,
+    required bool enabled,
+  }) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: theme.primaryColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            boxShadow:
+                enabled
+                    ? [
+                      BoxShadow(
+                        color: theme.primaryColor.withOpacity(0.1),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                    : [],
+          ),
+          child: InkWell(
+            onTap: enabled ? onTap : null,
+            child: InputDecorator(
+              decoration: InputDecoration(
+                hintText: 'Select $label',
+                hintStyle: TextStyle(
+                  color: theme.primaryColor.withOpacity(0.5),
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: theme.primaryColor.withOpacity(0.3),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: theme.primaryColor, width: 2),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+              ),
+              child: Text(
+                date == null
+                    ? 'Select $label'
+                    : DateFormat('yyyy-MM-dd').format(date),
+                style: TextStyle(color: theme.primaryColor, fontSize: 16),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
