@@ -8,7 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
-import 'package:test_project/widgets/custom_drawer.dart';
+import 'package:test_project/widgets/custom_bottom_navbar.dart';
 
 class DoctorDashboard extends StatefulWidget {
   const DoctorDashboard({super.key});
@@ -557,11 +557,6 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
           ),
         ],
       ),
-      drawer: CustomDrawer(
-        userName: _userName,
-        photoUrl: _photoUrl,
-        role: 'Doctor',
-      ),
       body:
           _isLoading
               ? const Center(
@@ -603,6 +598,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         tooltip: 'Add New Fitness Plan',
         child: const Icon(Icons.add, color: Colors.white),
       ),
+      bottomNavigationBar: CustomBottomNavBar(currentRoute: '/doctorDashboard'),
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
-import 'package:test_project/widgets/custom_drawer.dart';
+import 'package:test_project/widgets/custom_bottom_navbar.dart';
 import 'package:flutter/material.dart';
 
 class PatientDashboard extends StatefulWidget {
@@ -43,13 +43,10 @@ class PatientDashboardState extends State<PatientDashboard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.white, // Match LoginScreen
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: theme.primaryColor,
         elevation: 0,
-        iconTheme: IconThemeData(
-          color: Colors.white,
-        ), // Ensures hamburger icon is visible
         title: Text('Patient Dashboard', style: TextStyle(color: Colors.white)),
         actions: [
           IconButton(
@@ -57,11 +54,6 @@ class PatientDashboardState extends State<PatientDashboard> {
             onPressed: () => _authService.signOut(context),
           ),
         ],
-      ),
-      drawer: CustomDrawer(
-        userName: _userName,
-        photoUrl: _photoUrl,
-        role: 'Patient',
       ),
       body:
           _isLoading
@@ -72,33 +64,22 @@ class PatientDashboardState extends State<PatientDashboard> {
                 ),
               )
               : Column(
-                children: [_buildHeader(), Expanded(child: _buildPlanTabs())],
+                children: [
+                  _buildHeader(context),
+                  Expanded(child: _buildPlanTabs(context)),
+                ],
               ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.fitness_center),
-            label: 'My Plans',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explore),
-            label: 'All Plans',
-          ),
-        ],
-        selectedItemColor: theme.primaryColor, // Match LoginScreen
-        unselectedItemColor: Colors.grey[600], // Match LoginScreen
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white, // Match LoginScreen
+      bottomNavigationBar: CustomBottomNavBar(
+        currentRoute: '/patientDashboard',
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
       padding: EdgeInsets.all(16),
-      color: theme.primaryColor, // Match DoctorDashboard
+      color: theme.primaryColor,
       child: Row(
         children: [
           CircleAvatar(
@@ -107,7 +88,7 @@ class PatientDashboardState extends State<PatientDashboard> {
                 _photoUrl != null
                     ? NetworkImage(_photoUrl!)
                     : AssetImage('assets/images/avatar.png') as ImageProvider,
-            backgroundColor: Colors.grey[100], // Match LoginScreen
+            backgroundColor: Colors.grey[100],
           ),
           SizedBox(width: 16),
           Column(
@@ -118,12 +99,12 @@ class PatientDashboardState extends State<PatientDashboard> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white, // Match LoginScreen
+                  color: Colors.white,
                 ),
               ),
               Text(
                 'Explore your fitness journey',
-                style: TextStyle(color: Colors.grey[400]), // Match LoginScreen
+                style: TextStyle(color: Colors.grey[400]),
               ),
             ],
           ),
@@ -132,16 +113,16 @@ class PatientDashboardState extends State<PatientDashboard> {
     );
   }
 
-  Widget _buildPlanTabs() {
+  Widget _buildPlanTabs(BuildContext context) {
     final theme = Theme.of(context);
     return DefaultTabController(
       length: 2,
       child: Column(
         children: [
           TabBar(
-            labelColor: theme.primaryColor, // Match LoginScreen
-            unselectedLabelColor: Colors.grey[600], // Match LoginScreen
-            indicatorColor: theme.primaryColor, // Match LoginScreen
+            labelColor: theme.primaryColor,
+            unselectedLabelColor: Colors.grey[600],
+            indicatorColor: theme.primaryColor,
             tabs: [
               Tab(text: 'Available Plans'),
               Tab(text: 'My Enrolled Plans'),
@@ -149,7 +130,10 @@ class PatientDashboardState extends State<PatientDashboard> {
           ),
           Expanded(
             child: TabBarView(
-              children: [_buildAvailablePlans(), _buildEnrolledPlans()],
+              children: [
+                _buildAvailablePlans(context),
+                _buildEnrolledPlans(context),
+              ],
             ),
           ),
         ],
@@ -157,9 +141,7 @@ class PatientDashboardState extends State<PatientDashboard> {
     );
   }
 
-  Widget _buildAvailablePlans() {
-    // final theme = Theme.of(context);
-    // Dummy plan data (replace with Firestore data)
+  Widget _buildAvailablePlans(BuildContext context) {
     final plans = [
       {
         'title': 'Weight Loss Program',
@@ -192,12 +174,12 @@ class PatientDashboardState extends State<PatientDashboard> {
       itemCount: plans.length,
       itemBuilder: (context, index) {
         final plan = plans[index];
-        return _buildPlanCard(plan);
+        return _buildPlanCard(context, plan);
       },
     );
   }
 
-  Widget _buildEnrolledPlans() {
+  Widget _buildEnrolledPlans(BuildContext context) {
     final theme = Theme.of(context);
     return Center(
       child: Column(
@@ -206,7 +188,7 @@ class PatientDashboardState extends State<PatientDashboard> {
           Icon(
             Icons.fitness_center_outlined,
             size: 80,
-            color: Colors.grey[600], // Match LoginScreen
+            color: Colors.grey[600],
           ),
           SizedBox(height: 16),
           Text(
@@ -214,61 +196,52 @@ class PatientDashboardState extends State<PatientDashboard> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.black, // Match LoginScreen
+              color: Colors.black,
             ),
           ),
           SizedBox(height: 8),
           Text(
             'Enroll in plans to see them here',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600], // Match LoginScreen
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
           SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
-              // Navigate to available plans tab or screen
               DefaultTabController.of(context).animateTo(0);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: theme.primaryColor, // Match LoginScreen
+              backgroundColor: theme.primaryColor,
               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12), // Match LoginScreen
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: Text(
-              'Browse Plans',
-              style: TextStyle(color: Colors.white), // Match LoginScreen
-            ),
+            child: Text('Browse Plans', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPlanCard(Map<String, dynamic> plan) {
+  Widget _buildPlanCard(BuildContext context, Map<String, dynamic> plan) {
     final theme = Theme.of(context);
     return Card(
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12), // Match LoginScreen
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 4,
-      color: Colors.white, // Match LoginScreen
+      color: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             height: 100,
-            color: Colors.grey[100], // Match LoginScreen
+            color: Colors.grey[100],
             width: double.infinity,
             child: Center(
               child: Icon(
                 Icons.fitness_center,
                 size: 40,
-                color: theme.primaryColor, // Match LoginScreen
+                color: theme.primaryColor,
               ),
             ),
           ),
@@ -282,7 +255,7 @@ class PatientDashboardState extends State<PatientDashboard> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
-                    color: Colors.black, // Match LoginScreen
+                    color: Colors.black,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -290,33 +263,22 @@ class PatientDashboardState extends State<PatientDashboard> {
                 SizedBox(height: 4),
                 Text(
                   'By ${plan['doctor']}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600], // Match LoginScreen
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(
-                      Icons.people,
-                      size: 14,
-                      color: theme.primaryColor, // Match LoginScreen
-                    ),
+                    Icon(Icons.people, size: 14, color: theme.primaryColor),
                     SizedBox(width: 4),
                     Text(
                       '${plan['enrolled']} patients',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: theme.primaryColor, // Match LoginScreen
-                      ),
+                      style: TextStyle(fontSize: 12, color: theme.primaryColor),
                     ),
                   ],
                 ),
                 SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () {
-                    // TODO: Implement enroll functionality
                     AppNotifier.show(
                       context,
                       'Enrollment not implemented',
@@ -324,18 +286,16 @@ class PatientDashboardState extends State<PatientDashboard> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.primaryColor, // Match LoginScreen
+                    backgroundColor: theme.primaryColor,
                     minimumSize: Size(double.infinity, 30),
                     padding: EdgeInsets.zero,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        12,
-                      ), // Match LoginScreen
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: Text(
                     'Enroll Now',
-                    style: TextStyle(color: Colors.white), // Match LoginScreen
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ],

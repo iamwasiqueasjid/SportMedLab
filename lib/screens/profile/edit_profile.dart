@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
-import 'package:test_project/widgets/custom_drawer.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -111,7 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _pickImage() async {
-    if (!_isEditing) return; // Restrict image picking to edit mode
+    if (!_isEditing) return;
     try {
       final XFile? image = await _picker.pickImage(
         source: ImageSource.gallery,
@@ -142,7 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             colorScheme: ColorScheme.light(
               primary: Theme.of(context).primaryColor,
               onPrimary: Colors.white,
-              surface: Colors.grey[100]!, // Use ! to assert non-null
+              surface: Colors.grey[100]!,
             ),
             dialogBackgroundColor: Colors.white,
           ),
@@ -223,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _isEditing = !_isEditing;
       if (!_isEditing) {
-        _imageFile = null; // Reset image file when canceling edit
+        _imageFile = null;
       }
     });
   }
@@ -236,22 +235,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: theme.primaryColor,
-        foregroundColor: Colors.white, // Sets default foreground color to white
+        foregroundColor: Colors.white,
         elevation: 2,
         shadowColor: Colors.black26,
-        leading: Builder(
-          builder:
-              (context) => IconButton(
-                icon: const Icon(
-                  Icons.menu,
-                ), // Color inherited from foregroundColor (white)
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            // Navigate to the appropriate dashboard based on role
+            final targetRoute =
+                _role == 'Doctor' ? '/doctorDashboard' : '/patientDashboard';
+            Navigator.pushReplacementNamed(context, targetRoute);
+          },
         ),
         title: const Text(
           'Profile',
           style: TextStyle(
-            color: Colors.white, // Explicitly set to white
+            color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
@@ -262,10 +261,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Text(
               _isEditing ? 'Cancel' : 'Edit',
               style: TextStyle(
-                color:
-                    _isLoading
-                        ? Colors.grey
-                        : Colors.white, // White when not loading
+                color: _isLoading ? Colors.grey : Colors.white,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
               ),
@@ -278,20 +274,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Save',
                 style: TextStyle(
                   color:
-                      _isLoading || _isUploading
-                          ? Colors.grey
-                          : Colors.white, // White when not loading/uploading
+                      _isLoading || _isUploading ? Colors.grey : Colors.white,
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
                 ),
               ),
             ),
         ],
-      ),
-      drawer: CustomDrawer(
-        userName: _nameController.text.isEmpty ? 'User' : _nameController.text,
-        photoUrl: _uploadedImageUrl,
-        role: _role,
       ),
       body:
           _isLoading
@@ -311,7 +300,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header Section
                       Text(
                         'Your Profile',
                         style: TextStyle(
@@ -330,8 +318,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-
-                      // Profile Photo Section
                       Center(
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
@@ -359,10 +345,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             alignment: Alignment.center,
                             children: [
                               GestureDetector(
-                                onTap:
-                                    _isEditing
-                                        ? _pickImage
-                                        : null, // Restrict to edit mode
+                                onTap: _isEditing ? _pickImage : null,
                                 child: Container(
                                   width: 130,
                                   height: 130,
@@ -451,8 +434,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 32),
-
-                      // Form Fields
                       _buildTextField(
                         label: 'Your Name',
                         controller: _nameController,
@@ -464,7 +445,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : null,
                       ),
                       const SizedBox(height: 24),
-
                       _buildTextField(
                         label: 'Weight (kg)',
                         controller: _weightController,
@@ -482,7 +462,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
                       const SizedBox(height: 24),
-
                       _buildTextField(
                         label: 'Height (cm)',
                         controller: _heightController,
@@ -500,7 +479,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
                       const SizedBox(height: 24),
-
                       _buildDropdownField(
                         label: 'Gender',
                         value: _selectedGender,
@@ -515,7 +493,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : null,
                       ),
                       const SizedBox(height: 24),
-
                       _buildDateField(
                         label: 'Date of Birth',
                         date: _selectedDate,
