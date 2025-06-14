@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
+
+// Pages
+import 'package:test_project/screens/splash_screen.dart';
 import 'package:test_project/screens/auth/authentication_page.dart';
 import 'package:test_project/screens/auth/login_page.dart';
 import 'package:test_project/screens/auth/signup_page.dart';
@@ -8,12 +13,10 @@ import 'package:test_project/screens/chat/chat_list_screen.dart';
 import 'package:test_project/screens/chat/chat_screen.dart';
 import 'package:test_project/screens/course_details.dart';
 import 'package:test_project/screens/doctor/doctor_dashboard.dart';
-import 'package:test_project/screens/patient/patient_dashboard.dart';
-import 'package:test_project/screens/profile/edit_profile.dart';
-import 'package:test_project/screens/profile/profile_setup_page.dart';
-import 'package:test_project/screens/splash_screen.dart';
-import 'package:test_project/screens/starter_page.dart';
-import 'package:test_project/services/auth/auth_service.dart';
+import 'package:test_project/screens/doctor/blog_upload_screen.dart';
+import 'package:test_project/screens/patient/patients_screen.dart';
+
+// Theme files
 import 'package:test_project/theme/app_theme.dart' show lightTheme, darkTheme;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
@@ -63,7 +66,15 @@ class _MyAppState extends State<MyApp> {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      home: const SplashScreen(),
       initialRoute: '/splash',
+
+      supportedLocales: const [Locale('en')],
+      localizationsDelegates: const [
+        ...GlobalMaterialLocalizations.delegates,
+        quill.FlutterQuillLocalizations.delegate,
+      ],
+
       routes: {
         '/splash': (context) => const SplashScreen(),
         '/authWrapper': (context) => const AuthWrapper(),
@@ -76,8 +87,10 @@ class _MyAppState extends State<MyApp> {
         '/doctorDashboard': (context) => const DoctorDashboard(),
         '/patientDashboard': (context) => const PatientDashboard(),
         '/profile': (context) => const ProfileScreen(),
-        '/poseDetection': (context) => PoseDetectorView(),
+        '/blogUpload': (context) => const AdvancedBlogEditorScreen(),
+        '/patientsBlog': (context) => const PatientsScreen(),
       },
+
       onGenerateRoute: (settings) {
         if (settings.name == '/chat') {
           final arguments = settings.arguments as Map<String, dynamic>?;

@@ -21,162 +21,133 @@ class CustomDrawer extends StatelessWidget {
     final AuthService authService = AuthService();
     final currentRoute = ModalRoute.of(context)?.settings.name ?? '';
 
+    // Dynamically build drawer items based on role
+    final List<Widget> drawerItems = [
+      DrawerHeader(
+        decoration: BoxDecoration(color: theme.primaryColor),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 36,
+              backgroundImage:
+                  photoUrl != null
+                      ? NetworkImage(photoUrl!)
+                      : const AssetImage('assets/images/avatar.png')
+                          as ImageProvider,
+              backgroundColor: Colors.white,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              userName ?? role,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              role,
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+          ],
+        ),
+      ),
+      ListTile(
+        leading: Icon(Icons.dashboard, color: theme.primaryColor),
+        title: Text('Dashboard', style: TextStyle(color: theme.primaryColor)),
+        selected:
+            currentRoute == '/doctorDashboard' ||
+            currentRoute == '/patientDashboard',
+        selectedTileColor: theme.primaryColor,
+        onTap: () async {
+          Navigator.pop(context);
+          try {
+            final userRole = await authService.getUserRole();
+            final targetRoute =
+                userRole == 'Doctor' ? '/doctorDashboard' : '/patientDashboard';
+
+            if (currentRoute != targetRoute) {
+              Navigator.pushReplacementNamed(context, targetRoute);
+            } else {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                AppNotifier.show(
+                  context,
+                  'Already on $userRole Dashboard',
+                  type: MessageType.info,
+                );
+              });
+            }
+          } catch (e) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              AppNotifier.show(
+                context,
+                'Error fetching role: $e',
+                type: MessageType.error,
+              );
+            });
+            if (currentRoute != '/patientDashboard') {
+              Navigator.pushReplacementNamed(context, '/patientDashboard');
+            }
+          }
+        },
+      ),
+      ListTile(
+        leading: Icon(Icons.person, color: theme.primaryColor),
+        title: Text('Profile', style: TextStyle(color: theme.primaryColor)),
+        selected: currentRoute == '/profile',
+        selectedTileColor: theme.primaryColor,
+        onTap: () {
+          Navigator.pop(context);
+          Navigator.pushReplacementNamed(context, '/profile');
+        },
+      ),
+      if (role == 'Doctor') ...[
+        ListTile(
+          leading: Icon(Icons.upload, color: theme.primaryColor),
+          title: Text(
+            'Upload Blog',
+            style: TextStyle(color: theme.primaryColor),
+          ),
+          selected: currentRoute == '/blogUpload',
+          selectedTileColor: theme.primaryColor,
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.pushReplacementNamed(context, '/blogUpload');
+          },
+        ),
+      ],
+      if (role == 'Patient' || role == 'Doctor') ...[
+        ListTile(
+          leading: Icon(Icons.book, color: theme.primaryColor),
+          title: Text(
+            'Patient Blog Screen',
+            style: TextStyle(color: theme.primaryColor),
+          ),
+          selected: currentRoute == '/patients',
+          selectedTileColor: theme.primaryColor,
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.pushReplacementNamed(
+              context,
+              '/patientsBlog',
+            ); // Changed to /patients
+          },
+        ),
+      ],
+      Divider(color: Colors.grey[400]),
+      ListTile(
+        leading: Icon(Icons.logout, color: theme.primaryColor),
+        title: Text('Logout', style: TextStyle(color: theme.primaryColor)),
+        onTap: () {
+          authService.signOut(context);
+        },
+      ),
+    ];
+
     return Drawer(
       backgroundColor: const Color(0xFFF0F4F8),
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(color: theme.primaryColor),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 36,
-                  backgroundImage:
-                      photoUrl != null
-                          ? NetworkImage(photoUrl!)
-                          : const AssetImage('assets/images/avatar.png')
-                              as ImageProvider,
-                  backgroundColor: Colors.white,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  userName ?? role,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  role,
-                  style: const TextStyle(color: Colors.white70, fontSize: 14),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            color:
-                (currentRoute == '/doctorDashboard' ||
-                        currentRoute == '/patientDashboard')
-                    ? theme.primaryColor.withOpacity(0.3)
-                    : Colors.transparent,
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-              leading: Icon(Icons.dashboard, color: theme.primaryColor),
-              title: Text(
-                'Dashboard',
-                style: TextStyle(color: theme.primaryColor),
-              ),
-              onTap: () async {
-                try {
-                  final userRole = await authService.getUserRole();
-                  final targetRoute =
-                      userRole == 'Doctor'
-                          ? '/doctorDashboard'
-                          : '/patientDashboard';
-
-                  // Close the drawer first
-                  Navigator.pop(context);
-
-                  // Check if already on the target route
-                  if (currentRoute == targetRoute) {
-                    AppNotifier.show(
-                      context,
-                      'Already on $userRole Dashboard',
-                      type: MessageType.info,
-                    );
-                    return;
-                  }
-
-                  // Navigate to the target route
-                  Navigator.pushReplacementNamed(context, targetRoute);
-                } catch (e) {
-                  // Handle error and show notification
-                  AppNotifier.show(
-                    context,
-                    'Error fetching role: $e',
-                    type: MessageType.error,
-                  );
-
-                  // Fallback navigation
-                  if (currentRoute != '/patientDashboard') {
-                    Navigator.pushReplacementNamed(
-                      context,
-                      '/patientDashboard',
-                    );
-                  }
-                }
-              },
-            ),
-          ),
-          Container(
-            color:
-                currentRoute == '/profile'
-                    ? theme.primaryColor.withOpacity(0.3)
-                    : Colors.transparent,
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-              leading: Icon(Icons.person, color: theme.primaryColor),
-              title: Text(
-                'Profile',
-                style: TextStyle(color: theme.primaryColor),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushReplacementNamed(context, '/profile');
-              },
-            ),
-          ),
-          Divider(color: Colors.grey[400]),
-          Container(
-            color:
-                currentRoute == '/poseDetection'
-                    ? theme.primaryColor.withOpacity(0.3)
-                    : Colors.transparent,
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-              leading: Icon(Icons.person, color: theme.primaryColor),
-              title: Text(
-                'Pose Detection',
-                style: TextStyle(color: theme.primaryColor),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushReplacementNamed(context, '/poseDetection');
-              },
-            ),
-          ),
-          Divider(color: Colors.grey[400]),
-          Container(
-            color: Colors.transparent,
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-              leading: Icon(Icons.logout, color: theme.primaryColor),
-              title: Text(
-                'Logout',
-                style: TextStyle(color: theme.primaryColor),
-              ),
-              onTap: () {
-                authService.signOut(context);
-              },
-            ),
-          ),
-        ],
-      ),
+      child: ListView(padding: EdgeInsets.zero, children: drawerItems),
     );
   }
 }

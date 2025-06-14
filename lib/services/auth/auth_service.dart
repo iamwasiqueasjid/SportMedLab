@@ -420,7 +420,7 @@ class AuthService {
       if (userQuery.docs.isEmpty) {
         AppNotifier.show(
           context,
-          'No account found with this email address!',
+          'No account found with this email address',
           type: MessageType.error,
         );
         return false;
