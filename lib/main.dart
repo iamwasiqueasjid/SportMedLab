@@ -17,6 +17,7 @@ import 'package:test_project/screens/starter_page.dart';
 import 'package:test_project/screens/patient/patient_dashboard.dart';
 import 'package:test_project/screens/doctor/doctor_dashboard.dart';
 import 'package:test_project/screens/doctor/blog_upload_screen.dart';
+import 'package:test_project/screens/patient/patients_screen.dart';
 
 // Theme files
 import 'package:test_project/theme/app_theme.dart' show lightTheme, darkTheme;
@@ -86,6 +87,7 @@ class _MyAppState extends State<MyApp> {
         '/patientDashboard': (context) => PatientDashboard(),
         '/profile': (context) => const ProfileScreen(),
         '/blogUpload': (context) => const AdvancedBlogEditorScreen(),
+        '/patientsBlog': (context) => const PatientsScreen(),
       },
 
       onGenerateRoute: (settings) {
