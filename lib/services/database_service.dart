@@ -8,7 +8,6 @@ import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/services/cloudinary_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'dart:io';
-
 import 'package:test_project/widgets/app_message_notifier.dart';
 
 class DatabaseService {
@@ -26,17 +25,9 @@ class DatabaseService {
     required String content,
   }) async {
     try {
-      // Generate summary and flashcards
-      // final summary = await _geminiService.generateSummary(content);
-      // final flashcards = await _geminiService.generateFlashcards(content);
-
-      // Update the lesson in Firestore
       await _firestore.collection('lessons').doc(lessonId).update({
-        // 'summary': summary,
-        // 'flashcards': flashcards,
         'updatedAt': FieldValue.serverTimestamp(),
       });
-
       return true;
     } catch (e) {
       return false;
@@ -44,8 +35,6 @@ class DatabaseService {
   }
 
   // COURSE MANAGEMENT METHODS
-
-  // Create a new course
   Future<bool> createCourse({
     required String title,
     required String description,
@@ -63,7 +52,6 @@ class DatabaseService {
       return false;
     }
 
-    // Check if user is a Doctor
     final userData = await _authService.fetchUserData();
     if (userData == null || userData.role != 'Doctor') {
       AppNotifier.show(
@@ -75,9 +63,7 @@ class DatabaseService {
     }
 
     try {
-      // Upload course cover image if provided
       String? coverImageUrl;
-
       if (imageFile != null) {
         coverImageUrl = await _cloudinaryService.uploadToCloudinary(
           imageFile.path,
@@ -85,29 +71,23 @@ class DatabaseService {
         );
       }
 
-      // Create course model
       final course = Course(
-        id: '', // ID will be set by Firestore
+        id: '',
         title: title,
         description: description,
         coverImageUrl: coverImageUrl ?? '',
         tutorId: user.uid,
-        // createdAt: DateTime.now(),
-        // updatedAt: DateTime.now(),
         enrolledStudents: [],
         subjects: subjects,
         enrolledCount: 0,
       );
 
-      // Create course document in Firestore
       await _firestore.collection('courses').add(course.toMap());
-
       AppNotifier.show(
         context,
         'Course created successfully',
         type: MessageType.success,
       );
-
       return true;
     } catch (error) {
       AppNotifier.show(
@@ -119,7 +99,6 @@ class DatabaseService {
     }
   }
 
-  // Get tutor courses with real-time updates
   Stream<List<Course>> fetchTutorCoursesRealTime() {
     final user = _auth.currentUser;
     if (user == null) {
@@ -134,13 +113,8 @@ class DatabaseService {
           var courses =
               snapshot.docs.map((doc) {
                 final data = doc.data();
-                // Debug: Log the type of createdAt
-                print(
-                  'Document ${doc.id} createdAt type: ${data['createdAt'].runtimeType}',
-                );
                 return Course.fromMap(data, doc.id);
               }).toList();
-          // Sort courses by createdAt (descending)
           courses.sort((a, b) {
             if (a.createdAt == null) return 1;
             if (b.createdAt == null) return -1;
@@ -150,24 +124,16 @@ class DatabaseService {
         });
   }
 
-  // Get all courses (for students)
   Stream<List<Course>> fetchAllCoursesRealTime() {
     return _firestore.collection('courses').snapshots().map((snapshot) {
       var courses =
           snapshot.docs
               .map((doc) => Course.fromMap(doc.data(), doc.id))
               .toList();
-      // Sort courses by createdAt (descending)
-      // courses.sort((a, b) {
-      //   if (a.createdAt == null) return 1;
-      //   if (b.createdAt == null) return -1;
-      //   return b.createdAt!.compareTo(a.createdAt!);
-      // });
       return courses;
     });
   }
 
-  // Get course by ID
   Future<Course?> getCourseById(String courseId) async {
     try {
       DocumentSnapshot doc =
@@ -181,7 +147,6 @@ class DatabaseService {
     }
   }
 
-  // Update course
   Future<bool> updateCourse({
     required String courseId,
     required String title,
@@ -191,7 +156,6 @@ class DatabaseService {
     required BuildContext context,
   }) async {
     try {
-      // Upload new image if provided
       String? coverImageUrl;
       if (imageFile != null) {
         coverImageUrl = await _cloudinaryService.uploadToCloudinary(
@@ -200,13 +164,12 @@ class DatabaseService {
         );
       }
 
-      // Create updated course model
       final course = Course(
         id: courseId,
         title: title,
         description: description,
         coverImageUrl: coverImageUrl,
-        tutorId: '', // Will not update tutorId
+        tutorId: '',
         subjects: subjects,
       );
 
@@ -230,10 +193,8 @@ class DatabaseService {
     }
   }
 
-  // Delete a course
   Future<bool> deleteCourse(String courseId, BuildContext context) async {
     try {
-      // Delete all lessons in the course
       final lessonsQuery =
           await _firestore
               .collection('lessons')
@@ -243,7 +204,6 @@ class DatabaseService {
       for (var doc in lessonsQuery.docs) {
         batch.delete(doc.reference);
       }
-      // Delete the course document
       batch.delete(_firestore.collection('courses').doc(courseId));
       await batch.commit();
       AppNotifier.show(
@@ -263,8 +223,6 @@ class DatabaseService {
   }
 
   // LESSON MANAGEMENT METHODS
-
-  // Get lessons for a course
   Stream<List<Lesson>> fetchLessonsForCourse(String courseId) {
     return _firestore
         .collection('lessons')
@@ -275,13 +233,11 @@ class DatabaseService {
               snapshot.docs
                   .map((doc) => Lesson.fromMap(doc.data(), doc.id))
                   .toList();
-          // Sort lessons by order
           lessons.sort((a, b) => a.order.compareTo(b.order));
           return lessons;
         });
   }
 
-  // Get lesson by ID
   Future<Lesson?> getLessonById(String lessonId) async {
     try {
       DocumentSnapshot doc =
@@ -295,7 +251,6 @@ class DatabaseService {
     }
   }
 
-  // Create a new lesson
   Future<bool> createLesson({
     required String courseId,
     required String title,
@@ -305,7 +260,6 @@ class DatabaseService {
     required BuildContext context,
   }) async {
     try {
-      // Upload file if provided
       String? fileUrl;
       if (file != null && (contentType == 'image' || contentType == 'pdf')) {
         fileUrl = await _cloudinaryService.uploadToCloudinary(
@@ -314,7 +268,6 @@ class DatabaseService {
         );
       }
 
-      // Get all lessons to determine order
       final QuerySnapshot querySnapshot =
           await _firestore
               .collection('lessons')
@@ -333,9 +286,8 @@ class DatabaseService {
             1;
       }
 
-      // Create lesson model
       final lesson = Lesson(
-        id: '', // ID will be set by Firestore
+        id: '',
         courseId: courseId,
         title: title,
         contentType: contentType,
@@ -344,7 +296,6 @@ class DatabaseService {
         order: newOrder,
       );
 
-      // Create lesson document
       await _firestore.collection('lessons').add(lesson.toMap());
       AppNotifier.show(
         context,
@@ -362,7 +313,6 @@ class DatabaseService {
     }
   }
 
-  // Update lesson
   Future<bool> updateLesson({
     required String lessonId,
     required String title,
@@ -372,7 +322,6 @@ class DatabaseService {
     required BuildContext context,
   }) async {
     try {
-      // Upload new file if provided
       String? fileUrl;
       if (file != null && (contentType == 'image' || contentType == 'pdf')) {
         fileUrl = await _cloudinaryService.uploadToCloudinary(
@@ -381,10 +330,9 @@ class DatabaseService {
         );
       }
 
-      // Create updated lesson model
       final lesson = Lesson(
         id: lessonId,
-        courseId: '', // Will not update courseId
+        courseId: '',
         title: title,
         contentType: contentType,
         content: content,
@@ -411,7 +359,6 @@ class DatabaseService {
     }
   }
 
-  // Delete a lesson
   Future<bool> deleteLesson(String lessonId, BuildContext context) async {
     try {
       await _firestore.collection('lessons').doc(lessonId).delete();
@@ -432,8 +379,6 @@ class DatabaseService {
   }
 
   // ENROLLMENT METHODS
-
-  // Enroll student in a course
   Future<bool> enrollInCourse({
     required String courseId,
     required BuildContext context,
@@ -488,7 +433,6 @@ class DatabaseService {
     }
   }
 
-  // Get enrolled courses for student
   Stream<List<Course>> fetchEnrolledCoursesRealTime() {
     final user = _auth.currentUser;
     if (user == null) {
@@ -504,7 +448,6 @@ class DatabaseService {
               snapshot.docs
                   .map((doc) => Course.fromMap(doc.data(), doc.id))
                   .toList();
-          // Sort courses by updatedAt (descending)
           courses.sort((a, b) {
             if (a.updatedAt == null) return 1;
             if (b.updatedAt == null) return -1;
@@ -512,5 +455,256 @@ class DatabaseService {
           });
           return courses;
         });
+  }
+
+  // CHAT MANAGEMENT METHODS
+
+  /// Initiates a chat between a patient and a doctor by email
+  Future<String?> initiateChat({
+    required String patientId,
+    required String doctorEmail,
+    required String initialMessage,
+    required BuildContext context,
+  }) async {
+    try {
+      print(
+        'Initiating chat: patientId=$patientId, doctorEmail=$doctorEmail, message=$initialMessage',
+      );
+
+      // Look up doctor by email
+      final doctorQuery =
+          await _firestore
+              .collection('users')
+              .where('email', isEqualTo: doctorEmail)
+              .where('role', isEqualTo: 'Doctor')
+              .limit(1)
+              .get();
+
+      if (doctorQuery.docs.isEmpty) {
+        print('No doctor found with email: $doctorEmail');
+        AppNotifier.show(
+          context,
+          'No doctor found with email $doctorEmail',
+          type: MessageType.error,
+        );
+        return null;
+      }
+
+      final doctorId = doctorQuery.docs.first.id;
+      print('Doctor found: doctorId=$doctorId');
+      final chatId = '${patientId}_$doctorId';
+      print('Chat ID: $chatId');
+
+      // Check if chat already exists
+      final chatDoc = await _firestore.collection('chats').doc(chatId).get();
+      if (!chatDoc.exists) {
+        print('Creating new chat document');
+        // Create new chat
+        await _firestore.collection('chats').doc(chatId).set({
+          'participants': [patientId, doctorId],
+          'lastMessage': initialMessage,
+          'lastMessageTimestamp': FieldValue.serverTimestamp(),
+          'lastMessageSenderId': patientId,
+        });
+
+        // Add initial message
+        await _firestore
+            .collection('chats')
+            .doc(chatId)
+            .collection('messages')
+            .add({
+              'senderId': patientId,
+              'receiverId': doctorId,
+              'message': initialMessage,
+              'timestamp': FieldValue.serverTimestamp(),
+              'isRead': false,
+            });
+        print('New chat created with initial message');
+      } else {
+        print('Chat exists, adding message');
+        // Add message to existing chat
+        await _firestore
+            .collection('chats')
+            .doc(chatId)
+            .collection('messages')
+            .add({
+              'senderId': patientId,
+              'receiverId': doctorId,
+              'message': initialMessage,
+              'timestamp': FieldValue.serverTimestamp(),
+              'isRead': false,
+            });
+
+        // Update last message
+        await _firestore.collection('chats').doc(chatId).update({
+          'lastMessage': initialMessage,
+          'lastMessageTimestamp': FieldValue.serverTimestamp(),
+          'lastMessageSenderId': patientId,
+        });
+        print('Message added to existing chat');
+      }
+
+      return chatId;
+    } catch (e) {
+      print('Error initiating chat: $e');
+      AppNotifier.show(
+        context,
+        'Error initiating chat: $e',
+        type: MessageType.error,
+      );
+      return null;
+    }
+  }
+
+  /// Sends a message in an existing chat
+  Future<bool> sendMessage({
+    required String chatId,
+    required String senderId,
+    required String receiverId,
+    required String message,
+    required BuildContext context,
+  }) async {
+    try {
+      print(
+        'Sending message: chatId=$chatId, senderId=$senderId, receiverId=$receiverId, message=$message',
+      );
+      await _firestore
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .add({
+            'senderId': senderId,
+            'receiverId': receiverId,
+            'message': message,
+            'timestamp': FieldValue.serverTimestamp(),
+            'isRead': false,
+          });
+
+      await _firestore.collection('chats').doc(chatId).update({
+        'lastMessage': message,
+        'lastMessageTimestamp': FieldValue.serverTimestamp(),
+        'lastMessageSenderId': senderId,
+      });
+      print('Message sent successfully');
+      return true;
+    } catch (e) {
+      print('Error sending message: $e');
+      AppNotifier.show(
+        context,
+        'Error sending message: $e',
+        type: MessageType.error,
+      );
+      return false;
+    }
+  }
+
+  /// Streams all chats for a user
+  Stream<List<Map<String, dynamic>>> fetchUserChats(String userId) {
+    try {
+      print('Fetching chats for userId: $userId');
+      return _firestore
+          .collection('chats')
+          .where('participants', arrayContains: userId)
+          .orderBy('lastMessageTimestamp', descending: true)
+          .snapshots()
+          .map((snapshot) {
+            print('Received ${snapshot.docs.length} chats for userId: $userId');
+            return snapshot.docs.map((doc) {
+              final data = doc.data();
+              print('Chat document: ${doc.id}, data: $data');
+              return {
+                'chatId': doc.id,
+                'participants': List<String>.from(data['participants'] ?? []),
+                'lastMessage': data['lastMessage'] ?? '',
+                'lastMessageTimestamp':
+                    (data['lastMessageTimestamp'] as Timestamp?)?.toDate(),
+                'lastMessageSenderId': data['lastMessageSenderId'] ?? '',
+              };
+            }).toList();
+          })
+          .handleError((e) {
+            print('Error streaming chats for userId: $userId, error: $e');
+            throw e; // Rethrow to trigger snapshot.hasError in StreamBuilder
+          });
+    } catch (e) {
+      print('Exception in fetchUserChats: $e');
+      return Stream.error(e);
+    }
+  }
+
+  /// Streams messages for a specific chat
+  Stream<List<Map<String, dynamic>>> fetchChatMessages(String chatId) {
+    try {
+      print('Fetching messages for chatId: $chatId');
+      return _firestore
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .orderBy('timestamp', descending: true)
+          .snapshots()
+          .map((snapshot) {
+            print(
+              'Received ${snapshot.docs.length} messages for chatId: $chatId',
+            );
+            return snapshot.docs.map((doc) {
+              final data = doc.data();
+              print('Message document: ${doc.id}, data: $data');
+              return {
+                'messageId': doc.id,
+                'senderId': data['senderId'],
+                'receiverId': data['receiverId'],
+                'message': data['message'],
+                'timestamp': (data['timestamp'] as Timestamp?)?.toDate(),
+                'isRead': data['isRead'] ?? false,
+              };
+            }).toList();
+          });
+    } catch (e) {
+      print('Error fetching messages for chatId: $chatId, error: $e');
+      return Stream.error(e);
+    }
+  }
+
+  /// Marks messages as read
+  Future<void> markMessagesAsRead({
+    required String chatId,
+    required String userId,
+  }) async {
+    try {
+      print('Marking messages as read: chatId=$chatId, userId=$userId');
+      final messages =
+          await _firestore
+              .collection('chats')
+              .doc(chatId)
+              .collection('messages')
+              .where('receiverId', isEqualTo: userId)
+              .where('isRead', isEqualTo: false)
+              .get();
+
+      print('Found ${messages.docs.length} unread messages');
+      for (var doc in messages.docs) {
+        await doc.reference.update({'isRead': true});
+        print('Marked message ${doc.id} as read');
+      }
+    } catch (e) {
+      print('Error marking messages as read: $e');
+    }
+  }
+
+  /// Fetches user details by ID
+  Future<Map<String, dynamic>?> fetchUserDetails(String userId) async {
+    try {
+      print('Fetching user details for userId: $userId');
+      final doc = await _firestore.collection('users').doc(userId).get();
+      if (doc.exists) {
+        print('User details found: ${doc.data()}');
+        return doc.data();
+      }
+      print('No user found for userId: $userId');
+      return null;
+    } catch (e) {
+      print('Error fetching user details: $e');
+      return null;
+    }
   }
 }

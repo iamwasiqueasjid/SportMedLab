@@ -4,6 +4,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:test_project/screens/auth/authentication_page.dart';
 import 'package:test_project/screens/auth/login_page.dart';
 import 'package:test_project/screens/auth/signup_page.dart';
+import 'package:test_project/screens/chat/chat_list_screen.dart';
+import 'package:test_project/screens/chat/chat_screen.dart';
 import 'package:test_project/screens/course_details.dart';
 import 'package:test_project/screens/doctor/doctor_dashboard.dart';
 import 'package:test_project/screens/patient/patient_dashboard.dart';
@@ -69,6 +71,7 @@ class _MyAppState extends State<MyApp> {
         '/auth': (context) => AuthenticationPage(),
         '/signUp': (context) => const SignUpScreen(),
         '/login': (context) => const LoginScreen(),
+        '/messaging': (context) => const ChatListScreen(),
         '/profileSetup': (context) => const ProfileSetupScreen(),
         '/doctorDashboard': (context) => const DoctorDashboard(),
         '/patientDashboard': (context) => const PatientDashboard(),
@@ -76,6 +79,16 @@ class _MyAppState extends State<MyApp> {
         '/poseDetection': (context) => PoseDetectorView(),
       },
       onGenerateRoute: (settings) {
+        if (settings.name == '/chat') {
+          final arguments = settings.arguments as Map<String, dynamic>?;
+          print('Navigating to /chat with arguments: $arguments');
+          if (arguments == null) {
+            return MaterialPageRoute(builder: (context) => const ChatScreen());
+          }
+          return MaterialPageRoute(
+            builder: (context) => ChatScreen(arguments: arguments),
+          );
+        }
         if (settings.name == '/courseDetails') {
           final String courseId = settings.arguments as String;
           return MaterialPageRoute(

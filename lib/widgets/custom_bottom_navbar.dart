@@ -14,32 +14,65 @@ class CustomBottomNavBar extends StatefulWidget {
 }
 
 class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
-  late int _selectedIndex;
-
-  // Define the routes for navigation
-  final List<String> _routes = [
+  int _selectedIndex = 0;
+  List<String> _routes = [
     '/patientDashboard',
     '/blogs',
     '/poseDetection',
     '/messaging',
     '/profile',
   ];
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
     super.initState();
-    // Initialize selected index based on current route
-    _selectedIndex = _routes.indexOf(widget.currentRoute);
-    if (_selectedIndex == -1)
-      _selectedIndex = 0; // Default to 0 if route not found
+    _initializeRoutes();
+  }
+
+  Future<void> _initializeRoutes() async {
+    try {
+      final userData = await _authService.fetchUserData();
+      final role = userData?.role ?? 'Patient';
+      if (mounted) {
+        setState(() {
+          _routes = [
+            role == 'Doctor' ? '/doctorDashboard' : '/patientDashboard',
+            '/blogs',
+            '/poseDetection',
+            '/messaging',
+            '/profile',
+          ];
+          _selectedIndex = _routes.indexOf(widget.currentRoute);
+          if (_selectedIndex == -1) {
+            if (widget.currentRoute == '/chat') {
+              _selectedIndex = 3;
+            } else {
+              _selectedIndex = 0;
+            }
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _selectedIndex = _routes.indexOf(widget.currentRoute);
+          if (_selectedIndex == -1) _selectedIndex = 0;
+        });
+        AppNotifier.show(
+          context,
+          'Error loading navigation: $e',
+          type: MessageType.error,
+        );
+      }
+    }
   }
 
   void _onItemTapped(int index) async {
-    final AuthService authService = AuthService();
     final targetRoute = _routes[index];
 
-    // Check if already on the target route
-    if (widget.currentRoute == targetRoute) {
+    if (widget.currentRoute == targetRoute ||
+        (index == 3 && widget.currentRoute == '/chat')) {
       AppNotifier.show(context, 'Already on this page', type: MessageType.info);
       return;
     }
@@ -48,7 +81,6 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       _selectedIndex = index;
     });
 
-    // Navigate to the selected route
     Navigator.pushReplacementNamed(context, targetRoute);
   }
 
@@ -76,11 +108,11 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildNavItem(Icons.dashboard_outlined, 0), // Dashboard
-            _buildNavItem(Icons.article_outlined, 1), // Blogs
-            _buildNavItem(Icons.fitness_center_outlined, 2), // Live Exercise
-            _buildNavItem(Icons.chat_bubble_outline, 3), // Messaging
-            _buildNavItem(Icons.person_outline, 4), // Profile
+            _buildNavItem(Icons.dashboard_outlined, 0),
+            _buildNavItem(Icons.article_outlined, 1),
+            _buildNavItem(Icons.fitness_center_outlined, 2),
+            _buildNavItem(Icons.chat_bubble_outline, 3),
+            _buildNavItem(Icons.person_outline, 4),
           ],
         ),
       ),
