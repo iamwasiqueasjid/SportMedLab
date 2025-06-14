@@ -3,8 +3,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
-
-// Pages
+import 'package:test_project/screens/patient/patient_dashboard.dart';
+import 'package:test_project/screens/profile/edit_profile.dart';
+import 'package:test_project/screens/profile/profile_setup_page.dart';
+import 'package:test_project/screens/doctor/blog_upload_screen.dart';
+import 'package:test_project/screens/patient/patients_screen.dart';
+import 'package:test_project/screens/starter_page.dart';
+import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/screens/splash_screen.dart';
 import 'package:test_project/screens/auth/authentication_page.dart';
 import 'package:test_project/screens/auth/login_page.dart';
@@ -13,14 +18,11 @@ import 'package:test_project/screens/chat/chat_list_screen.dart';
 import 'package:test_project/screens/chat/chat_screen.dart';
 import 'package:test_project/screens/course_details.dart';
 import 'package:test_project/screens/doctor/doctor_dashboard.dart';
-import 'package:test_project/screens/doctor/blog_upload_screen.dart';
-import 'package:test_project/screens/patient/patients_screen.dart';
-
-// Theme files
+import 'package:test_project/pose_detection/pose_detector_view.dart';
+import 'package:test_project/screens/patient/blog_view_patient.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:test_project/theme/app_theme.dart' show lightTheme, darkTheme;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
-import 'package:test_project/pose_detection/pose_detector_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -87,8 +89,9 @@ class _MyAppState extends State<MyApp> {
         '/doctorDashboard': (context) => const DoctorDashboard(),
         '/patientDashboard': (context) => const PatientDashboard(),
         '/profile': (context) => const ProfileScreen(),
-        '/blogUpload': (context) => const AdvancedBlogEditorScreen(),
+        '/blogUpload': (context) => AdvancedBlogEditorScreen(),
         '/patientsBlog': (context) => const PatientsScreen(),
+        '/poseDetection': (context) => PoseDetectorView(),
       },
 
       onGenerateRoute: (settings) {
@@ -106,6 +109,36 @@ class _MyAppState extends State<MyApp> {
           final String courseId = settings.arguments as String;
           return MaterialPageRoute(
             builder: (context) => CourseDetailsScreen(courseId: courseId),
+          );
+        }
+        if (settings.name == '/blogs') {
+          return MaterialPageRoute(
+            builder:
+                (context) => FutureBuilder<String?>(
+                  future: AuthService().getUserRole(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Scaffold(
+                        body: Center(
+                          child: SpinKitDoubleBounce(
+                            color: Color(0xFF0A2D7B),
+                            size: 40.0,
+                          ),
+                        ),
+                      );
+                    }
+                    final role = snapshot.data ?? 'Patient';
+                    final controller = quill.QuillController.basic();
+                    return role == 'Doctor'
+                        ? AdvancedBlogEditorScreen()
+                        : PatientBlogPreviewScreen(
+                          title: 'Patient Blogs',
+                          controller: controller,
+                          tags: [],
+                          category: 'General',
+                        );
+                  },
+                ),
           );
         }
         return null;

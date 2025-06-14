@@ -46,9 +46,11 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
           _selectedIndex = _routes.indexOf(widget.currentRoute);
           if (_selectedIndex == -1) {
             if (widget.currentRoute == '/chat') {
-              _selectedIndex = 3;
+              _selectedIndex = 3; // Messaging
+            } else if (widget.currentRoute == '/blogPreview') {
+              _selectedIndex = 1; // Blogs
             } else {
-              _selectedIndex = 0;
+              _selectedIndex = 0; // Default to dashboard
             }
           }
         });
@@ -81,7 +83,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       _selectedIndex = index;
     });
 
-    Navigator.pushReplacementNamed(context, targetRoute);
+    Navigator.pushNamed(context, targetRoute); // Changed to pushNamed
   }
 
   @override
