@@ -28,15 +28,12 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    print('ChatScreen initState: arguments = ${widget.arguments}');
     _loadData();
   }
 
   Future<void> _loadData() async {
-    print('Loading data...');
     try {
       final userData = await _authService.fetchUserData();
-      print('User data fetched: $userData');
       if (userData != null) {
         setState(() {
           _currentUserId = userData.uid;
@@ -45,9 +42,6 @@ class _ChatScreenState extends State<ChatScreen> {
           _chatId = widget.arguments?['chatId'] ?? _retryLoadArguments();
           _otherUserName = widget.arguments?['otherUserName'] ?? 'Unknown';
           _isLoading = false;
-          print(
-            'Loaded: _currentUserId=$_currentUserId, _chatId=$_chatId, _otherUserId=$_otherUserId, _otherUserName=$_otherUserName',
-          );
         });
       } else {
         setState(() => _isLoading = false);
@@ -64,12 +58,10 @@ class _ChatScreenState extends State<ChatScreen> {
         'Error loading data: $e',
         type: MessageType.error,
       );
-      print('Error in _loadData: $e');
     }
   }
 
   String? _retryLoadArguments() {
-    print('Retrying to load arguments: ${widget.arguments}');
     if (widget.arguments == null) {
       AppNotifier.show(
         context,
@@ -177,7 +169,6 @@ class _ChatScreenState extends State<ChatScreen> {
                             );
                           }
                           final messages = snapshot.data ?? [];
-                          print('Messages received: $messages');
                           return ListView.builder(
                             reverse: true,
                             padding: const EdgeInsets.all(8),
@@ -229,9 +220,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         FloatingActionButton(
                           backgroundColor: theme.primaryColor,
                           onPressed: _sendMessage,
-                          child: const Icon(Icons.send, color: Colors.white),
                           elevation: 4,
                           shape: const CircleBorder(),
+                          child: const Icon(Icons.send, color: Colors.white),
                         ),
                       ],
                     ),

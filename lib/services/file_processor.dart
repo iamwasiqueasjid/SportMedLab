@@ -47,7 +47,9 @@ class FileProcessor {
 
       for (int i = 0; i < document.pages.count; i++) {
         final PdfPage page = document.pages[i];
-        String pageText = PdfTextExtractor(document).extractText(startPageIndex: i, endPageIndex: i);
+        String pageText = PdfTextExtractor(
+          document,
+        ).extractText(startPageIndex: i, endPageIndex: i);
         text += pageText;
         if (i < document.pages.count - 1) {
           text += '\n\n--- Page Break ---\n\n';
@@ -67,15 +69,21 @@ class FileProcessor {
       final text = docxToText(bytes);
       return text ?? '';
     } catch (e) {
-      throw Exception('Failed to extract text from Word document: ${e.toString()}');
+      throw Exception(
+        'Failed to extract text from Word document: ${e.toString()}',
+      );
     }
   }
 
-  static Future<Map<String, dynamic>?> _analyzeContentStructure(String text) async {
+  static Future<Map<String, dynamic>?> _analyzeContentStructure(
+    String text,
+  ) async {
     final geminiApiKey = dotenv.env['GEMINI_API_KEY'];
     if (geminiApiKey == null || geminiApiKey.isEmpty) return null;
 
-    final url = Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$geminiApiKey');
+    final url = Uri.parse(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$geminiApiKey',
+    );
     String analyzableText = text.length > 3000 ? text.substring(0, 3000) : text;
 
     final prompt = """
@@ -108,7 +116,13 @@ class FileProcessor {
         url,
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'contents': [{'parts': [{'text': prompt}]}],
+          'contents': [
+            {
+              'parts': [
+                {'text': prompt},
+              ],
+            },
+          ],
           'generationConfig': {'temperature': 0.3, 'maxOutputTokens': 1500},
         }),
       );
@@ -116,7 +130,8 @@ class FileProcessor {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['candidates'] != null && data['candidates'].isNotEmpty) {
-          final generatedText = data['candidates'][0]['content']['parts'][0]['text'];
+          final generatedText =
+              data['candidates'][0]['content']['parts'][0]['text'];
           final jsonStart = generatedText.indexOf('{');
           final jsonEnd = generatedText.lastIndexOf('}') + 1;
 
@@ -126,9 +141,7 @@ class FileProcessor {
           }
         }
       }
-    } catch (e) {
-      print('Error analyzing content structure: $e');
-    }
+    } catch (e) {}
     return null;
   }
 }

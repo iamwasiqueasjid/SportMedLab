@@ -7,15 +7,15 @@ import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:test_project/services/auth/auth_service.dart';
 
 class CameraView extends StatefulWidget {
-  CameraView({
-    Key? key,
+  const CameraView({
+    super.key,
     required this.customPaint,
     required this.onImage,
     this.onCameraFeedReady,
     this.onDetectorViewModeChanged,
     this.onCameraLensDirectionChanged,
     this.initialCameraLensDirection = CameraLensDirection.back,
-  }) : super(key: key);
+  });
 
   final CustomPaint? customPaint;
   final Function(InputImage inputImage) onImage;

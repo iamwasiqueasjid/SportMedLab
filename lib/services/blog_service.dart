@@ -5,22 +5,23 @@ import '../../constants/constants.dart';
 
 class BlogService {
   static Future<void> publishBlog(
-      TextEditingController titleController,
-      QuillController controller,
-      TextEditingController tagsController,
-      String? selectedCategory,
-      String? extractedText,
-      String? uploadedFileName,
-      Function(String) showErrorSnackBar,
-      Function(String) showSuccessSnackBar,
-      ) async {
+    TextEditingController titleController,
+    QuillController controller,
+    TextEditingController tagsController,
+    String? selectedCategory,
+    String? extractedText,
+    String? uploadedFileName,
+    Function(String) showErrorSnackBar,
+    Function(String) showSuccessSnackBar,
+  ) async {
     final title = titleController.text.trim();
     final delta = controller.document.toDelta();
-    final tags = tagsController.text
-        .split(',')
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
+    final tags =
+        tagsController.text
+            .split(',')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
 
     if (title.isEmpty) {
       showErrorSnackBar('Please enter a blog title.');
@@ -57,7 +58,9 @@ class BlogService {
       }
 
       await FirebaseFirestore.instance.collection('blogs').add(blogData);
-      showSuccessSnackBar('Blog published successfully with enhanced formatting!');
+      showSuccessSnackBar(
+        'Blog published successfully with enhanced formatting!',
+      );
     } catch (e) {
       showErrorSnackBar('Error publishing blog: ${e.toString()}');
     }
@@ -65,23 +68,17 @@ class BlogService {
 
   static Future<List<Map<String, dynamic>>> getPublishedBlogs() async {
     try {
-      print('Initiating Firestore connection...');
       final collection = FirebaseFirestore.instance.collection('blogs');
-      print('Collection reference obtained: $collection');
 
       // Temporarily remove filters to test connectivity
-      print('Executing query without filters...');
       final querySnapshot = await collection.get();
-      print('Query executed. Documents found: ${querySnapshot.docs.length}');
 
       if (querySnapshot.docs.isEmpty) {
-        print('No documents found in the blogs collection.');
         return [];
       }
 
       return querySnapshot.docs.map((doc) {
         final data = doc.data();
-        print('Processing document ID: ${doc.id}, Data: $data');
         return {
           'id': doc.id,
           'title': data['title'] ?? 'Untitled',
@@ -90,11 +87,11 @@ class BlogService {
           'category': data['category'] ?? 'Uncategorized',
           'extractedText': data['extractedText'],
           'sourceFile': data['sourceFile'],
-          'createdAt': (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+          'createdAt':
+              (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
         };
       }).toList();
     } catch (e) {
-      print('Error in getPublishedBlogs: $e');
       return [];
     }
   }

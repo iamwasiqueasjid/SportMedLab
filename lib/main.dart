@@ -97,7 +97,6 @@ class _MyAppState extends State<MyApp> {
       onGenerateRoute: (settings) {
         if (settings.name == '/chat') {
           final arguments = settings.arguments as Map<String, dynamic>?;
-          print('Navigating to /chat with arguments: $arguments');
           if (arguments == null) {
             return MaterialPageRoute(builder: (context) => const ChatScreen());
           }

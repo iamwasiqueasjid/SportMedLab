@@ -6,8 +6,7 @@ import 'package:test_project/widgets/app_message_notifier.dart';
 class CustomBottomNavBar extends StatefulWidget {
   final String currentRoute;
 
-  const CustomBottomNavBar({Key? key, required this.currentRoute})
-    : super(key: key);
+  const CustomBottomNavBar({super.key, required this.currentRoute});
 
   @override
   State<CustomBottomNavBar> createState() => _CustomBottomNavBarState();

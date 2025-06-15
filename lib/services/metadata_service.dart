@@ -16,12 +16,16 @@ class MetadataService {
   ) async {
     final geminiApiKey = dotenv.env['GEMINI_API_KEY'];
     if (geminiApiKey == null || geminiApiKey.isEmpty) {
-      showErrorSnackBar('Gemini API key not found. Using fallback tag generation.');
+      showErrorSnackBar(
+        'Gemini API key not found. Using fallback tag generation.',
+      );
       generateBasicTags(text, titleController, tagsController, suggestedTags);
       return;
     }
 
-    final url = Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$geminiApiKey');
+    final url = Uri.parse(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$geminiApiKey',
+    );
     String analyzableText = text.length > 2500 ? text.substring(0, 2500) : text;
 
     final prompt = """
@@ -51,7 +55,13 @@ class MetadataService {
         url,
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'contents': [{'parts': [{'text': prompt}]}],
+          'contents': [
+            {
+              'parts': [
+                {'text': prompt},
+              ],
+            },
+          ],
           'generationConfig': {'temperature': 0.6, 'maxOutputTokens': 1200},
         }),
       );
@@ -59,7 +69,8 @@ class MetadataService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['candidates'] != null && data['candidates'].isNotEmpty) {
-          final generatedText = data['candidates'][0]['content']['parts'][0]['text'];
+          final generatedText =
+              data['candidates'][0]['content']['parts'][0]['text'];
           final jsonStart = generatedText.indexOf('{');
           final jsonEnd = generatedText.lastIndexOf('}') + 1;
 
@@ -67,7 +78,8 @@ class MetadataService {
             final jsonString = generatedText.substring(jsonStart, jsonEnd);
             final jsonData = json.decode(jsonString);
 
-            if (jsonData['title'] != null && jsonData['title'].toString().isNotEmpty) {
+            if (jsonData['title'] != null &&
+                jsonData['title'].toString().isNotEmpty) {
               titleController.text = jsonData['title'].toString();
             }
 
@@ -77,18 +89,22 @@ class MetadataService {
               tagsController.text = suggestedTags.join(', ');
             }
 
-            if (jsonData['category'] != null && AppConstants.categories.contains(jsonData['category'].toString())) {
+            if (jsonData['category'] != null &&
+                AppConstants.categories.contains(
+                  jsonData['category'].toString(),
+                )) {
               onCategorySelected(jsonData['category'].toString());
             }
 
-            showSuccessSnackBar('AI analysis complete! Enhanced metadata generated.');
+            showSuccessSnackBar(
+              'AI analysis complete! Enhanced metadata generated.',
+            );
             return;
           }
         }
       }
       generateBasicTags(text, titleController, tagsController, suggestedTags);
     } catch (e) {
-      print('Error calling enhanced Gemini API: $e');
       generateBasicTags(text, titleController, tagsController, suggestedTags);
     }
   }
@@ -100,10 +116,36 @@ class MetadataService {
     List<String> suggestedTags,
   ) {
     Map<String, List<String>> medicalTermsByCategory = {
-      'symptoms': ['pain', 'fever', 'headache', 'nausea', 'fatigue', 'dizziness'],
-      'treatments': ['therapy', 'medication', 'surgery', 'treatment', 'intervention'],
-      'conditions': ['diabetes', 'hypertension', 'infection', 'disease', 'disorder'],
-      'general': ['health', 'medical', 'patient', 'care', 'diagnosis', 'prevention']
+      'symptoms': [
+        'pain',
+        'fever',
+        'headache',
+        'nausea',
+        'fatigue',
+        'dizziness',
+      ],
+      'treatments': [
+        'therapy',
+        'medication',
+        'surgery',
+        'treatment',
+        'intervention',
+      ],
+      'conditions': [
+        'diabetes',
+        'hypertension',
+        'infection',
+        'disease',
+        'disorder',
+      ],
+      'general': [
+        'health',
+        'medical',
+        'patient',
+        'care',
+        'diagnosis',
+        'prevention',
+      ],
     };
 
     Set<String> foundTags = {};
@@ -118,11 +160,12 @@ class MetadataService {
     });
 
     if (titleController.text.isEmpty) {
-      List<String> sentences = text.split('.').where((s) => s.trim().isNotEmpty).toList();
+      List<String> sentences =
+          text.split('.').where((s) => s.trim().isNotEmpty).toList();
       if (sentences.isNotEmpty) {
         String firstSentence = sentences[0].trim();
         if (firstSentence.length > 80) {
-          firstSentence = firstSentence.substring(0, 77) + '...';
+          firstSentence = '${firstSentence.substring(0, 77)}...';
         }
         titleController.text = firstSentence;
       }

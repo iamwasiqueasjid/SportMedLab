@@ -5,17 +5,16 @@ import '../../utils/content_formatter.dart';
 import '../../utils/content_formatter.dart';
 import '../../services/metadata_service.dart';
 import '../../Services/blog_service.dart';
-import '../../widgets/ui_utils.dart' ; // Use alias to avoid conflicts
+import '../../widgets/ui_utils.dart'; // Use alias to avoid conflicts
 import 'blog_preview_screen.dart';
 import '../../constants/constants.dart';
 
-
-
 class AdvancedBlogEditorScreen extends StatefulWidget {
-  const AdvancedBlogEditorScreen({Key? key}) : super(key: key);
+  const AdvancedBlogEditorScreen({super.key});
 
   @override
-  State<AdvancedBlogEditorScreen> createState() => _AdvancedBlogEditorScreenState();
+  State<AdvancedBlogEditorScreen> createState() =>
+      _AdvancedBlogEditorScreenState();
 }
 
 class _AdvancedBlogEditorScreenState extends State<AdvancedBlogEditorScreen> {
@@ -23,7 +22,7 @@ class _AdvancedBlogEditorScreenState extends State<AdvancedBlogEditorScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _tagsController = TextEditingController();
   String? _selectedCategory;
-  List<String> _suggestedTags = [];
+  final List<String> _suggestedTags = [];
   bool _isProcessingFile = false;
   bool _isGeneratingTags = false;
   bool _isPublishing = false;
@@ -57,18 +56,21 @@ class _AdvancedBlogEditorScreenState extends State<AdvancedBlogEditorScreen> {
           _controller,
           result['extractedText'],
           result['structure'],
-              (bool isGenerating) => setState(() => _isGeneratingTags = isGenerating),
+          (bool isGenerating) =>
+              setState(() => _isGeneratingTags = isGenerating),
         );
         await MetadataService.generateMetadataWithAI(
           result['extractedText'],
           _titleController,
           _tagsController,
           _suggestedTags,
-              (String? category) => setState(() => _selectedCategory = category),
+          (String? category) => setState(() => _selectedCategory = category),
           _showSuccessSnackBar,
           _showErrorSnackBar,
         );
-        _showSuccessSnackBar('File processed successfully! Content added to editor with formatting.');
+        _showSuccessSnackBar(
+          'File processed successfully! Content added to editor with formatting.',
+        );
       }
     } catch (e) {
       _showErrorSnackBar('Error processing file: ${e.toString()}');
@@ -85,16 +87,18 @@ class _AdvancedBlogEditorScreenState extends State<AdvancedBlogEditorScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BlogPreviewScreen(
-          title: _titleController.text.trim(),
-          controller: _controller,
-          tags: _tagsController.text
-              .split(',')
-              .map((e) => e.trim())
-              .where((e) => e.isNotEmpty)
-              .toList(),
-          category: _selectedCategory ?? AppConstants.defaultCategory,
-        ),
+        builder:
+            (context) => BlogPreviewScreen(
+              title: _titleController.text.trim(),
+              controller: _controller,
+              tags:
+                  _tagsController.text
+                      .split(',')
+                      .map((e) => e.trim())
+                      .where((e) => e.isNotEmpty)
+                      .toList(),
+              category: _selectedCategory ?? AppConstants.defaultCategory,
+            ),
       ),
     );
   }
@@ -170,7 +174,7 @@ class _AdvancedBlogEditorScreenState extends State<AdvancedBlogEditorScreen> {
             UIUtils.buildCategorySelector(
               context,
               _selectedCategory,
-                  (String? value) => setState(() => _selectedCategory = value),
+              (String? value) => setState(() => _selectedCategory = value),
             ),
             const SizedBox(height: 16),
             UIUtils.buildTagsInput(

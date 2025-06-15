@@ -467,10 +467,6 @@ class DatabaseService {
     required BuildContext context,
   }) async {
     try {
-      print(
-        'Initiating chat: patientId=$patientId, doctorEmail=$doctorEmail, message=$initialMessage',
-      );
-
       // Look up doctor by email
       final doctorQuery =
           await _firestore
@@ -481,7 +477,6 @@ class DatabaseService {
               .get();
 
       if (doctorQuery.docs.isEmpty) {
-        print('No doctor found with email: $doctorEmail');
         AppNotifier.show(
           context,
           'No doctor found with email $doctorEmail',
@@ -491,14 +486,11 @@ class DatabaseService {
       }
 
       final doctorId = doctorQuery.docs.first.id;
-      print('Doctor found: doctorId=$doctorId');
       final chatId = '${patientId}_$doctorId';
-      print('Chat ID: $chatId');
 
       // Check if chat already exists
       final chatDoc = await _firestore.collection('chats').doc(chatId).get();
       if (!chatDoc.exists) {
-        print('Creating new chat document');
         // Create new chat
         await _firestore.collection('chats').doc(chatId).set({
           'participants': [patientId, doctorId],
@@ -519,9 +511,7 @@ class DatabaseService {
               'timestamp': FieldValue.serverTimestamp(),
               'isRead': false,
             });
-        print('New chat created with initial message');
       } else {
-        print('Chat exists, adding message');
         // Add message to existing chat
         await _firestore
             .collection('chats')
@@ -541,12 +531,10 @@ class DatabaseService {
           'lastMessageTimestamp': FieldValue.serverTimestamp(),
           'lastMessageSenderId': patientId,
         });
-        print('Message added to existing chat');
       }
 
       return chatId;
     } catch (e) {
-      print('Error initiating chat: $e');
       AppNotifier.show(
         context,
         'Error initiating chat: $e',
@@ -565,9 +553,6 @@ class DatabaseService {
     required BuildContext context,
   }) async {
     try {
-      print(
-        'Sending message: chatId=$chatId, senderId=$senderId, receiverId=$receiverId, message=$message',
-      );
       await _firestore
           .collection('chats')
           .doc(chatId)
@@ -585,10 +570,8 @@ class DatabaseService {
         'lastMessageTimestamp': FieldValue.serverTimestamp(),
         'lastMessageSenderId': senderId,
       });
-      print('Message sent successfully');
       return true;
     } catch (e) {
-      print('Error sending message: $e');
       AppNotifier.show(
         context,
         'Error sending message: $e',
@@ -601,17 +584,14 @@ class DatabaseService {
   /// Streams all chats for a user
   Stream<List<Map<String, dynamic>>> fetchUserChats(String userId) {
     try {
-      print('Fetching chats for userId: $userId');
       return _firestore
           .collection('chats')
           .where('participants', arrayContains: userId)
           .orderBy('lastMessageTimestamp', descending: true)
           .snapshots()
           .map((snapshot) {
-            print('Received ${snapshot.docs.length} chats for userId: $userId');
             return snapshot.docs.map((doc) {
               final data = doc.data();
-              print('Chat document: ${doc.id}, data: $data');
               return {
                 'chatId': doc.id,
                 'participants': List<String>.from(data['participants'] ?? []),
@@ -623,11 +603,9 @@ class DatabaseService {
             }).toList();
           })
           .handleError((e) {
-            print('Error streaming chats for userId: $userId, error: $e');
             throw e; // Rethrow to trigger snapshot.hasError in StreamBuilder
           });
     } catch (e) {
-      print('Exception in fetchUserChats: $e');
       return Stream.error(e);
     }
   }
@@ -635,7 +613,6 @@ class DatabaseService {
   /// Streams messages for a specific chat
   Stream<List<Map<String, dynamic>>> fetchChatMessages(String chatId) {
     try {
-      print('Fetching messages for chatId: $chatId');
       return _firestore
           .collection('chats')
           .doc(chatId)
@@ -643,12 +620,8 @@ class DatabaseService {
           .orderBy('timestamp', descending: true)
           .snapshots()
           .map((snapshot) {
-            print(
-              'Received ${snapshot.docs.length} messages for chatId: $chatId',
-            );
             return snapshot.docs.map((doc) {
               final data = doc.data();
-              print('Message document: ${doc.id}, data: $data');
               return {
                 'messageId': doc.id,
                 'senderId': data['senderId'],
@@ -660,7 +633,6 @@ class DatabaseService {
             }).toList();
           });
     } catch (e) {
-      print('Error fetching messages for chatId: $chatId, error: $e');
       return Stream.error(e);
     }
   }
@@ -671,7 +643,6 @@ class DatabaseService {
     required String userId,
   }) async {
     try {
-      print('Marking messages as read: chatId=$chatId, userId=$userId');
       final messages =
           await _firestore
               .collection('chats')
@@ -681,29 +652,21 @@ class DatabaseService {
               .where('isRead', isEqualTo: false)
               .get();
 
-      print('Found ${messages.docs.length} unread messages');
       for (var doc in messages.docs) {
         await doc.reference.update({'isRead': true});
-        print('Marked message ${doc.id} as read');
       }
-    } catch (e) {
-      print('Error marking messages as read: $e');
-    }
+    } catch (e) {}
   }
 
   /// Fetches user details by ID
   Future<Map<String, dynamic>?> fetchUserDetails(String userId) async {
     try {
-      print('Fetching user details for userId: $userId');
       final doc = await _firestore.collection('users').doc(userId).get();
       if (doc.exists) {
-        print('User details found: ${doc.data()}');
         return doc.data();
       }
-      print('No user found for userId: $userId');
       return null;
     } catch (e) {
-      print('Error fetching user details: $e');
       return null;
     }
   }

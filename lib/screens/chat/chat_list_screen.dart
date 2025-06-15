@@ -32,10 +32,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
       setState(() {
         _currentUserId = userData.uid;
         _userRole = userData.role;
-        print('User loaded: userId=${userData.uid}, role=${userData.role}');
       });
     } else {
-      print('Failed to load user data');
       AppNotifier.show(
         context,
         'Failed to load user data',
@@ -99,7 +97,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
                           );
                         }
                         if (snapshot.hasError) {
-                          print('Stream error: ${snapshot.error}');
                           return Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -116,7 +113,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         }
                         final chats = snapshot.data ?? [];
                         if (chats.isEmpty) {
-                          print('No chats found for userId: $_currentUserId');
                           return const Center(child: Text('No chats yet'));
                         }
 
@@ -147,7 +143,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
             as String;
 
     if (otherUserId.isEmpty) {
-      print('Invalid chat participants: ${chat['participants']}');
       return const SizedBox.shrink();
     }
 
@@ -194,9 +189,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
               style: TextStyle(color: Colors.grey[600], fontSize: 12),
             ),
             onTap: () {
-              print(
-                'Navigating to chat with chatId: ${chat['chatId']}, otherUserId: $otherUserId, displayName: $displayName',
-              );
               Navigator.pushNamed(
                 context,
                 '/chat',

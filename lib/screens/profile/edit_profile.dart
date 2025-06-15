@@ -143,7 +143,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onPrimary: Colors.white,
               surface: Colors.grey[100]!,
             ),
-            dialogBackgroundColor: Colors.white,
+            dialogTheme: DialogThemeData(backgroundColor: Colors.white),
           ),
           child: child!,
         );

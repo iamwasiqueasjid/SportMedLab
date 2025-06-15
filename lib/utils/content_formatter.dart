@@ -3,17 +3,15 @@ import 'package:dart_quill_delta/dart_quill_delta.dart';
 
 class ContentFormatter {
   static Future<void> processExtractedContent(
-      QuillController controller,
-      String text,
-      Map<String, dynamic>? structure,
-      Function(bool) onProcessingStateChanged,
-      ) async {
+    QuillController controller,
+    String text,
+    Map<String, dynamic>? structure,
+    Function(bool) onProcessingStateChanged,
+  ) async {
     onProcessingStateChanged(true);
     try {
       await populateQuillEditorWithFormatting(text, controller, structure);
     } catch (e) {
-      // ignore: avoid_print
-      print('Error processing content: $e');
       rethrow;
     } finally {
       onProcessingStateChanged(false);
@@ -21,26 +19,28 @@ class ContentFormatter {
   }
 
   static Future<void> populateQuillEditorWithFormatting(
-      String text,
-      QuillController controller,
-      Map<String, dynamic>? structure,
-      ) async {
+    String text,
+    QuillController controller,
+    Map<String, dynamic>? structure,
+  ) async {
     try {
       controller.document = Document(); // Clear existing content
       if (text.isEmpty) return;
 
       final cleanedText = cleanExtractedText(text);
-      final paragraphs = cleanedText
-          .split('\n\n')
-          .where((p) => p.trim().isNotEmpty)
-          .toList();
+      final paragraphs =
+          cleanedText.split('\n\n').where((p) => p.trim().isNotEmpty).toList();
       final document = Document();
 
       for (int i = 0; i < paragraphs.length; i++) {
         final paragraph = paragraphs[i].trim();
         if (paragraph.isEmpty) continue;
 
-        final paragraphDelta = createFormattedParagraph(paragraph, structure, i);
+        final paragraphDelta = createFormattedParagraph(
+          paragraph,
+          structure,
+          i,
+        );
         if (paragraphDelta.isNotEmpty) {
           document.insert(document.length, paragraphDelta);
           if (i < paragraphs.length - 1) {
@@ -51,17 +51,15 @@ class ContentFormatter {
 
       controller.document = document;
     } catch (e) {
-      // ignore: avoid_print
-      print('Error populating Quill editor: $e');
       await populateQuillEditorBasic(text, controller);
     }
   }
 
   static Delta createFormattedParagraph(
-      String paragraph,
-      Map<String, dynamic>? structure,
-      int position,
-      ) {
+    String paragraph,
+    Map<String, dynamic>? structure,
+    int position,
+  ) {
     final delta = Delta();
 
     if (isHeading(paragraph)) {
@@ -159,7 +157,9 @@ class ContentFormatter {
     if (trimmed.length > 100 || trimmed.split(' ').length > 15) return false;
     return RegExp(r'^\d+\.?\s+[A-Z]').hasMatch(trimmed) ||
         RegExp(r'^[IVX]+\.\s+[A-Z]').hasMatch(trimmed) ||
-        (RegExp(r'^[A-Z][A-Za-z\s]*$').hasMatch(trimmed) && trimmed.length > 3 && !RegExp(r'[.,;:]$').hasMatch(trimmed));
+        (RegExp(r'^[A-Z][A-Za-z\s]*$').hasMatch(trimmed) &&
+            trimmed.length > 3 &&
+            !RegExp(r'[.,;:]$').hasMatch(trimmed));
   }
 
   static int getHeadingLevel(String line) {
@@ -167,7 +167,11 @@ class ContentFormatter {
     if (RegExp(r'^\d+\.').hasMatch(trimmed)) {
       final number = RegExp(r'^\d+').firstMatch(trimmed)?.group(0);
       final num = int.tryParse(number ?? '1') ?? 1;
-      return (num <= 3) ? 1 : (num <= 6) ? 2 : 3;
+      return (num <= 3)
+          ? 1
+          : (num <= 6)
+          ? 2
+          : 3;
     }
     return trimmed.length < 30 && trimmed == trimmed.toUpperCase() ? 1 : 2;
   }
@@ -197,17 +201,15 @@ class ContentFormatter {
   }
 
   static Future<void> populateQuillEditorBasic(
-      String text,
-      QuillController controller,
-      ) async {
+    String text,
+    QuillController controller,
+  ) async {
     try {
       controller.document = Document();
       if (text.isEmpty) return;
 
-      final paragraphs = text
-          .split('\n\n')
-          .where((p) => p.trim().isNotEmpty)
-          .toList();
+      final paragraphs =
+          text.split('\n\n').where((p) => p.trim().isNotEmpty).toList();
       final document = Document();
 
       for (final paragraph in paragraphs) {
@@ -228,8 +230,6 @@ class ContentFormatter {
 
       controller.document = document;
     } catch (e) {
-      // ignore: avoid_print
-      print('Error in basic population: $e');
       controller.document = Document()..insert(0, text);
     }
   }
