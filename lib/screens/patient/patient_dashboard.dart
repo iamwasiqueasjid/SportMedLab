@@ -6,6 +6,7 @@ import 'package:test_project/utils/responsive_helper.dart';
 import 'package:test_project/utils/responsive_widget.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:test_project/workout_pose/exercise_selection_screen.dart';
 
 class PatientDashboard extends StatefulWidget {
   const PatientDashboard({super.key});
@@ -107,22 +108,14 @@ class PatientDashboardState extends State<PatientDashboard> {
   }
 
   Widget _buildMobileLayout(BuildContext context, ThemeData theme) {
-    return Column(
-      children: [
-        _buildHeader(context, theme),
-        Expanded(child: _buildPlanTabs(context, theme)),
-      ],
-    );
+    return Column(children: [Expanded(child: _buildPlanTabs(context, theme))]);
   }
 
   Widget _buildTabletLayout(BuildContext context, ThemeData theme) {
     return Padding(
       padding: context.horizontalPadding,
       child: Column(
-        children: [
-          _buildHeader(context, theme),
-          Expanded(child: _buildPlanTabs(context, theme)),
-        ],
+        children: [Expanded(child: _buildPlanTabs(context, theme))],
       ),
     );
   }
@@ -133,10 +126,7 @@ class PatientDashboardState extends State<PatientDashboard> {
         constraints: const BoxConstraints(maxWidth: 1200),
         padding: context.allPadding,
         child: Column(
-          children: [
-            _buildHeader(context, theme),
-            Expanded(child: _buildPlanTabs(context, theme)),
-          ],
+          children: [Expanded(child: _buildPlanTabs(context, theme))],
         ),
       ),
     );
@@ -195,12 +185,7 @@ class PatientDashboardState extends State<PatientDashboard> {
               children: [
                 _buildAvailablePlans(context, theme),
                 _buildEnrolledPlans(context, theme),
-                Center(
-                  child: Text(
-                    'Workout Plans',
-                    style: context.responsiveTitleLarge,
-                  ),
-                ),
+                ExerciseSelectionWidget(),
                 Center(
                   child: Text('Chats', style: context.responsiveTitleLarge),
                 ),
@@ -340,29 +325,36 @@ class PatientDashboardState extends State<PatientDashboard> {
       },
     ];
 
-    return GridView.builder(
-      padding: context.allPadding,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: ResponsiveHelper.getValue(
-          context,
-          mobile: 2,
-          tablet: 3,
-          desktop: 4,
+    return Column(
+      children: [
+        _buildHeader(context, theme),
+        Expanded(
+          child: GridView.builder(
+            padding: context.allPadding,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: ResponsiveHelper.getValue(
+                context,
+                mobile: 2,
+                tablet: 3,
+                desktop: 4,
+              ),
+              childAspectRatio: ResponsiveHelper.getValue(
+                context,
+                mobile: 0.7,
+                tablet: 0.8,
+                desktop: 0.9,
+              ),
+              crossAxisSpacing: context.mediumSpacing,
+              mainAxisSpacing: context.mediumSpacing,
+            ),
+            itemCount: plans.length,
+            itemBuilder: (context, index) {
+              final plan = plans[index];
+              return _buildPlanCard(context, theme, plan);
+            },
+          ),
         ),
-        childAspectRatio: ResponsiveHelper.getValue(
-          context,
-          mobile: 0.7,
-          tablet: 0.8,
-          desktop: 0.9,
-        ),
-        crossAxisSpacing: context.mediumSpacing,
-        mainAxisSpacing: context.mediumSpacing,
-      ),
-      itemCount: plans.length,
-      itemBuilder: (context, index) {
-        final plan = plans[index];
-        return _buildPlanCard(context, theme, plan);
-      },
+      ],
     );
   }
 

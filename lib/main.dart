@@ -19,7 +19,6 @@ import 'package:test_project/screens/chat/chat_list_screen.dart';
 import 'package:test_project/screens/chat/chat_screen.dart';
 import 'package:test_project/screens/course_details.dart';
 import 'package:test_project/screens/doctor/doctor_dashboard.dart';
-import 'package:test_project/pose_detection/pose_detector_view.dart';
 import 'package:test_project/screens/patient/blog_view_patient.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:test_project/theme/app_theme.dart' show lightTheme, darkTheme;
@@ -98,7 +97,6 @@ class _MyAppState extends State<MyApp> {
         '/profile': (context) => const ProfileScreen(),
         '/blogUpload': (context) => AdvancedBlogEditorScreen(),
         '/patientsBlog': (context) => const PatientsScreen(),
-        '/poseDetection': (context) => PoseDetectorView(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/chat') {
