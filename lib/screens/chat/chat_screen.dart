@@ -312,16 +312,6 @@ class _ChatScreenState extends State<ChatScreen> {
                         FloatingActionButton(
                           backgroundColor: theme.primaryColor,
                           onPressed: _sendMessage,
-                          child: Icon(
-                            Icons.send,
-                            color: Colors.white,
-                            size: ResponsiveHelper.getValue(
-                              context,
-                              mobile: 20.0,
-                              tablet: 22.0,
-                              desktop: 24.0,
-                            ),
-                          ),
                           elevation: ResponsiveHelper.getValue(
                             context,
                             mobile: 4.0,
@@ -337,6 +327,16 @@ class _ChatScreenState extends State<ChatScreen> {
                                 tablet: 1.5,
                                 desktop: 2.0,
                               ),
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.send,
+                            color: Colors.white,
+                            size: ResponsiveHelper.getValue(
+                              context,
+                              mobile: 20.0,
+                              tablet: 22.0,
+                              desktop: 24.0,
                             ),
                           ),
                         ),
