@@ -2,7 +2,10 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/utils/responsive_extension.dart';
+import 'package:test_project/utils/responsive_widget.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
+import 'package:test_project/utils/responsive_helper.dart';
 import 'package:test_project/utils/responsive_helper.dart'; // Ensure this is imported
 
 class AuthenticationPage extends StatefulWidget {
@@ -53,354 +56,376 @@ class AuthenticationPageState extends State<AuthenticationPage> {
       body: Stack(
         children: [
           SafeArea(
-            child: SingleChildScrollView(
-              // Wrap Column in SingleChildScrollView
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(
-                      height: ResponsiveHelper.getValue(
-                        context,
-                        mobile: 35.0,
-                        tablet: 50.0,
-                        desktop: 70.0,
-                      ),
-                    ),
-
-                    // Slider (Responsive height and width)
-                    SizedBox(
-                      height: ResponsiveHelper.getValue(
-                        context,
-                        mobile: MediaQuery.of(context).size.height * 0.45,
-                        tablet: MediaQuery.of(context).size.height * 0.5,
-                        desktop: MediaQuery.of(context).size.height * 0.6,
-                      ),
-                      child: PageView.builder(
-                        controller: _pageController,
-                        onPageChanged: (index) {
-                          setState(() {
-                            _currentPage = index;
-                          });
-                        },
-                        itemCount: 4,
-                        itemBuilder: (context, index) {
-                          return Image.asset(
-                            'assets/images/slider_${index + 1}.png',
-                            fit: BoxFit.contain,
-                            height: ResponsiveHelper.getValue(
-                              context,
-                              mobile: MediaQuery.of(context).size.height * 0.5,
-                              tablet: MediaQuery.of(context).size.height * 0.6,
-                              desktop: MediaQuery.of(context).size.height * 0.7,
-                            ),
-                            width: MediaQuery.of(context).size.width,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: Colors.grey[100],
-                                child: const Icon(Icons.error),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
-
-                    // Page Indicators (Responsive spacing)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(4, (index) {
-                        bool isActive = _currentPage == index;
-                        return AnimatedContainer(
-                          duration: const Duration(milliseconds: 500),
-                          margin: EdgeInsets.symmetric(
-                            horizontal: ResponsiveHelper.getValue(
-                              context,
-                              mobile: 4.0,
-                              tablet: 6.0,
-                              desktop: 8.0,
-                            ),
-                          ),
-                          width: ResponsiveHelper.getValue(
-                            context,
-                            mobile: 12.0,
-                            tablet: 14.0,
-                            desktop: 16.0,
-                          ),
-                          height: ResponsiveHelper.getValue(
-                            context,
-                            mobile: 8.0,
-                            tablet: 10.0,
-                            desktop: 12.0,
-                          ),
-                          decoration: BoxDecoration(
-                            color:
-                                isActive
-                                    ? const Color(0xFF0A2D7B)
-                                    : Colors.grey,
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                        );
-                      }),
-                    ),
-                    SizedBox(
-                      height: ResponsiveHelper.getValue(
-                        context,
-                        mobile: 30.0,
-                        tablet: 40.0,
-                        desktop: 50.0,
-                      ),
-                    ),
-
-                    // Text Section (Responsive padding and font sizes)
-                    Padding(
-                      padding: ResponsiveHelper.getPadding(context),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Train with the Best',
-                            style: TextStyle(
-                              fontSize: ResponsiveHelper.getFontSize(
-                                context,
-                                mobile: 24.0,
-                                tablet: 28.0,
-                                desktop: 32.0,
-                              ),
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF0A2D7B),
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(
-                            height: ResponsiveHelper.getValue(
-                              context,
-                              mobile: 8.0,
-                              tablet: 10.0,
-                              desktop: 12.0,
-                            ),
-                          ),
-                          Text(
-                            'Your body can stand almost anything—it’s your mind you have to convince.',
-                            style: TextStyle(
-                              fontSize: ResponsiveHelper.getFontSize(
-                                context,
-                                mobile: 16.0,
-                                tablet: 18.0,
-                                desktop: 20.0,
-                              ),
-                              color: Colors.black87,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Buttons Section (Responsive padding and sizing)
-                    Padding(
-                      padding: ResponsiveHelper.getPadding(context),
-                      child: Column(
-                        children: [
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF0A2D7B),
-                              minimumSize: Size(
-                                ResponsiveHelper.getValue(
-                                  context,
-                                  mobile:
-                                      MediaQuery.of(context).size.width * 0.8,
-                                  tablet:
-                                      MediaQuery.of(context).size.width * 0.7,
-                                  desktop:
-                                      MediaQuery.of(context).size.width * 0.5,
-                                ),
-                                50,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.0),
-                              ),
-                              elevation: 4,
-                            ),
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/login');
-                            },
-                            child: const Text(
-                              'Login',
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: ResponsiveHelper.getValue(
-                              context,
-                              mobile: 10.0,
-                              tablet: 15.0,
-                              desktop: 20.0,
-                            ),
-                          ),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF0A2D7B),
-                              minimumSize: Size(
-                                ResponsiveHelper.getValue(
-                                  context,
-                                  mobile:
-                                      MediaQuery.of(context).size.width * 0.8,
-                                  tablet:
-                                      MediaQuery.of(context).size.width * 0.7,
-                                  desktop:
-                                      MediaQuery.of(context).size.width * 0.5,
-                                ),
-                                50,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.0),
-                              ),
-                              elevation: 4,
-                            ),
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/signUp');
-                            },
-                            child: const Text(
-                              'Sign Up',
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: ResponsiveHelper.getValue(
-                              context,
-                              mobile: 10.0,
-                              tablet: 15.0,
-                              desktop: 20.0,
-                            ),
-                          ),
-
-                          // Google Sign-In Button
-                          SizedBox(
-                            width: ResponsiveHelper.getValue(
-                              context,
-                              mobile: MediaQuery.of(context).size.width * 0.8,
-                              tablet: MediaQuery.of(context).size.width * 0.7,
-                              desktop: MediaQuery.of(context).size.width * 0.5,
-                            ),
-                            height: 50,
-                            child: OutlinedButton.icon(
-                              icon: Image.asset(
-                                'assets/images/google_icon.jpg',
-                                height: 24,
-                              ),
-                              label: Text("Continue with Google"),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.black87,
-                                side: BorderSide(color: Colors.grey.shade400),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                minimumSize: Size(
-                                  ResponsiveHelper.getValue(
-                                    context,
-                                    mobile:
-                                        MediaQuery.of(context).size.width * 0.8,
-                                    tablet:
-                                        MediaQuery.of(context).size.width * 0.7,
-                                    desktop:
-                                        MediaQuery.of(context).size.width * 0.5,
-                                  ),
-                                  50,
-                                ),
-                              ),
-                              onPressed:
-                                  _isLoading
-                                      ? null
-                                      : () async {
-                                        setState(() {
-                                          _isLoading = true;
-                                        });
-
-                                        try {
-                                          await _authService.signInWithGoogle(
-                                            context: context,
-                                          );
-                                        } catch (e) {
-                                          if (mounted) {
-                                            AppNotifier.show(
-                                              context,
-                                              'Google sign-in failed. Please try again.',
-                                              type: MessageType.error,
-                                            );
-                                          }
-                                        } finally {
-                                          if (mounted) {
-                                            setState(() {
-                                              _isLoading = false;
-                                            });
-                                          }
-                                        }
-                                      },
-                            ),
-                          ),
-                          SizedBox(
-                            height: ResponsiveHelper.getValue(
-                              context,
-                              mobile: 25.0,
-                              tablet: 30.0,
-                              desktop: 40.0,
-                            ),
-                          ),
-                          Text(
-                            'By continuing you agree to Christos Poulis\'s\nTerms of Services & Privacy Policy',
-                            style: TextStyle(
-                              fontSize: ResponsiveHelper.getFontSize(
-                                context,
-                                mobile: 12.0,
-                                tablet: 14.0,
-                                desktop: 16.0,
-                              ),
-                              color: Colors.grey[700],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: ResponsiveHelper.getValue(
-                        context,
-                        mobile: 35.0,
-                        tablet: 50.0,
-                        desktop: 70.0,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            child: ResponsiveBuilder(
+              builder: (context, constraints, deviceType) {
+                return _buildResponsiveLayout(
+                  context,
+                  size,
+                  primaryColor,
+                  deviceType,
+                );
+              },
             ),
           ),
 
           // Loading Overlay
           if (_isLoading)
             Container(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white,
               child: Center(
                 child: SpinKitDoubleBounce(
                   color: const Color(0xFF0A2D7B),
-                  size: 40.0,
+                  size: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 40.0,
+                    tablet: 50.0,
+                    desktop: 60.0,
+                  ),
                 ),
               ),
             ),
         ],
       ),
+    );
+  }
+
+  Widget _buildResponsiveLayout(
+    BuildContext context,
+    Size size,
+    Color primaryColor,
+    DeviceType deviceType,
+  ) {
+    switch (deviceType) {
+      case DeviceType.desktop:
+        return _buildDesktopLayout(context, size, primaryColor);
+      case DeviceType.tablet:
+        return _buildTabletLayout(context, size, primaryColor);
+      case DeviceType.mobile:
+      default:
+        return _buildMobileLayout(context, size, primaryColor);
+    }
+  }
+
+  // Mobile Layout (Original)
+  Widget _buildMobileLayout(
+    BuildContext context,
+    Size size,
+    Color primaryColor,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(height: context.largeSpacing),
+        _buildImageSlider(context, size),
+        _buildPageIndicators(context, primaryColor),
+        SizedBox(height: context.mediumSpacing),
+        _buildTextSection(context, primaryColor),
+        const Spacer(),
+        _buildButtonsSection(context, size, primaryColor),
+        SizedBox(height: context.largeSpacing),
+      ],
+    );
+  }
+
+  // Tablet Layout
+  Widget _buildTabletLayout(
+    BuildContext context,
+    Size size,
+    Color primaryColor,
+  ) {
+    return Padding(
+      padding: context.horizontalPadding,
+      child: Row(
+        children: [
+          // Left side - Image slider
+          Expanded(
+            flex: 1,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildImageSlider(context, size),
+                SizedBox(height: context.smallSpacing),
+                _buildPageIndicators(context, primaryColor),
+              ],
+            ),
+          ),
+          SizedBox(width: context.largeSpacing),
+          // Right side - Content
+          Expanded(
+            flex: 1,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildTextSection(context, primaryColor),
+                SizedBox(height: context.largeSpacing),
+                _buildButtonsSection(context, size, primaryColor),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Desktop Layout
+  Widget _buildDesktopLayout(
+    BuildContext context,
+    Size size,
+    Color primaryColor,
+  ) {
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        padding: context.allPadding,
+        child: Row(
+          children: [
+            // Left side - Image slider (larger)
+            Expanded(
+              flex: 3,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildImageSlider(context, size),
+                  SizedBox(height: context.mediumSpacing),
+                  _buildPageIndicators(context, primaryColor),
+                ],
+              ),
+            ),
+            SizedBox(width: context.largeSpacing * 2),
+            // Right side - Content (smaller)
+            Expanded(
+              flex: 2,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildTextSection(context, primaryColor),
+                  SizedBox(height: context.largeSpacing),
+                  _buildButtonsSection(context, size, primaryColor),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageSlider(BuildContext context, Size size) {
+    final sliderHeight = ResponsiveHelper.getValue(
+      context,
+      mobile: size.height * 0.45,
+      tablet: size.height * 0.5,
+      desktop: size.height * 0.6,
+    );
+
+    return SizedBox(
+      height: sliderHeight,
+      child: PageView.builder(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _currentPage = index;
+          });
+        },
+        itemCount: 4,
+        itemBuilder: (context, index) {
+          return Image.asset(
+            'assets/images/slider_${index + 1}.png',
+            fit: BoxFit.contain,
+            height: sliderHeight,
+            width: size.width,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                color: Colors.grey[100],
+                child: const Icon(Icons.error),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildPageIndicators(BuildContext context, Color primaryColor) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(4, (index) {
+        bool isActive = _currentPage == index;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          margin: EdgeInsets.symmetric(horizontal: context.smallSpacing / 2),
+          width: isActive ? 12.0 : 8.0,
+          height: 8.0,
+          decoration: BoxDecoration(
+            color: isActive ? primaryColor : Colors.grey,
+            borderRadius: BorderRadius.circular(4.0),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildTextSection(BuildContext context, Color primaryColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          'Train with the Best',
+          style: context.responsiveHeadlineLarge.copyWith(color: primaryColor),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: context.smallSpacing),
+        Text(
+          "Your body can stand almost anything—it's your mind you have to convince.",
+          style: context.responsiveBodyLarge,
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildButtonsSection(
+    BuildContext context,
+    Size size,
+    Color primaryColor,
+  ) {
+    final buttonWidth = ResponsiveHelper.getValue(
+      context,
+      mobile: size.width * 0.8,
+      tablet: double.infinity,
+      desktop: double.infinity,
+    );
+
+    return Column(
+      children: [
+        _buildButton(
+          context,
+          'Login',
+          () => Navigator.pushNamed(context, '/login'),
+          primaryColor,
+          buttonWidth,
+        ),
+        SizedBox(height: context.smallSpacing),
+        _buildButton(
+          context,
+          'Sign Up',
+          () => Navigator.pushNamed(context, '/signUp'),
+          primaryColor,
+          buttonWidth,
+        ),
+        SizedBox(height: context.smallSpacing),
+        _buildGoogleButton(context, buttonWidth),
+        SizedBox(height: context.mediumSpacing),
+        _buildTermsText(context),
+      ],
+    );
+  }
+
+  Widget _buildButton(
+    BuildContext context,
+    String text,
+    VoidCallback onPressed,
+    Color color,
+    double width,
+  ) {
+    return SizedBox(
+      width: width,
+      height: ResponsiveHelper.getValue(
+        context,
+        mobile: 50.0,
+        tablet: 55.0,
+        desktop: 60.0,
+      ),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          elevation: 4,
+        ),
+        onPressed: onPressed,
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: ResponsiveHelper.getFontSize(context, mobile: 16.0),
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGoogleButton(BuildContext context, double width) {
+    return SizedBox(
+      width: width,
+      height: ResponsiveHelper.getValue(
+        context,
+        mobile: 50.0,
+        tablet: 55.0,
+        desktop: 60.0,
+      ),
+      child: OutlinedButton.icon(
+        icon: Image.asset(
+          'assets/images/google_icon.jpg',
+          height: ResponsiveHelper.getValue(
+            context,
+            mobile: 24.0,
+            tablet: 26.0,
+            desktop: 28.0,
+          ),
+        ),
+        label: Text(
+          "Continue with Google",
+          style: TextStyle(
+            fontSize: ResponsiveHelper.getFontSize(context, mobile: 16.0),
+          ),
+        ),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.black87,
+          side: BorderSide(color: Colors.grey.shade400),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        onPressed:
+            _isLoading
+                ? null
+                : () async {
+                  setState(() {
+                    _isLoading = true;
+                  });
+
+                  try {
+                    await _authService.signInWithGoogle(context: context);
+                  } catch (e) {
+                    if (mounted) {
+                      AppNotifier.show(
+                        context,
+                        'Google sign-in failed. Please try again.',
+                        type: MessageType.error,
+                      );
+                    }
+                  } finally {
+                    if (mounted) {
+                      setState(() {
+                        _isLoading = false;
+                      });
+                    }
+                  }
+                },
+      ),
+    );
+  }
+
+  Widget _buildTermsText(BuildContext context) {
+    return Text(
+      'By continuing you agree to Christos Poulis\'s\nTerms of Services & Privacy Policy',
+      style: context.responsiveBodyMedium.copyWith(color: Colors.grey[700]),
+      textAlign: TextAlign.center,
     );
   }
 }

@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
+import 'package:test_project/utils/responsive_extension.dart';
+import 'package:test_project/utils/responsive_helper.dart';
 
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({super.key});
@@ -52,11 +54,22 @@ class _ChatListScreenState extends State<ChatListScreen> {
         backgroundColor: theme.primaryColor,
         foregroundColor: Colors.white,
         elevation: 2,
-        title: const Text('Messages'),
+        title: Text(
+          'Messages',
+          style: context.responsiveTitleLarge.copyWith(color: Colors.white),
+        ),
         actions: [
           if (_userRole == 'Patient')
             IconButton(
-              icon: const Icon(Icons.add_comment),
+              icon: Icon(
+                Icons.add_comment,
+                size: ResponsiveHelper.getValue(
+                  context,
+                  mobile: 24.0,
+                  tablet: 26.0,
+                  desktop: 28.0,
+                ),
+              ),
               onPressed: () => _showInitiateChatDialog(context),
             ),
         ],
@@ -66,19 +79,29 @@ class _ChatListScreenState extends State<ChatListScreen> {
               ? Center(
                 child: SpinKitDoubleBounce(
                   color: const Color(0xFF0A2D7B),
-                  size: 40.0,
+                  size: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 40.0,
+                    tablet: 50.0,
+                    desktop: 60.0,
+                  ),
                 ),
               )
               : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: EdgeInsets.all(
+                      ResponsiveHelper.getValue(
+                        context,
+                        mobile: 16.0,
+                        tablet: 20.0,
+                        desktop: 24.0,
+                      ),
+                    ),
                     child: Text(
                       'All Chats',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                      style: context.responsiveHeadlineMedium.copyWith(
                         color: theme.primaryColor,
                       ),
                     ),
@@ -92,7 +115,12 @@ class _ChatListScreenState extends State<ChatListScreen> {
                           return Center(
                             child: SpinKitDoubleBounce(
                               color: const Color(0xFF0A2D7B),
-                              size: 40.0,
+                              size: ResponsiveHelper.getValue(
+                                context,
+                                mobile: 40.0,
+                                tablet: 50.0,
+                                desktop: 60.0,
+                              ),
                             ),
                           );
                         }
@@ -101,11 +129,24 @@ class _ChatListScreenState extends State<ChatListScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('Error loading chats: ${snapshot.error}'),
-                                const SizedBox(height: 16),
+                                Text(
+                                  'Error loading chats: ${snapshot.error}',
+                                  style: context.responsiveBodyLarge,
+                                ),
+                                SizedBox(
+                                  height: ResponsiveHelper.getValue(
+                                    context,
+                                    mobile: 16.0,
+                                    tablet: 20.0,
+                                    desktop: 24.0,
+                                  ),
+                                ),
                                 ElevatedButton(
                                   onPressed: () => setState(() {}),
-                                  child: const Text('Retry'),
+                                  child: Text(
+                                    'Retry',
+                                    style: context.responsiveBodyLarge,
+                                  ),
                                 ),
                               ],
                             ),
@@ -113,11 +154,24 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         }
                         final chats = snapshot.data ?? [];
                         if (chats.isEmpty) {
-                          return const Center(child: Text('No chats yet'));
+                          print('No chats found for userId: $_currentUserId');
+                          return Center(
+                            child: Text(
+                              'No chats yet',
+                              style: context.responsiveBodyLarge,
+                            ),
+                          );
                         }
 
                         return ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: ResponsiveHelper.getValue(
+                              context,
+                              mobile: 16.0,
+                              tablet: 20.0,
+                              desktop: 24.0,
+                            ),
+                          ),
                           itemCount: chats.length,
                           itemBuilder: (context, index) {
                             final chat = chats[index];
@@ -162,31 +216,77 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 : '';
 
         return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+          margin: EdgeInsets.only(
+            bottom: ResponsiveHelper.getValue(
+              context,
+              mobile: 12.0,
+              tablet: 14.0,
+              desktop: 16.0,
+            ),
           ),
-          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getValue(
+                context,
+                mobile: 12.0,
+                tablet: 14.0,
+                desktop: 16.0,
+              ),
+            ),
+          ),
+          elevation: ResponsiveHelper.getValue(
+            context,
+            mobile: 2.0,
+            tablet: 3.0,
+            desktop: 4.0,
+          ),
           child: ListTile(
+            contentPadding: EdgeInsets.all(
+              ResponsiveHelper.getValue(
+                context,
+                mobile: 8.0,
+                tablet: 10.0,
+                desktop: 12.0,
+              ),
+            ),
             leading: CircleAvatar(
+              radius: ResponsiveHelper.getValue(
+                context,
+                mobile: 20.0,
+                tablet: 22.0,
+                desktop: 24.0,
+              ),
               backgroundColor: theme.primaryColor.withOpacity(0.2),
               child: Text(
                 displayName[0].toUpperCase(),
-                style: TextStyle(color: theme.primaryColor),
+                style: TextStyle(
+                  color: theme.primaryColor,
+                  fontSize: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 16.0,
+                    tablet: 18.0,
+                    desktop: 20.0,
+                  ),
+                ),
               ),
             ),
             title: Text(
               displayName,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: context.responsiveBodyLarge.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
             subtitle: Text(
               lastMessage,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+              style: context.responsiveBodyMedium,
             ),
             trailing: Text(
               formattedTime,
-              style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
             ),
             onTap: () {
               Navigator.pushNamed(
@@ -216,21 +316,48 @@ class _ChatListScreenState extends State<ChatListScreen> {
           (context) => AlertDialog(
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(
+                ResponsiveHelper.getValue(
+                  context,
+                  mobile: 16.0,
+                  tablet: 18.0,
+                  desktop: 20.0,
+                ),
+              ),
             ),
             title: Text(
               'Start New Chat',
-              style: TextStyle(
+              style: context.responsiveHeadlineMedium.copyWith(
                 color: theme.primaryColor,
                 fontWeight: FontWeight.bold,
               ),
             ),
             content: SingleChildScrollView(
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(
+                  ResponsiveHelper.getValue(
+                    context,
+                    mobile: 16.0,
+                    tablet: 20.0,
+                    desktop: 24.0,
+                  ),
+                ),
+                width: ResponsiveHelper.getValue(
+                  context,
+                  mobile: double.infinity,
+                  tablet: 400.0,
+                  desktop: 500.0,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveHelper.getValue(
+                      context,
+                      mobile: 12.0,
+                      tablet: 14.0,
+                      desktop: 16.0,
+                    ),
+                  ),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -240,45 +367,88 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       decoration: InputDecoration(
                         labelText: 'Doctor Email',
                         hintText: 'Enter doctor\'s email',
-                        labelStyle: TextStyle(color: theme.primaryColor),
+                        labelStyle: context.responsiveBodyMedium.copyWith(
+                          color: theme.primaryColor,
+                        ),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveHelper.getValue(
+                              context,
+                              mobile: 12.0,
+                              tablet: 14.0,
+                              desktop: 16.0,
+                            ),
+                          ),
                           borderSide: BorderSide(color: theme.primaryColor),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveHelper.getValue(
+                              context,
+                              mobile: 12.0,
+                              tablet: 14.0,
+                              desktop: 16.0,
+                            ),
+                          ),
                           borderSide: BorderSide(
                             color: theme.primaryColor,
                             width: 2,
                           ),
                         ),
                       ),
-                      style: const TextStyle(color: Colors.black87),
+                      style: context.responsiveBodyLarge.copyWith(
+                        color: Colors.black87,
+                      ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 16.0,
+                        tablet: 20.0,
+                        desktop: 24.0,
+                      ),
+                    ),
                     TextField(
                       controller: messageController,
                       decoration: InputDecoration(
                         labelText: 'Initial Message',
                         hintText: 'Type your message',
-                        labelStyle: TextStyle(color: theme.primaryColor),
+                        labelStyle: context.responsiveBodyMedium.copyWith(
+                          color: theme.primaryColor,
+                        ),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveHelper.getValue(
+                              context,
+                              mobile: 12.0,
+                              tablet: 14.0,
+                              desktop: 16.0,
+                            ),
+                          ),
                           borderSide: BorderSide(color: theme.primaryColor),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveHelper.getValue(
+                              context,
+                              mobile: 12.0,
+                              tablet: 14.0,
+                              desktop: 16.0,
+                            ),
+                          ),
                           borderSide: BorderSide(
                             color: theme.primaryColor,
                             width: 2,
                           ),
                         ),
                       ),
-                      style: const TextStyle(color: Colors.black87),
+                      style: context.responsiveBodyLarge.copyWith(
+                        color: Colors.black87,
+                      ),
                       maxLines: 3,
                     ),
                   ],
@@ -290,14 +460,23 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 onPressed: () => Navigator.pop(context),
                 child: Text(
                   'Cancel',
-                  style: TextStyle(color: theme.primaryColor),
+                  style: context.responsiveBodyLarge.copyWith(
+                    color: theme.primaryColor,
+                  ),
                 ),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.primaryColor,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveHelper.getValue(
+                        context,
+                        mobile: 12.0,
+                        tablet: 14.0,
+                        desktop: 16.0,
+                      ),
+                    ),
                   ),
                 ),
                 onPressed: () async {
@@ -332,9 +511,11 @@ class _ChatListScreenState extends State<ChatListScreen> {
                     );
                   }
                 },
-                child: const Text(
+                child: Text(
                   'Send',
-                  style: TextStyle(color: Colors.white),
+                  style: context.responsiveBodyLarge.copyWith(
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ],

@@ -6,6 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
+import 'package:test_project/utils/responsive_extension.dart';
+import 'package:test_project/utils/responsive_helper.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -122,9 +124,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Error picking image: $e',
+            style: context.responsiveBodyMedium,
+          ),
+        ),
+      );
     }
   }
 
@@ -239,20 +246,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
         elevation: 2,
         shadowColor: Colors.black26,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: Icon(
+            Icons.arrow_back,
+            size: ResponsiveHelper.getValue(
+              context,
+              mobile: 24.0,
+              tablet: 26.0,
+              desktop: 28.0,
+            ),
+          ),
           onPressed: () {
-            // Navigate to the appropriate dashboard based on role
             final targetRoute =
                 _role == 'Doctor' ? '/doctorDashboard' : '/patientDashboard';
             Navigator.pushReplacementNamed(context, targetRoute);
           },
         ),
-        title: const Text(
+        title: Text(
           'Profile',
-          style: TextStyle(
+          style: context.responsiveTitleLarge.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontSize: 20,
           ),
         ),
         actions: [
@@ -260,10 +273,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onPressed: _isLoading ? null : _toggleEdit,
             child: Text(
               _isEditing ? 'Cancel' : 'Edit',
-              style: TextStyle(
+              style: context.responsiveBodyLarge.copyWith(
                 color: _isLoading ? Colors.grey : Colors.white,
                 fontWeight: FontWeight.w600,
-                fontSize: 16,
               ),
             ),
           ),
@@ -272,11 +284,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onPressed: _isLoading || _isUploading ? null : _handleSave,
               child: Text(
                 'Save',
-                style: TextStyle(
+                style: context.responsiveBodyLarge.copyWith(
                   color:
                       _isLoading || _isUploading ? Colors.grey : Colors.white,
                   fontWeight: FontWeight.w600,
-                  fontSize: 16,
                 ),
               ),
             ),
@@ -286,14 +297,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _isLoading
               ? Center(
                 child: SpinKitDoubleBounce(
-                  color: Color(0xFF0A2D7B),
-                  size: 40.0,
+                  color: const Color(0xFF0A2D7B),
+                  size: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 40.0,
+                    tablet: 50.0,
+                    desktop: 60.0,
+                  ),
                 ),
               )
               : SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 24,
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 20.0,
+                    tablet: 24.0,
+                    desktop: 32.0,
+                  ),
+                  vertical: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 24.0,
+                    tablet: 28.0,
+                    desktop: 32.0,
+                  ),
                 ),
                 child: Form(
                   key: _formKey,
@@ -302,27 +328,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       Text(
                         'Your Profile',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
+                        style: context.responsiveHeadlineMedium.copyWith(
                           color: theme.primaryColor,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 8.0,
+                          tablet: 10.0,
+                          desktop: 12.0,
+                        ),
+                      ),
                       Text(
                         'Manage your personal details',
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: context.responsiveBodyMedium.copyWith(
                           color: Colors.grey[600],
                           fontWeight: FontWeight.w400,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(
+                        height: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 24.0,
+                          tablet: 28.0,
+                          desktop: 32.0,
+                        ),
+                      ),
                       Center(
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
-                          width: 140,
-                          height: 140,
+                          width: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 140.0,
+                            tablet: 160.0,
+                            desktop: 180.0,
+                          ),
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 140.0,
+                            tablet: 160.0,
+                            desktop: 180.0,
+                          ),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: LinearGradient(
@@ -336,7 +383,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black12,
-                                blurRadius: 8,
+                                blurRadius: ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 8.0,
+                                  tablet: 10.0,
+                                  desktop: 12.0,
+                                ),
                                 offset: const Offset(0, 4),
                               ),
                             ],
@@ -347,15 +399,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               GestureDetector(
                                 onTap: _isEditing ? _pickImage : null,
                                 child: Container(
-                                  width: 130,
-                                  height: 130,
+                                  width: ResponsiveHelper.getValue(
+                                    context,
+                                    mobile: 130.0,
+                                    tablet: 150.0,
+                                    desktop: 170.0,
+                                  ),
+                                  height: ResponsiveHelper.getValue(
+                                    context,
+                                    mobile: 130.0,
+                                    tablet: 150.0,
+                                    desktop: 170.0,
+                                  ),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
                                       color: theme.primaryColor.withOpacity(
                                         _isEditing ? 0.8 : 0.3,
                                       ),
-                                      width: 2,
+                                      width: ResponsiveHelper.getValue(
+                                        context,
+                                        mobile: 2.0,
+                                        tablet: 2.5,
+                                        desktop: 3.0,
+                                      ),
                                     ),
                                   ),
                                   child: ClipOval(
@@ -364,21 +431,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ? Center(
                                               child: SpinKitFadingCircle(
                                                 color: theme.primaryColor,
-                                                size: 40.0,
+                                                size: ResponsiveHelper.getValue(
+                                                  context,
+                                                  mobile: 30.0,
+                                                  tablet: 35.0,
+                                                  desktop: 40.0,
+                                                ),
                                               ),
                                             )
                                             : _imageFile != null
                                             ? Image.file(
                                               _imageFile!,
-                                              width: 130,
-                                              height: 130,
+                                              width: ResponsiveHelper.getValue(
+                                                context,
+                                                mobile: 130.0,
+                                                tablet: 150.0,
+                                                desktop: 170.0,
+                                              ),
+                                              height: ResponsiveHelper.getValue(
+                                                context,
+                                                mobile: 130.0,
+                                                tablet: 150.0,
+                                                desktop: 170.0,
+                                              ),
                                               fit: BoxFit.cover,
                                             )
                                             : _uploadedImageUrl != null
                                             ? Image.network(
                                               _uploadedImageUrl!,
-                                              width: 130,
-                                              height: 130,
+                                              width: ResponsiveHelper.getValue(
+                                                context,
+                                                mobile: 130.0,
+                                                tablet: 150.0,
+                                                desktop: 170.0,
+                                              ),
+                                              height: ResponsiveHelper.getValue(
+                                                context,
+                                                mobile: 130.0,
+                                                tablet: 150.0,
+                                                desktop: 170.0,
+                                              ),
                                               fit: BoxFit.cover,
                                               errorBuilder:
                                                   (
@@ -387,15 +479,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     stackTrace,
                                                   ) => Image.asset(
                                                     'assets/images/Avatar.png',
-                                                    width: 130,
-                                                    height: 130,
+                                                    width:
+                                                        ResponsiveHelper.getValue(
+                                                          context,
+                                                          mobile: 130.0,
+                                                          tablet: 150.0,
+                                                          desktop: 170.0,
+                                                        ),
+                                                    height:
+                                                        ResponsiveHelper.getValue(
+                                                          context,
+                                                          mobile: 130.0,
+                                                          tablet: 150.0,
+                                                          desktop: 170.0,
+                                                        ),
                                                     fit: BoxFit.cover,
                                                   ),
                                             )
                                             : Image.asset(
                                               'assets/images/Avatar.png',
-                                              width: 130,
-                                              height: 130,
+                                              width: ResponsiveHelper.getValue(
+                                                context,
+                                                mobile: 130.0,
+                                                tablet: 150.0,
+                                                desktop: 170.0,
+                                              ),
+                                              height: ResponsiveHelper.getValue(
+                                                context,
+                                                mobile: 130.0,
+                                                tablet: 150.0,
+                                                desktop: 170.0,
+                                              ),
                                               fit: BoxFit.cover,
                                             ),
                                   ),
@@ -412,19 +526,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       boxShadow: [
                                         BoxShadow(
                                           color: Colors.black26,
-                                          blurRadius: 4,
+                                          blurRadius: ResponsiveHelper.getValue(
+                                            context,
+                                            mobile: 4.0,
+                                            tablet: 5.0,
+                                            desktop: 6.0,
+                                          ),
                                           offset: const Offset(0, 2),
                                         ),
                                       ],
                                     ),
                                     child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
+                                      padding: EdgeInsets.all(
+                                        ResponsiveHelper.getValue(
+                                          context,
+                                          mobile: 8.0,
+                                          tablet: 10.0,
+                                          desktop: 12.0,
+                                        ),
+                                      ),
                                       child: Icon(
                                         _isUploading
                                             ? Icons.hourglass_top
                                             : Icons.camera_alt,
                                         color: Colors.white,
-                                        size: 24,
+                                        size: ResponsiveHelper.getValue(
+                                          context,
+                                          mobile: 24.0,
+                                          tablet: 26.0,
+                                          desktop: 28.0,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -433,7 +564,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      SizedBox(
+                        height: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 32.0,
+                          tablet: 36.0,
+                          desktop: 40.0,
+                        ),
+                      ),
                       _buildTextField(
                         label: 'Your Name',
                         controller: _nameController,
@@ -444,7 +582,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? 'Please enter your name'
                                     : null,
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(
+                        height: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 24.0,
+                          tablet: 28.0,
+                          desktop: 32.0,
+                        ),
+                      ),
+                      _buildTextField(
+                        label: 'Email',
+                        controller: _emailController,
+                        enabled: false,
+                      ),
+                      SizedBox(
+                        height: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 24.0,
+                          tablet: 28.0,
+                          desktop: 32.0,
+                        ),
+                      ),
                       _buildTextField(
                         label: 'Weight (kg)',
                         controller: _weightController,
@@ -461,7 +619,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(
+                        height: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 24.0,
+                          tablet: 28.0,
+                          desktop: 32.0,
+                        ),
+                      ),
                       _buildTextField(
                         label: 'Height (cm)',
                         controller: _heightController,
@@ -478,7 +643,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(
+                        height: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 24.0,
+                          tablet: 28.0,
+                          desktop: 32.0,
+                        ),
+                      ),
                       _buildDropdownField(
                         label: 'Gender',
                         value: _selectedGender,
@@ -492,7 +664,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ? 'Please select your gender'
                                     : null,
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(
+                        height: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 24.0,
+                          tablet: 28.0,
+                          desktop: 32.0,
+                        ),
+                      ),
                       _buildDateField(
                         label: 'Date of Birth',
                         date: _selectedDate,
@@ -520,23 +699,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: context.responsiveBodyLarge.copyWith(
             color: theme.primaryColor,
-            fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(
+          height: ResponsiveHelper.getValue(
+            context,
+            mobile: 8.0,
+            tablet: 10.0,
+            desktop: 12.0,
+          ),
+        ),
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getValue(
+                context,
+                mobile: 12.0,
+                tablet: 14.0,
+                desktop: 16.0,
+              ),
+            ),
             boxShadow:
                 enabled
                     ? [
                       BoxShadow(
                         color: theme.primaryColor.withOpacity(0.1),
-                        blurRadius: 6,
+                        blurRadius: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 6.0,
+                          tablet: 7.0,
+                          desktop: 8.0,
+                        ),
                         offset: const Offset(0, 2),
                       ),
                     ]
@@ -546,31 +743,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
             controller: controller,
             enabled: enabled,
             keyboardType: keyboardType,
-            style: TextStyle(color: theme.primaryColor, fontSize: 16),
+            style: context.responsiveBodyLarge.copyWith(
+              color: theme.primaryColor,
+            ),
             decoration: InputDecoration(
               hintText: 'Enter $label',
-              hintStyle: TextStyle(color: theme.primaryColor.withOpacity(0.5)),
+              hintStyle: context.responsiveBodyMedium.copyWith(
+                color: theme.primaryColor.withOpacity(0.5),
+              ),
               filled: true,
               fillColor: Colors.white,
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveHelper.getValue(
+                    context,
+                    mobile: 12.0,
+                    tablet: 14.0,
+                    desktop: 16.0,
+                  ),
+                ),
                 borderSide: BorderSide(
                   color: theme.primaryColor.withOpacity(0.3),
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveHelper.getValue(
+                    context,
+                    mobile: 12.0,
+                    tablet: 14.0,
+                    desktop: 16.0,
+                  ),
+                ),
                 borderSide: BorderSide(color: theme.primaryColor, width: 2),
               ),
               disabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveHelper.getValue(
+                    context,
+                    mobile: 12.0,
+                    tablet: 14.0,
+                    desktop: 16.0,
+                  ),
+                ),
                 borderSide: BorderSide(color: Colors.grey[300]!),
               ),
               suffixText: suffixText,
-              suffixStyle: TextStyle(color: theme.primaryColor),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
+              suffixStyle: context.responsiveBodyMedium.copyWith(
+                color: theme.primaryColor,
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: ResponsiveHelper.getValue(
+                  context,
+                  mobile: 16.0,
+                  tablet: 18.0,
+                  desktop: 20.0,
+                ),
+                vertical: ResponsiveHelper.getValue(
+                  context,
+                  mobile: 14.0,
+                  tablet: 16.0,
+                  desktop: 18.0,
+                ),
               ),
             ),
             validator: validator,
@@ -594,23 +828,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: context.responsiveBodyLarge.copyWith(
             color: theme.primaryColor,
-            fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(
+          height: ResponsiveHelper.getValue(
+            context,
+            mobile: 8.0,
+            tablet: 10.0,
+            desktop: 12.0,
+          ),
+        ),
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getValue(
+                context,
+                mobile: 12.0,
+                tablet: 14.0,
+                desktop: 16.0,
+              ),
+            ),
             boxShadow:
                 enabled
                     ? [
                       BoxShadow(
                         color: theme.primaryColor.withOpacity(0.1),
-                        blurRadius: 6,
+                        blurRadius: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 6.0,
+                          tablet: 7.0,
+                          desktop: 8.0,
+                        ),
                         offset: const Offset(0, 2),
                       ),
                     ]
@@ -620,26 +872,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
             value: value,
             decoration: InputDecoration(
               hintText: 'Select $label',
-              hintStyle: TextStyle(color: theme.primaryColor.withOpacity(0.5)),
+              hintStyle: context.responsiveBodyMedium.copyWith(
+                color: theme.primaryColor.withOpacity(0.5),
+              ),
               filled: true,
               fillColor: Colors.white,
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveHelper.getValue(
+                    context,
+                    mobile: 12.0,
+                    tablet: 14.0,
+                    desktop: 16.0,
+                  ),
+                ),
                 borderSide: BorderSide(
                   color: theme.primaryColor.withOpacity(0.3),
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveHelper.getValue(
+                    context,
+                    mobile: 12.0,
+                    tablet: 14.0,
+                    desktop: 16.0,
+                  ),
+                ),
                 borderSide: BorderSide(color: theme.primaryColor, width: 2),
               ),
               disabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveHelper.getValue(
+                    context,
+                    mobile: 12.0,
+                    tablet: 14.0,
+                    desktop: 16.0,
+                  ),
+                ),
                 borderSide: BorderSide(color: Colors.grey[300]!),
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: ResponsiveHelper.getValue(
+                  context,
+                  mobile: 16.0,
+                  tablet: 18.0,
+                  desktop: 20.0,
+                ),
+                vertical: ResponsiveHelper.getValue(
+                  context,
+                  mobile: 14.0,
+                  tablet: 16.0,
+                  desktop: 18.0,
+                ),
               ),
             ),
             items:
@@ -649,16 +934,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         value: item,
                         child: Text(
                           item,
-                          style: TextStyle(
+                          style: context.responsiveBodyLarge.copyWith(
                             color: theme.primaryColor,
-                            fontSize: 16,
                           ),
                         ),
                       ),
                     )
                     .toList(),
             onChanged: enabled ? onChanged : null,
-            style: TextStyle(color: theme.primaryColor),
+            style: context.responsiveBodyLarge.copyWith(
+              color: theme.primaryColor,
+            ),
             dropdownColor: Colors.white,
             iconEnabledColor: theme.primaryColor,
             validator: validator,
@@ -680,23 +966,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: context.responsiveBodyLarge.copyWith(
             color: theme.primaryColor,
-            fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(
+          height: ResponsiveHelper.getValue(
+            context,
+            mobile: 8.0,
+            tablet: 10.0,
+            desktop: 12.0,
+          ),
+        ),
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getValue(
+                context,
+                mobile: 12.0,
+                tablet: 14.0,
+                desktop: 16.0,
+              ),
+            ),
             boxShadow:
                 enabled
                     ? [
                       BoxShadow(
                         color: theme.primaryColor.withOpacity(0.1),
-                        blurRadius: 6,
+                        blurRadius: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 6.0,
+                          tablet: 7.0,
+                          desktop: 8.0,
+                        ),
                         offset: const Offset(0, 2),
                       ),
                     ]
@@ -707,35 +1011,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: InputDecorator(
               decoration: InputDecoration(
                 hintText: 'Select $label',
-                hintStyle: TextStyle(
+                hintStyle: context.responsiveBodyMedium.copyWith(
                   color: theme.primaryColor.withOpacity(0.5),
                 ),
                 filled: true,
                 fillColor: Colors.white,
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveHelper.getValue(
+                      context,
+                      mobile: 12.0,
+                      tablet: 14.0,
+                      desktop: 16.0,
+                    ),
+                  ),
                   borderSide: BorderSide(
                     color: theme.primaryColor.withOpacity(0.3),
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveHelper.getValue(
+                      context,
+                      mobile: 12.0,
+                      tablet: 14.0,
+                      desktop: 16.0,
+                    ),
+                  ),
                   borderSide: BorderSide(color: theme.primaryColor, width: 2),
                 ),
                 disabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveHelper.getValue(
+                      context,
+                      mobile: 12.0,
+                      tablet: 14.0,
+                      desktop: 16.0,
+                    ),
+                  ),
                   borderSide: BorderSide(color: Colors.grey[300]!),
                 ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 16.0,
+                    tablet: 18.0,
+                    desktop: 20.0,
+                  ),
+                  vertical: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 14.0,
+                    tablet: 16.0,
+                    desktop: 18.0,
+                  ),
                 ),
               ),
               child: Text(
                 date == null
                     ? 'Select $label'
                     : DateFormat('yyyy-MM-dd').format(date),
-                style: TextStyle(color: theme.primaryColor, fontSize: 16),
+                style: context.responsiveBodyLarge.copyWith(
+                  color: theme.primaryColor,
+                ),
               ),
             ),
           ),

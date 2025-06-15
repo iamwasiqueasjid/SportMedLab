@@ -7,6 +7,9 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/utils/responsive_extension.dart';
+import 'package:test_project/utils/responsive_helper.dart';
+import 'package:test_project/utils/responsive_widget.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
 import 'package:test_project/widgets/custom_bottom_navbar.dart';
 
@@ -63,164 +66,233 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
           builder: (context, setState) {
             return AlertDialog(
               backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(context.mediumSpacing),
+              ),
               title: Text(
                 'Create New Fitness Plan',
-                style: TextStyle(color: theme.primaryColor),
-              ),
-              content: SingleChildScrollView(
-                child: ListBody(
-                  children: <Widget>[
-                    TextField(
-                      controller: titleController,
-                      style: TextStyle(color: theme.primaryColor),
-                      decoration: InputDecoration(
-                        labelText: 'Plan Title',
-                        hintText: 'Enter plan title',
-                        hintStyle: TextStyle(color: theme.primaryColor),
-                        labelStyle: TextStyle(color: theme.primaryColor),
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: theme.primaryColor),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: theme.primaryColor,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: descriptionController,
-                      style: TextStyle(color: theme.primaryColor),
-                      decoration: InputDecoration(
-                        labelText: 'Description',
-                        hintText: 'Enter plan description',
-                        hintStyle: TextStyle(color: theme.primaryColor),
-                        labelStyle: TextStyle(color: theme.primaryColor),
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: theme.primaryColor),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: theme.primaryColor,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Plan Cover Image',
-                      style: TextStyle(color: theme.primaryColor),
-                    ),
-                    const SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: () async {
-                        final pickedFile = await _imagePicker.pickImage(
-                          source: ImageSource.gallery,
-                        );
-                        if (pickedFile != null) {
-                          setState(() {
-                            selectedImage = File(pickedFile.path);
-                          });
-                        }
-                      },
-                      child: Container(
-                        height: 150,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: theme.primaryColor),
-                        ),
-                        child:
-                            selectedImage != null
-                                ? Image.file(selectedImage!, fit: BoxFit.cover)
-                                : Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.add_photo_alternate,
-                                        size: 50,
-                                        color: theme.primaryColor,
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Add Cover Image',
-                                        style: TextStyle(
-                                          color: theme.primaryColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Plan Categories',
-                      style: TextStyle(color: theme.primaryColor),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      children: [
-                        _buildCategoryChip(
-                          'Weight Loss',
-                          selectedCategories,
-                          setState,
-                        ),
-                        _buildCategoryChip(
-                          'Muscle Gain',
-                          selectedCategories,
-                          setState,
-                        ),
-                        _buildCategoryChip(
-                          'Cardio',
-                          selectedCategories,
-                          setState,
-                        ),
-                        _buildCategoryChip(
-                          'Nutrition',
-                          selectedCategories,
-                          setState,
-                        ),
-                        _buildCategoryChip(
-                          'Yoga',
-                          selectedCategories,
-                          setState,
-                        ),
-                      ],
-                    ),
-                    if (isSaving)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 16.0),
-                        child: Center(
-                          child: SpinKitDoubleBounce(
-                            color: Color(0xFF0A2D7B),
-                            size: 40.0,
-                          ),
-                        ),
-                      ),
-                  ],
+                style: context.responsiveHeadlineMedium.copyWith(
+                  color: theme.primaryColor,
                 ),
               ),
-              actions: <Widget>[
+              content: SingleChildScrollView(
+                child: Container(
+                  width: ResponsiveHelper.getValue(
+                    context,
+                    mobile: double.infinity,
+                    tablet: 400.0,
+                    desktop: 600.0,
+                  ),
+                  padding: EdgeInsets.all(
+                    ResponsiveHelper.getValue(
+                      context,
+                      mobile: 8.0,
+                      tablet: 12.0,
+                      desktop: 16.0,
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: titleController,
+                        style: context.responsiveBodyLarge.copyWith(
+                          color: theme.primaryColor,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: 'Plan Title',
+                          hintText: 'Enter plan title',
+                          hintStyle: context.responsiveBodyMedium.copyWith(
+                            color: theme.primaryColor,
+                          ),
+                          labelStyle: context.responsiveBodyMedium.copyWith(
+                            color: theme.primaryColor,
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              context.smallSpacing,
+                            ),
+                            borderSide: BorderSide(color: theme.primaryColor),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              context.smallSpacing,
+                            ),
+                            borderSide: BorderSide(
+                              color: theme.primaryColor,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: context.mediumSpacing),
+                      TextField(
+                        controller: descriptionController,
+                        style: context.responsiveBodyLarge.copyWith(
+                          color: theme.primaryColor,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: 'Description',
+                          hintText: 'Enter plan description',
+                          hintStyle: context.responsiveBodyMedium.copyWith(
+                            color: theme.primaryColor,
+                          ),
+                          labelStyle: context.responsiveBodyMedium.copyWith(
+                            color: theme.primaryColor,
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              context.smallSpacing,
+                            ),
+                            borderSide: BorderSide(color: theme.primaryColor),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              context.smallSpacing,
+                            ),
+                            borderSide: BorderSide(
+                              color: theme.primaryColor,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        maxLines: 3,
+                      ),
+                      SizedBox(height: context.mediumSpacing),
+                      Text(
+                        'Plan Cover Image',
+                        style: context.responsiveBodyLarge.copyWith(
+                          color: theme.primaryColor,
+                        ),
+                      ),
+                      SizedBox(height: context.smallSpacing),
+                      GestureDetector(
+                        onTap: () async {
+                          final pickedFile = await _imagePicker.pickImage(
+                            source: ImageSource.gallery,
+                          );
+                          if (pickedFile != null) {
+                            setState(() {
+                              selectedImage = File(pickedFile.path);
+                            });
+                          }
+                        },
+                        child: Container(
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 150.0,
+                            tablet: 200.0,
+                            desktop: 250.0,
+                          ),
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(
+                              context.smallSpacing,
+                            ),
+                            border: Border.all(color: theme.primaryColor),
+                          ),
+                          child:
+                              selectedImage != null
+                                  ? Image.file(
+                                    selectedImage!,
+                                    fit: BoxFit.cover,
+                                  )
+                                  : Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.add_photo_alternate,
+                                          size: ResponsiveHelper.getValue(
+                                            context,
+                                            mobile: 50.0,
+                                            tablet: 60.0,
+                                            desktop: 70.0,
+                                          ),
+                                          color: theme.primaryColor,
+                                        ),
+                                        SizedBox(height: context.smallSpacing),
+                                        Text(
+                                          'Add Cover Image',
+                                          style: context.responsiveBodyMedium
+                                              .copyWith(
+                                                color: theme.primaryColor,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                        ),
+                      ),
+                      SizedBox(height: context.mediumSpacing),
+                      Text(
+                        'Plan Categories',
+                        style: context.responsiveBodyLarge.copyWith(
+                          color: theme.primaryColor,
+                        ),
+                      ),
+                      SizedBox(height: context.smallSpacing),
+                      Wrap(
+                        spacing: context.smallSpacing,
+                        runSpacing: context.smallSpacing,
+                        children: [
+                          _buildCategoryChip(
+                            'Weight Loss',
+                            selectedCategories,
+                            setState,
+                          ),
+                          _buildCategoryChip(
+                            'Muscle Gain',
+                            selectedCategories,
+                            setState,
+                          ),
+                          _buildCategoryChip(
+                            'Cardio',
+                            selectedCategories,
+                            setState,
+                          ),
+                          _buildCategoryChip(
+                            'Nutrition',
+                            selectedCategories,
+                            setState,
+                          ),
+                          _buildCategoryChip(
+                            'Yoga',
+                            selectedCategories,
+                            setState,
+                          ),
+                        ],
+                      ),
+                      if (isSaving)
+                        Padding(
+                          padding: EdgeInsets.only(top: context.mediumSpacing),
+                          child: SpinKitDoubleBounce(
+                            color: const Color(0xFF0A2D7B),
+                            size: ResponsiveHelper.getValue(
+                              context,
+                              mobile: 40.0,
+                              tablet: 50.0,
+                              desktop: 60.0,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
                 TextButton(
                   child: Text(
                     'Cancel',
-                    style: TextStyle(color: theme.primaryColor),
+                    style: context.responsiveBodyLarge.copyWith(
+                      color: theme.primaryColor,
+                    ),
                   ),
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -263,7 +335,9 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                           },
                   child: Text(
                     'Save',
-                    style: TextStyle(color: theme.primaryColor),
+                    style: context.responsiveBodyLarge.copyWith(
+                      color: theme.primaryColor,
+                    ),
                   ),
                 ),
               ],
@@ -283,12 +357,17 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     final isSelected = selectedCategories.contains(label);
 
     return FilterChip(
-      label: Text(label),
+      label: Text(
+        label,
+        style: context.responsiveBodyMedium.copyWith(
+          color: isSelected ? Colors.white : theme.primaryColor,
+        ),
+      ),
       selected: isSelected,
       selectedColor: theme.primaryColor,
       checkmarkColor: Colors.white,
       backgroundColor: Colors.grey[200],
-      labelStyle: TextStyle(
+      labelStyle: context.responsiveBodyMedium.copyWith(
         color: isSelected ? Colors.white : theme.primaryColor,
       ),
       side: const BorderSide(
@@ -307,44 +386,60 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     );
   }
 
-  Widget _buildEmptyState() {
-    final theme = Theme.of(context);
+  Widget _buildEmptyState(BuildContext context, ThemeData theme) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.fitness_center_outlined,
-            size: 80,
+            size: ResponsiveHelper.getValue(
+              context,
+              mobile: 80.0,
+              tablet: 100.0,
+              desktop: 120.0,
+            ),
             color: Colors.grey[600],
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'No Fitness Plans Yet',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 8),
+          SizedBox(height: context.mediumSpacing),
+          Text('No Fitness Plans Yet', style: context.responsiveHeadlineMedium),
+          SizedBox(height: context.smallSpacing),
           Text(
             'Create your first fitness plan',
-            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            style: context.responsiveBodyLarge.copyWith(
+              color: Colors.grey[600],
+            ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: context.largeSpacing),
           ElevatedButton.icon(
             onPressed: _showAddPlanDialog,
-            icon: const Icon(Icons.add, color: Colors.white),
-            label: const Text(
+            icon: Icon(
+              Icons.add,
+              color: Colors.white,
+              size: ResponsiveHelper.getValue(
+                context,
+                mobile: 20.0,
+                tablet: 22.0,
+                desktop: 24.0,
+              ),
+            ),
+            label: Text(
               'Create Plan',
-              style: TextStyle(color: Colors.white),
+              style: context.responsiveTitleLarge.copyWith(color: Colors.white),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: theme.primaryColor,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: ResponsiveHelper.getValue(
+                  context,
+                  mobile: 12.0,
+                  tablet: 16.0,
+                  desktop: 20.0,
+                ),
+                vertical: context.smallSpacing,
+              ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(context.smallSpacing),
               ),
             ),
           ),
@@ -353,20 +448,45 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     );
   }
 
-  Widget _buildPlansList(List<Course> courses) {
+  Widget _buildPlansList(
+    BuildContext context,
+    ThemeData theme,
+    List<Course> courses,
+  ) {
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(
+        ResponsiveHelper.getValue(
+          context,
+          mobile: 16.0,
+          tablet: 20.0,
+          desktop: 24.0,
+        ),
+      ),
       itemCount: courses.length,
       itemBuilder: (context, index) {
         final course = courses[index];
-        return _buildPlanCard(course);
+        return Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: ResponsiveHelper.getValue(
+              context,
+              mobile: 8.0,
+              tablet: 10.0,
+              desktop: 12.0,
+            ),
+            horizontal: ResponsiveHelper.getValue(
+              context,
+              mobile: 8.0,
+              tablet: 12.0,
+              desktop: 16.0,
+            ),
+          ),
+          child: _buildPlanCard(context, theme, course),
+        );
       },
     );
   }
 
-  Widget _buildPlanCard(Course course) {
-    final theme = Theme.of(context);
-    // Format DateTime
+  Widget _buildPlanCard(BuildContext context, ThemeData theme, Course course) {
     String formattedDate = 'Date not available';
     if (course.createdAt != null) {
       formattedDate = DateFormat('MMM d, yyyy').format(course.createdAt!);
@@ -375,10 +495,17 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     final enrolledPatients = course.enrolledStudents;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(context.mediumSpacing),
+      ),
+      elevation: ResponsiveHelper.getValue(
+        context,
+        mobile: 4.0,
+        tablet: 6.0,
+        desktop: 8.0,
+      ),
       color: Colors.white,
       child: InkWell(
         onTap: () {
@@ -387,9 +514,13 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Plan image
             SizedBox(
-              height: 160,
+              height: ResponsiveHelper.getValue(
+                context,
+                mobile: 160.0,
+                tablet: 200.0,
+                desktop: 250.0,
+              ),
               width: double.infinity,
               child:
                   course.coverImageUrl != null &&
@@ -402,7 +533,12 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                               color: Colors.grey[100],
                               child: Icon(
                                 Icons.image_not_supported,
-                                size: 50,
+                                size: ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 50.0,
+                                  tablet: 60.0,
+                                  desktop: 70.0,
+                                ),
                                 color: theme.primaryColor,
                               ),
                             ),
@@ -411,56 +547,84 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                         color: Colors.grey[100],
                         child: Icon(
                           Icons.fitness_center,
-                          size: 50,
+                          size: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 50.0,
+                            tablet: 60.0,
+                            desktop: 70.0,
+                          ),
                           color: theme.primaryColor,
                         ),
                       ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(
+                ResponsiveHelper.getValue(
+                  context,
+                  mobile: 8.0,
+                  tablet: 12.0,
+                  desktop: 16.0,
+                ),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     course.title.isNotEmpty ? course.title : 'Untitled Plan',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+                    style: context.responsiveTitleLarge,
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: context.smallSpacing),
                   Text(
                     course.description.isNotEmpty
                         ? course.description
                         : 'No description',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    style: context.responsiveBodyMedium.copyWith(
+                      color: Colors.grey[600],
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: context.mediumSpacing),
                   Row(
                     children: [
-                      Icon(Icons.people, size: 16, color: theme.primaryColor),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${enrolledPatients.length} Patients',
-                        style: TextStyle(color: theme.primaryColor),
-                      ),
-                      const SizedBox(width: 16),
                       Icon(
-                        Icons.calendar_today,
-                        size: 16,
+                        Icons.people,
+                        size: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 16.0,
+                          tablet: 18.0,
+                          desktop: 20.0,
+                        ),
                         color: theme.primaryColor,
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: context.smallSpacing / 2),
+                      Text(
+                        '${enrolledPatients.length} Patients',
+                        style: context.responsiveBodyMedium.copyWith(
+                          color: theme.primaryColor,
+                        ),
+                      ),
+                      SizedBox(width: context.mediumSpacing),
+                      Icon(
+                        Icons.calendar_today,
+                        size: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 16.0,
+                          tablet: 18.0,
+                          desktop: 20.0,
+                        ),
+                        color: theme.primaryColor,
+                      ),
+                      SizedBox(width: context.smallSpacing / 2),
                       Text(
                         formattedDate,
-                        style: TextStyle(color: theme.primaryColor),
+                        style: context.responsiveBodyMedium.copyWith(
+                          color: theme.primaryColor,
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: context.mediumSpacing),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -472,21 +636,48 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                             arguments: course.id,
                           );
                         },
-                        icon: Icon(Icons.edit, color: theme.primaryColor),
+                        icon: Icon(
+                          Icons.edit,
+                          color: theme.primaryColor,
+                          size: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 16.0,
+                            tablet: 18.0,
+                            desktop: 20.0,
+                          ),
+                        ),
                         label: Text(
                           'Manage',
-                          style: TextStyle(color: theme.primaryColor),
+                          style: context.responsiveBodyLarge.copyWith(
+                            color: theme.primaryColor,
+                          ),
                         ),
                         style: OutlinedButton.styleFrom(
                           side: BorderSide(color: theme.primaryColor),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(
+                              context.smallSpacing,
+                            ),
                           ),
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _showDeleteConfirmation(course.id),
+                        icon: Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                          size: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 20.0,
+                            tablet: 22.0,
+                            desktop: 24.0,
+                          ),
+                        ),
+                        onPressed:
+                            () => _showDeleteConfirmation(
+                              context,
+                              theme,
+                              course.id,
+                            ),
                       ),
                     ],
                   ),
@@ -499,33 +690,48 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     );
   }
 
-  void _showDeleteConfirmation(String planId) {
-    final theme = Theme.of(context);
+  void _showDeleteConfirmation(
+    BuildContext context,
+    ThemeData theme,
+    String planId,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(context.mediumSpacing),
+          ),
           title: Text(
             'Delete Fitness Plan',
-            style: TextStyle(color: theme.primaryColor),
+            style: context.responsiveHeadlineMedium.copyWith(
+              color: theme.primaryColor,
+            ),
           ),
           content: Text(
             'Are you sure you want to delete this fitness plan? This action cannot be undone.',
-            style: TextStyle(color: Colors.grey[700]),
+            style: context.responsiveBodyLarge.copyWith(
+              color: Colors.grey[700],
+            ),
           ),
           actions: [
             TextButton(
               child: Text(
                 'Cancel',
-                style: TextStyle(color: theme.primaryColor),
+                style: context.responsiveBodyLarge.copyWith(
+                  color: theme.primaryColor,
+                ),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+              child: Text(
+                'Delete',
+                style: context.responsiveBodyLarge.copyWith(color: Colors.red),
+              ),
               onPressed: () async {
                 Navigator.of(context).pop();
                 await _databaseService.deleteCourse(planId, context);
@@ -538,6 +744,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
@@ -545,60 +752,319 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
       appBar: AppBar(
         backgroundColor: theme.primaryColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
+        automaticallyImplyLeading: false, // Remove the back button
+        title: Text(
           'Doctor Dashboard',
-          style: TextStyle(color: Colors.white),
+          style: context.responsiveTitleLarge.copyWith(color: Colors.white),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
+            icon: Icon(
+              Icons.logout,
+              color: Colors.white,
+              size: ResponsiveHelper.getValue(
+                context,
+                mobile: 24.0,
+                tablet: 26.0,
+                desktop: 28.0,
+              ),
+            ),
             onPressed: () => _authService.signOut(context),
           ),
         ],
       ),
       body:
           _isLoading
-              ? const Center(
+              ? Center(
                 child: SpinKitDoubleBounce(
-                  color: Color(0xFF0A2D7B),
-                  size: 40.0,
+                  color: const Color(0xFF0A2D7B),
+                  size: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 40.0,
+                    tablet: 50.0,
+                    desktop: 60.0,
+                  ),
                 ),
               )
-              : StreamBuilder<List<Course>>(
-                stream: _databaseService.fetchTutorCoursesRealTime(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: SpinKitDoubleBounce(
-                        color: Color(0xFF0A2D7B),
-                        size: 40.0,
-                      ),
-                    );
-                  }
+              : ResponsiveBuilder(
+                builder: (context, constraints, deviceType) {
+                  return StreamBuilder<List<Course>>(
+                    stream: _databaseService.fetchTutorCoursesRealTime(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: SpinKitDoubleBounce(
+                            color: const Color(0xFF0A2D7B),
+                            size: ResponsiveHelper.getValue(
+                              context,
+                              mobile: 40.0,
+                              tablet: 50.0,
+                              desktop: 60.0,
+                            ),
+                          ),
+                        );
+                      }
 
-                  if (snapshot.hasError) {
-                    AppNotifier.show(
-                      context,
-                      'Error loading courses: ${snapshot.error}',
-                      type: MessageType.error,
-                    );
-                    return const Center(child: Text('Error loading courses'));
-                  }
+                      if (snapshot.hasError) {
+                        AppNotifier.show(
+                          context,
+                          'Error loading courses: ${snapshot.error}',
+                          type: MessageType.error,
+                        );
+                        return Center(
+                          child: Text(
+                            'Error loading courses',
+                            style: context.responsiveBodyLarge,
+                          ),
+                        );
+                      }
 
-                  final courses = snapshot.data ?? [];
-                  return courses.isEmpty
-                      ? _buildEmptyState()
-                      : _buildPlansList(courses);
+                      final courses = snapshot.data ?? [];
+                      return _buildResponsiveLayout(
+                        context,
+                        theme,
+                        deviceType,
+                        courses,
+                      );
+                    },
+                  );
                 },
               ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddPlanDialog,
         backgroundColor: theme.primaryColor,
         tooltip: 'Add New Fitness Plan',
-        child: const Icon(Icons.add, color: Colors.white),
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+          size: ResponsiveHelper.getValue(
+            context,
+            mobile: 24.0,
+            tablet: 26.0,
+            desktop: 28.0,
+          ),
+        ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(currentRoute: '/doctorDashboard'),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+      // bottomNavigationBar: CustomBottomNavBar(currentRoute: '/doctorDashboard'),
     );
+  }
+
+  Widget _buildResponsiveLayout(
+    BuildContext context,
+    ThemeData theme,
+    DeviceType deviceType,
+    List<Course> courses,
+  ) {
+    switch (deviceType) {
+      case DeviceType.desktop:
+        return _buildDesktopLayout(context, theme, courses);
+      case DeviceType.tablet:
+        return _buildTabletLayout(context, theme, courses);
+      case DeviceType.mobile:
+      default:
+        return _buildMobileLayout(context, theme, courses);
+    }
+  }
+
+  Widget _buildPlanTabs(BuildContext context, ThemeData theme, Widget child) {
+    return DefaultTabController(
+      length: 5,
+      child: Column(
+        children: [
+          Expanded(
+            child: TabBarView(
+              children: [
+                child, // Dashboard/Courses tab
+                Center(
+                  child: Text('Blogs', style: context.responsiveTitleLarge),
+                ),
+                Center(
+                  child: Text(
+                    'Workout Plans',
+                    style: context.responsiveTitleLarge,
+                  ),
+                ),
+                Center(
+                  child: Text('Chats', style: context.responsiveTitleLarge),
+                ),
+                Center(
+                  child: Text('Profile', style: context.responsiveTitleLarge),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.all(
+              ResponsiveHelper.getValue(
+                context,
+                mobile: 8.0,
+                tablet: 12.0,
+                desktop: 16.0,
+              ),
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(context.mediumSpacing),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 12.0,
+                    tablet: 16.0,
+                    desktop: 20.0,
+                  ),
+                ),
+              ],
+            ),
+            child: TabBar(
+              labelColor: theme.primaryColor,
+              unselectedLabelColor: theme.primaryColor.withOpacity(0.8),
+              indicatorColor: theme.primaryColor,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicator: BoxDecoration(
+                color: theme.primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(context.mediumSpacing),
+                border: Border(
+                  top: BorderSide(
+                    color: theme.primaryColor,
+                    width: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 2.0,
+                      tablet: 2.5,
+                      desktop: 3.0,
+                    ),
+                  ),
+                ),
+              ),
+              labelStyle: context.responsiveBodyLarge,
+              unselectedLabelStyle: context.responsiveBodyMedium,
+              tabs: [
+                Tab(
+                  icon: Icon(
+                    Icons.dashboard_outlined,
+                    size: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 20.0,
+                      tablet: 22.0,
+                      desktop: 24.0,
+                    ),
+                  ),
+                  text: 'Courses',
+                ),
+                Tab(
+                  icon: Icon(
+                    Icons.article_outlined,
+                    size: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 20.0,
+                      tablet: 22.0,
+                      desktop: 24.0,
+                    ),
+                  ),
+                  text: 'Blogs',
+                ),
+                Tab(
+                  icon: Icon(
+                    Icons.fitness_center_outlined,
+                    size: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 20.0,
+                      tablet: 22.0,
+                      desktop: 24.0,
+                    ),
+                  ),
+                  text: 'Workout',
+                ),
+                Tab(
+                  icon: Icon(
+                    Icons.chat_bubble_outline,
+                    size: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 20.0,
+                      tablet: 22.0,
+                      desktop: 24.0,
+                    ),
+                  ),
+                  text: 'Chat',
+                ),
+                Tab(
+                  icon: Icon(
+                    Icons.person_outline,
+                    size: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 20.0,
+                      tablet: 22.0,
+                      desktop: 24.0,
+                    ),
+                  ),
+                  text: 'Profile',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileLayout(
+    BuildContext context,
+    ThemeData theme,
+    List<Course> courses,
+  ) {
+    final child =
+        courses.isEmpty
+            ? _buildEmptyState(context, theme)
+            : _buildPlansList(context, theme, courses);
+    return _buildPlanTabs(context, theme, child);
+  }
+
+  Widget _buildTabletLayout(
+    BuildContext context,
+    ThemeData theme,
+    List<Course> courses,
+  ) {
+    final child = Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveHelper.getValue(
+          context,
+          mobile: 8.0,
+          tablet: 16.0,
+          desktop: 24.0,
+        ),
+      ),
+      child:
+          courses.isEmpty
+              ? _buildEmptyState(context, theme)
+              : _buildPlansList(context, theme, courses),
+    );
+    return _buildPlanTabs(context, theme, child);
+  }
+
+  Widget _buildDesktopLayout(
+    BuildContext context,
+    ThemeData theme,
+    List<Course> courses,
+  ) {
+    final child = Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        padding: EdgeInsets.all(
+          ResponsiveHelper.getValue(
+            context,
+            mobile: 8.0,
+            tablet: 12.0,
+            desktop: 16.0,
+          ),
+        ),
+        child:
+            courses.isEmpty
+                ? _buildEmptyState(context, theme)
+                : _buildPlansList(context, theme, courses),
+      ),
+    );
+    return _buildPlanTabs(context, theme, child);
   }
 }
