@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/utils/responsive_extension.dart';
@@ -191,7 +190,7 @@ class LoginScreenState extends State<LoginScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 🖼️ App Logo (not shown in desktop since it's outside the card)
+          // 🖼 App Logo (not shown in desktop since it's outside the card)
           if (ResponsiveHelper.isMobile(context) ||
               ResponsiveHelper.isTablet(context))
             Center(
@@ -408,6 +407,7 @@ class LoginScreenState extends State<LoginScreen> {
                     email: _emailController.text.trim(),
                     password: _passwordController.text.trim(),
                     context: context,
+                    rememberMe: _rememberMe,
                   );
                   if (result) {
                     _emailController.clear();

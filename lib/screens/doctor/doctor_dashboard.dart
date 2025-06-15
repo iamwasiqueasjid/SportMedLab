@@ -11,7 +11,6 @@ import 'package:test_project/utils/responsive_extension.dart';
 import 'package:test_project/utils/responsive_helper.dart';
 import 'package:test_project/utils/responsive_widget.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
-import 'package:test_project/widgets/custom_bottom_navbar.dart';
 
 class DoctorDashboard extends StatefulWidget {
   const DoctorDashboard({super.key});
@@ -25,29 +24,14 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
   final AuthService _authService = AuthService();
   final ImagePicker _imagePicker = ImagePicker();
 
-  String? _userName;
-  String? _photoUrl;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
-  }
-
-  Future<void> _loadUserData() async {
-    final userData = await _authService.fetchUserData();
-    if (userData != null) {
-      setState(() {
-        _userName = userData.displayName;
-        _photoUrl = userData.photoURL;
-        _isLoading = false;
-      });
-    } else {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> _showAddPlanDialog() async {
@@ -386,6 +370,294 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     );
   }
 
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: theme.primaryColor,
+        elevation: 0,
+        automaticallyImplyLeading: false, // Remove the back button
+        title: Text(
+          'Doctor Dashboard',
+          style: context.responsiveTitleLarge.copyWith(color: Colors.white),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.logout,
+              color: Colors.white,
+              size: ResponsiveHelper.getValue(
+                context,
+                mobile: 24.0,
+                tablet: 26.0,
+                desktop: 28.0,
+              ),
+            ),
+            onPressed: () => _authService.signOut(context),
+          ),
+        ],
+      ),
+      body:
+          _isLoading
+              ? Center(
+                child: SpinKitDoubleBounce(
+                  color: const Color(0xFF0A2D7B),
+                  size: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 40.0,
+                    tablet: 50.0,
+                    desktop: 60.0,
+                  ),
+                ),
+              )
+              : ResponsiveBuilder(
+                builder: (context, constraints, deviceType) {
+                  return _buildResponsiveLayout(context, theme, deviceType);
+                },
+              ),
+
+      // bottomNavigationBar: CustomBottomNavBar(currentRoute: '/doctorDashboard'),
+    );
+  }
+
+  Widget _buildResponsiveLayout(
+    BuildContext context,
+    ThemeData theme,
+    DeviceType deviceType,
+  ) {
+    switch (deviceType) {
+      case DeviceType.desktop:
+        return _buildDesktopLayout(context, theme);
+      case DeviceType.tablet:
+        return _buildTabletLayout(context, theme);
+      case DeviceType.mobile:
+      default:
+        return _buildMobileLayout(context, theme);
+    }
+  }
+
+  Widget _buildPlanTabs(BuildContext context, ThemeData theme, Widget child) {
+    return DefaultTabController(
+      length: 5,
+      child: Column(
+        children: [
+          Expanded(
+            child: TabBarView(
+              children: [
+                _buildCoursesTab(context, theme),
+                // Dashboard/Courses tab
+                Center(
+                  child: Text('Blogs', style: context.responsiveTitleLarge),
+                ),
+                Center(
+                  child: Text(
+                    'Workout Plans',
+                    style: context.responsiveTitleLarge,
+                  ),
+                ),
+                Center(
+                  child: Text('Chats', style: context.responsiveTitleLarge),
+                ),
+                Center(
+                  child: Text('Profile', style: context.responsiveTitleLarge),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.all(
+              ResponsiveHelper.getValue(
+                context,
+                mobile: 8.0,
+                tablet: 12.0,
+                desktop: 16.0,
+              ),
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(context.mediumSpacing),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 12.0,
+                    tablet: 16.0,
+                    desktop: 20.0,
+                  ),
+                ),
+              ],
+            ),
+            child: TabBar(
+              labelColor: theme.primaryColor,
+              unselectedLabelColor: theme.primaryColor.withOpacity(0.8),
+              indicatorColor: theme.primaryColor,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicator: BoxDecoration(
+                color: theme.primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(context.mediumSpacing),
+                border: Border(
+                  top: BorderSide(
+                    color: theme.primaryColor,
+                    width: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 2.0,
+                      tablet: 2.5,
+                      desktop: 3.0,
+                    ),
+                  ),
+                ),
+              ),
+              labelStyle: context.responsiveBodyLarge,
+              unselectedLabelStyle: context.responsiveBodyMedium,
+              tabs: [
+                Tab(
+                  icon: Icon(
+                    Icons.dashboard_outlined,
+                    size: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 20.0,
+                      tablet: 22.0,
+                      desktop: 24.0,
+                    ),
+                  ),
+                  text: 'Courses',
+                ),
+                Tab(
+                  icon: Icon(
+                    Icons.article_outlined,
+                    size: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 20.0,
+                      tablet: 22.0,
+                      desktop: 24.0,
+                    ),
+                  ),
+                  text: 'Blogs',
+                ),
+                Tab(
+                  icon: Icon(
+                    Icons.fitness_center_outlined,
+                    size: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 20.0,
+                      tablet: 22.0,
+                      desktop: 24.0,
+                    ),
+                  ),
+                  text: 'Workout',
+                ),
+                Tab(
+                  icon: Icon(
+                    Icons.chat_bubble_outline,
+                    size: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 20.0,
+                      tablet: 22.0,
+                      desktop: 24.0,
+                    ),
+                  ),
+                  text: 'Chat',
+                ),
+                Tab(
+                  icon: Icon(
+                    Icons.person_outline,
+                    size: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 20.0,
+                      tablet: 22.0,
+                      desktop: 24.0,
+                    ),
+                  ),
+                  text: 'Profile',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileLayout(BuildContext context, ThemeData theme) {
+    final child = Padding(padding: EdgeInsets.all(0));
+    return _buildPlanTabs(context, theme, child);
+  }
+
+  Widget _buildTabletLayout(BuildContext context, ThemeData theme) {
+    final child = Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveHelper.getValue(
+          context,
+          mobile: 8.0,
+          tablet: 16.0,
+          desktop: 24.0,
+        ),
+      ),
+    );
+    return _buildPlanTabs(context, theme, child);
+  }
+
+  Widget _buildDesktopLayout(BuildContext context, ThemeData theme) {
+    final child = Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        padding: EdgeInsets.all(
+          ResponsiveHelper.getValue(
+            context,
+            mobile: 8.0,
+            tablet: 12.0,
+            desktop: 16.0,
+          ),
+        ),
+      ),
+    );
+    return _buildPlanTabs(context, theme, child);
+  }
+
+  Widget _buildCoursesTab(BuildContext context, ThemeData theme) {
+    return StreamBuilder<List<Course>>(
+      stream: _databaseService.fetchTutorCoursesRealTime(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: SpinKitDoubleBounce(
+              color: const Color(0xFF0A2D7B),
+              size: ResponsiveHelper.getValue(
+                context,
+                mobile: 40.0,
+                tablet: 50.0,
+                desktop: 60.0,
+              ),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          AppNotifier.show(
+            context,
+            'Error loading courses: ${snapshot.error}',
+            type: MessageType.error,
+          );
+          return Center(
+            child: Text(
+              'Error loading courses',
+              style: context.responsiveBodyLarge,
+            ),
+          );
+        }
+
+        final courses = snapshot.data ?? [];
+
+        return courses.isEmpty
+            ? _buildEmptyState(context, theme)
+            : _buildPlansList(context, theme, courses);
+      },
+    );
+  }
+
   Widget _buildEmptyState(BuildContext context, ThemeData theme) {
     return Center(
       child: Column(
@@ -453,36 +725,59 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     ThemeData theme,
     List<Course> courses,
   ) {
-    return ListView.builder(
-      padding: EdgeInsets.all(
-        ResponsiveHelper.getValue(
-          context,
-          mobile: 16.0,
-          tablet: 20.0,
-          desktop: 24.0,
-        ),
-      ),
-      itemCount: courses.length,
-      itemBuilder: (context, index) {
-        final course = courses[index];
-        return Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: ResponsiveHelper.getValue(
+    return Stack(
+      children: [
+        ListView.builder(
+          padding: EdgeInsets.all(
+            ResponsiveHelper.getValue(
               context,
-              mobile: 8.0,
-              tablet: 10.0,
-              desktop: 12.0,
-            ),
-            horizontal: ResponsiveHelper.getValue(
-              context,
-              mobile: 8.0,
-              tablet: 12.0,
-              desktop: 16.0,
+              mobile: 16.0,
+              tablet: 20.0,
+              desktop: 24.0,
             ),
           ),
-          child: _buildPlanCard(context, theme, course),
-        );
-      },
+          itemCount: courses.length,
+          itemBuilder: (context, index) {
+            final course = courses[index];
+            return Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: ResponsiveHelper.getValue(
+                  context,
+                  mobile: 8.0,
+                  tablet: 10.0,
+                  desktop: 12.0,
+                ),
+                horizontal: ResponsiveHelper.getValue(
+                  context,
+                  mobile: 8.0,
+                  tablet: 12.0,
+                  desktop: 16.0,
+                ),
+              ),
+              child: _buildPlanCard(context, theme, course),
+            );
+          },
+        ),
+        Positioned(
+          bottom: 16.0,
+          right: 16.0,
+          child: FloatingActionButton(
+            onPressed: _showAddPlanDialog,
+            backgroundColor: theme.primaryColor,
+            tooltip: 'Add New Fitness Plan',
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+              size: ResponsiveHelper.getValue(
+                context,
+                mobile: 24.0,
+                tablet: 26.0,
+                desktop: 28.0,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -741,330 +1036,5 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         );
       },
     );
-  }
-
-  @override
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: theme.primaryColor,
-        elevation: 0,
-        automaticallyImplyLeading: false, // Remove the back button
-        title: Text(
-          'Doctor Dashboard',
-          style: context.responsiveTitleLarge.copyWith(color: Colors.white),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.logout,
-              color: Colors.white,
-              size: ResponsiveHelper.getValue(
-                context,
-                mobile: 24.0,
-                tablet: 26.0,
-                desktop: 28.0,
-              ),
-            ),
-            onPressed: () => _authService.signOut(context),
-          ),
-        ],
-      ),
-      body:
-          _isLoading
-              ? Center(
-                child: SpinKitDoubleBounce(
-                  color: const Color(0xFF0A2D7B),
-                  size: ResponsiveHelper.getValue(
-                    context,
-                    mobile: 40.0,
-                    tablet: 50.0,
-                    desktop: 60.0,
-                  ),
-                ),
-              )
-              : ResponsiveBuilder(
-                builder: (context, constraints, deviceType) {
-                  return StreamBuilder<List<Course>>(
-                    stream: _databaseService.fetchTutorCoursesRealTime(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                          child: SpinKitDoubleBounce(
-                            color: const Color(0xFF0A2D7B),
-                            size: ResponsiveHelper.getValue(
-                              context,
-                              mobile: 40.0,
-                              tablet: 50.0,
-                              desktop: 60.0,
-                            ),
-                          ),
-                        );
-                      }
-
-                      if (snapshot.hasError) {
-                        AppNotifier.show(
-                          context,
-                          'Error loading courses: ${snapshot.error}',
-                          type: MessageType.error,
-                        );
-                        return Center(
-                          child: Text(
-                            'Error loading courses',
-                            style: context.responsiveBodyLarge,
-                          ),
-                        );
-                      }
-
-                      final courses = snapshot.data ?? [];
-                      return _buildResponsiveLayout(
-                        context,
-                        theme,
-                        deviceType,
-                        courses,
-                      );
-                    },
-                  );
-                },
-              ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddPlanDialog,
-        backgroundColor: theme.primaryColor,
-        tooltip: 'Add New Fitness Plan',
-        child: Icon(
-          Icons.add,
-          color: Colors.white,
-          size: ResponsiveHelper.getValue(
-            context,
-            mobile: 24.0,
-            tablet: 26.0,
-            desktop: 28.0,
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
-      // bottomNavigationBar: CustomBottomNavBar(currentRoute: '/doctorDashboard'),
-    );
-  }
-
-  Widget _buildResponsiveLayout(
-    BuildContext context,
-    ThemeData theme,
-    DeviceType deviceType,
-    List<Course> courses,
-  ) {
-    switch (deviceType) {
-      case DeviceType.desktop:
-        return _buildDesktopLayout(context, theme, courses);
-      case DeviceType.tablet:
-        return _buildTabletLayout(context, theme, courses);
-      case DeviceType.mobile:
-      default:
-        return _buildMobileLayout(context, theme, courses);
-    }
-  }
-
-  Widget _buildPlanTabs(BuildContext context, ThemeData theme, Widget child) {
-    return DefaultTabController(
-      length: 5,
-      child: Column(
-        children: [
-          Expanded(
-            child: TabBarView(
-              children: [
-                child, // Dashboard/Courses tab
-                Center(
-                  child: Text('Blogs', style: context.responsiveTitleLarge),
-                ),
-                Center(
-                  child: Text(
-                    'Workout Plans',
-                    style: context.responsiveTitleLarge,
-                  ),
-                ),
-                Center(
-                  child: Text('Chats', style: context.responsiveTitleLarge),
-                ),
-                Center(
-                  child: Text('Profile', style: context.responsiveTitleLarge),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.all(
-              ResponsiveHelper.getValue(
-                context,
-                mobile: 8.0,
-                tablet: 12.0,
-                desktop: 16.0,
-              ),
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(context.mediumSpacing),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: ResponsiveHelper.getValue(
-                    context,
-                    mobile: 12.0,
-                    tablet: 16.0,
-                    desktop: 20.0,
-                  ),
-                ),
-              ],
-            ),
-            child: TabBar(
-              labelColor: theme.primaryColor,
-              unselectedLabelColor: theme.primaryColor.withOpacity(0.8),
-              indicatorColor: theme.primaryColor,
-              indicatorSize: TabBarIndicatorSize.tab,
-              indicator: BoxDecoration(
-                color: theme.primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(context.mediumSpacing),
-                border: Border(
-                  top: BorderSide(
-                    color: theme.primaryColor,
-                    width: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 2.0,
-                      tablet: 2.5,
-                      desktop: 3.0,
-                    ),
-                  ),
-                ),
-              ),
-              labelStyle: context.responsiveBodyLarge,
-              unselectedLabelStyle: context.responsiveBodyMedium,
-              tabs: [
-                Tab(
-                  icon: Icon(
-                    Icons.dashboard_outlined,
-                    size: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 20.0,
-                      tablet: 22.0,
-                      desktop: 24.0,
-                    ),
-                  ),
-                  text: 'Courses',
-                ),
-                Tab(
-                  icon: Icon(
-                    Icons.article_outlined,
-                    size: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 20.0,
-                      tablet: 22.0,
-                      desktop: 24.0,
-                    ),
-                  ),
-                  text: 'Blogs',
-                ),
-                Tab(
-                  icon: Icon(
-                    Icons.fitness_center_outlined,
-                    size: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 20.0,
-                      tablet: 22.0,
-                      desktop: 24.0,
-                    ),
-                  ),
-                  text: 'Workout',
-                ),
-                Tab(
-                  icon: Icon(
-                    Icons.chat_bubble_outline,
-                    size: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 20.0,
-                      tablet: 22.0,
-                      desktop: 24.0,
-                    ),
-                  ),
-                  text: 'Chat',
-                ),
-                Tab(
-                  icon: Icon(
-                    Icons.person_outline,
-                    size: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 20.0,
-                      tablet: 22.0,
-                      desktop: 24.0,
-                    ),
-                  ),
-                  text: 'Profile',
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMobileLayout(
-    BuildContext context,
-    ThemeData theme,
-    List<Course> courses,
-  ) {
-    final child =
-        courses.isEmpty
-            ? _buildEmptyState(context, theme)
-            : _buildPlansList(context, theme, courses);
-    return _buildPlanTabs(context, theme, child);
-  }
-
-  Widget _buildTabletLayout(
-    BuildContext context,
-    ThemeData theme,
-    List<Course> courses,
-  ) {
-    final child = Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: ResponsiveHelper.getValue(
-          context,
-          mobile: 8.0,
-          tablet: 16.0,
-          desktop: 24.0,
-        ),
-      ),
-      child:
-          courses.isEmpty
-              ? _buildEmptyState(context, theme)
-              : _buildPlansList(context, theme, courses),
-    );
-    return _buildPlanTabs(context, theme, child);
-  }
-
-  Widget _buildDesktopLayout(
-    BuildContext context,
-    ThemeData theme,
-    List<Course> courses,
-  ) {
-    final child = Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 1200),
-        padding: EdgeInsets.all(
-          ResponsiveHelper.getValue(
-            context,
-            mobile: 8.0,
-            tablet: 12.0,
-            desktop: 16.0,
-          ),
-        ),
-        child:
-            courses.isEmpty
-                ? _buildEmptyState(context, theme)
-                : _buildPlansList(context, theme, courses),
-      ),
-    );
-    return _buildPlanTabs(context, theme, child);
   }
 }

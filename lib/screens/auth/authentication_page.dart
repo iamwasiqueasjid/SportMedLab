@@ -6,7 +6,6 @@ import 'package:test_project/utils/responsive_extension.dart';
 import 'package:test_project/utils/responsive_widget.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
 import 'package:test_project/utils/responsive_helper.dart';
-import 'package:test_project/utils/responsive_helper.dart'; // Ensure this is imported
 
 class AuthenticationPage extends StatefulWidget {
   const AuthenticationPage({super.key});
@@ -47,9 +46,8 @@ class AuthenticationPageState extends State<AuthenticationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = ResponsiveHelper.isMobile(context);
-    final isTablet = ResponsiveHelper.isTablet(context);
-    final isDesktop = ResponsiveHelper.isDesktop(context);
+    final size = MediaQuery.of(context).size;
+    final Color primaryColor = const Color(0xFF0A2D7B);
 
     return Scaffold(
       backgroundColor: Colors.white,
