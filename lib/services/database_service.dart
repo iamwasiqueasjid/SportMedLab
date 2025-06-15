@@ -257,6 +257,7 @@ class DatabaseService {
     required String contentType,
     required String content,
     File? file,
+    String? youtubeUrl, // New parameter
     required BuildContext context,
   }) async {
     try {
@@ -293,6 +294,7 @@ class DatabaseService {
         contentType: contentType,
         content: content,
         contentUrl: fileUrl,
+        youtubeUrl: youtubeUrl, // Include YouTube URL
         order: newOrder,
       );
 

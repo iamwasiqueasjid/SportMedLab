@@ -7,6 +7,7 @@ class Lesson {
   final String contentType;
   final String content;
   final String? contentUrl;
+  final String? youtubeUrl; // New field for YouTube URL
   final int order;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -18,18 +19,18 @@ class Lesson {
     required this.contentType,
     required this.content,
     this.contentUrl,
+    this.youtubeUrl,
     this.order = 0,
     this.createdAt,
     this.updatedAt,
   });
 
-  // Create Lesson from Firestore data
   factory Lesson.fromMap(Map<String, dynamic> data, String id) {
     DateTime? parseDate(dynamic value) {
       if (value == null) return null;
       if (value is Timestamp) return value.toDate();
       if (value is DateTime) return value;
-      return null; // Handle unexpected types
+      return null;
     }
 
     return Lesson(
@@ -39,13 +40,13 @@ class Lesson {
       contentType: data['contentType'] ?? '',
       content: data['content'] ?? '',
       contentUrl: data['contentUrl'],
+      youtubeUrl: data['youtubeUrl'], // New field
       order: data['order'] ?? 0,
       createdAt: parseDate(data['createdAt']),
       updatedAt: parseDate(data['updatedAt']),
     );
   }
 
-  // Convert Lesson to Firestore-compatible map
   Map<String, dynamic> toMap() {
     return {
       'courseId': courseId,
@@ -53,6 +54,7 @@ class Lesson {
       'contentType': contentType,
       'content': content,
       'contentUrl': contentUrl ?? '',
+      'youtubeUrl': youtubeUrl ?? '', // New field
       'order': order,
       'createdAt': createdAt ?? FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),

@@ -1,5 +1,6 @@
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/models/course.dart';
+import 'package:test_project/screens/doctor/course_lesson_screen.dart';
 import 'package:test_project/services/database_service.dart';
 import 'package:test_project/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/utils/responsive_extension.dart';
 import 'package:test_project/utils/responsive_helper.dart';
 import 'package:test_project/utils/responsive_widget.dart';
-import 'package:test_project/widgets/app_message_notifier.dart';
+import 'package:test_project/widgets/app_message_notifier.dart'; // Added import for CourseLessonsScreen
 
 class DoctorDashboard extends StatefulWidget {
   const DoctorDashboard({super.key});
@@ -804,7 +805,12 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
       color: Colors.white,
       child: InkWell(
         onTap: () {
-          Navigator.pushNamed(context, '/planDetails', arguments: course.id);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CourseLessonsScreen(courseId: course.id),
+            ),
+          );
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -925,10 +931,13 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                     children: [
                       OutlinedButton.icon(
                         onPressed: () {
-                          Navigator.pushNamed(
+                          Navigator.push(
                             context,
-                            '/planDetails',
-                            arguments: course.id,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) =>
+                                      CourseLessonsScreen(courseId: course.id),
+                            ),
                           );
                         },
                         icon: Icon(
