@@ -9,14 +9,14 @@ import 'package:test_project/widgets/app_message_notifier.dart';
 import 'package:test_project/utils/responsive_extension.dart';
 import 'package:test_project/utils/responsive_helper.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class ProfileWidget extends StatefulWidget {
+  const ProfileWidget({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfileWidget> createState() => _ProfileWidgetState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileWidgetState extends State<ProfileWidget> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _weightController = TextEditingController();
@@ -100,11 +100,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
       }
     } catch (e) {
-      AppNotifier.show(
-        context,
-        'Error loading profile: $e',
-        type: MessageType.error,
-      );
+      if (mounted) {
+        AppNotifier.show(
+          context,
+          'Error loading profile: $e',
+          type: MessageType.error,
+        );
+      }
       setState(() {
         _isLoading = false;
       });
@@ -124,14 +126,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Error picking image: $e',
-            style: context.responsiveBodyMedium,
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error picking image: $e',
+              style: context.responsiveBodyMedium,
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -201,27 +205,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _isLoading = false;
         });
 
-        AppNotifier.show(
-          context,
-          'Profile updated successfully',
-          type: MessageType.success,
-        );
+        if (mounted) {
+          AppNotifier.show(
+            context,
+            'Profile updated successfully',
+            type: MessageType.success,
+          );
+        }
       } catch (e) {
-        AppNotifier.show(
-          context,
-          'Error updating profile: $e',
-          type: MessageType.error,
-        );
+        if (mounted) {
+          AppNotifier.show(
+            context,
+            'Error updating profile: $e',
+            type: MessageType.error,
+          );
+        }
         setState(() {
           _isLoading = false;
         });
       }
     } else {
-      AppNotifier.show(
-        context,
-        'Please complete all required fields',
-        type: MessageType.info,
-      );
+      if (mounted) {
+        AppNotifier.show(
+          context,
+          'Please complete all required fields',
+          type: MessageType.info,
+        );
+      }
     }
   }
 
@@ -238,246 +248,276 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        backgroundColor: theme.primaryColor,
-        foregroundColor: Colors.white,
-        elevation: 2,
-        shadowColor: Colors.black26,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            size: ResponsiveHelper.getValue(
-              context,
-              mobile: 24.0,
-              tablet: 26.0,
-              desktop: 28.0,
-            ),
-          ),
-          onPressed: () {
-            final targetRoute =
-                _role == 'Doctor' ? '/doctorDashboard' : '/patientDashboard';
-            Navigator.pushReplacementNamed(context, targetRoute);
-          },
-        ),
-        title: Text(
-          'Profile',
-          style: context.responsiveTitleLarge.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: _isLoading ? null : _toggleEdit,
-            child: Text(
-              _isEditing ? 'Cancel' : 'Edit',
-              style: context.responsiveBodyLarge.copyWith(
-                color: _isLoading ? Colors.grey : Colors.white,
-                fontWeight: FontWeight.w600,
+    return Container(
+      color: Colors.grey[100],
+      child: Column(
+        children: [
+          // Header with edit/save buttons
+          Container(
+            padding: EdgeInsets.all(
+              ResponsiveHelper.getValue(
+                context,
+                mobile: 16.0,
+                tablet: 20.0,
+                desktop: 24.0,
               ),
             ),
-          ),
-          if (_isEditing)
-            TextButton(
-              onPressed: _isLoading || _isUploading ? null : _handleSave,
-              child: Text(
-                'Save',
-                style: context.responsiveBodyLarge.copyWith(
-                  color:
-                      _isLoading || _isUploading ? Colors.grey : Colors.white,
-                  fontWeight: FontWeight.w600,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 2,
+                  offset: Offset(0, 1),
                 ),
-              ),
+              ],
             ),
-        ],
-      ),
-      body:
-          _isLoading
-              ? Center(
-                child: SpinKitDoubleBounce(
-                  color: const Color(0xFF0A2D7B),
-                  size: ResponsiveHelper.getValue(
-                    context,
-                    mobile: 40.0,
-                    tablet: 50.0,
-                    desktop: 60.0,
-                  ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Your Profile',
+                      style: context.responsiveHeadlineMedium.copyWith(
+                        color: theme.primaryColor,
+                      ),
+                    ),
+                    SizedBox(
+                      height: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 8.0,
+                        tablet: 10.0,
+                        desktop: 12.0,
+                      ),
+                    ),
+                    Text(
+                      'Manage your personal details',
+                      style: context.responsiveBodyMedium.copyWith(
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
                 ),
-              )
-              : SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                  horizontal: ResponsiveHelper.getValue(
-                    context,
-                    mobile: 20.0,
-                    tablet: 24.0,
-                    desktop: 32.0,
-                  ),
-                  vertical: ResponsiveHelper.getValue(
-                    context,
-                    mobile: 24.0,
-                    tablet: 28.0,
-                    desktop: 32.0,
-                  ),
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Your Profile',
-                        style: context.responsiveHeadlineMedium.copyWith(
-                          color: theme.primaryColor,
+                Row(
+                  children: [
+                    TextButton(
+                      onPressed: _isLoading ? null : _toggleEdit,
+                      child: Text(
+                        _isEditing ? 'Cancel' : 'Edit',
+                        style: context.responsiveBodyLarge.copyWith(
+                          color: _isLoading ? Colors.grey : theme.primaryColor,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      SizedBox(
-                        height: ResponsiveHelper.getValue(
+                    ),
+                    if (_isEditing)
+                      TextButton(
+                        onPressed:
+                            _isLoading || _isUploading ? null : _handleSave,
+                        child: Text(
+                          'Save',
+                          style: context.responsiveBodyLarge.copyWith(
+                            color:
+                                _isLoading || _isUploading
+                                    ? Colors.grey
+                                    : theme.primaryColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // Content
+          Expanded(
+            child:
+                _isLoading
+                    ? Center(
+                      child: SpinKitDoubleBounce(
+                        color: const Color(0xFF0A2D7B),
+                        size: ResponsiveHelper.getValue(
                           context,
-                          mobile: 8.0,
-                          tablet: 10.0,
-                          desktop: 12.0,
+                          mobile: 40.0,
+                          tablet: 50.0,
+                          desktop: 60.0,
                         ),
                       ),
-                      Text(
-                        'Manage your personal details',
-                        style: context.responsiveBodyMedium.copyWith(
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w400,
+                    )
+                    : SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 20.0,
+                          tablet: 24.0,
+                          desktop: 32.0,
                         ),
-                      ),
-                      SizedBox(
-                        height: ResponsiveHelper.getValue(
+                        vertical: ResponsiveHelper.getValue(
                           context,
                           mobile: 24.0,
                           tablet: 28.0,
                           desktop: 32.0,
                         ),
                       ),
-                      Center(
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          width: ResponsiveHelper.getValue(
-                            context,
-                            mobile: 140.0,
-                            tablet: 160.0,
-                            desktop: 180.0,
-                          ),
-                          height: ResponsiveHelper.getValue(
-                            context,
-                            mobile: 140.0,
-                            tablet: 160.0,
-                            desktop: 180.0,
-                          ),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: [
-                                theme.primaryColor.withOpacity(0.1),
-                                Colors.white,
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: ResponsiveHelper.getValue(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Profile image section and form fields...
+                            // (Rest of the UI code remains the same)
+                            Center(
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                width: ResponsiveHelper.getValue(
                                   context,
-                                  mobile: 8.0,
-                                  tablet: 10.0,
-                                  desktop: 12.0,
+                                  mobile: 140.0,
+                                  tablet: 160.0,
+                                  desktop: 180.0,
                                 ),
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              GestureDetector(
-                                onTap: _isEditing ? _pickImage : null,
-                                child: Container(
-                                  width: ResponsiveHelper.getValue(
-                                    context,
-                                    mobile: 130.0,
-                                    tablet: 150.0,
-                                    desktop: 170.0,
+                                height: ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 140.0,
+                                  tablet: 160.0,
+                                  desktop: 180.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      theme.primaryColor.withOpacity(0.1),
+                                      Colors.white,
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
-                                  height: ResponsiveHelper.getValue(
-                                    context,
-                                    mobile: 130.0,
-                                    tablet: 150.0,
-                                    desktop: 170.0,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: theme.primaryColor.withOpacity(
-                                        _isEditing ? 0.8 : 0.3,
-                                      ),
-                                      width: ResponsiveHelper.getValue(
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black12,
+                                      blurRadius: ResponsiveHelper.getValue(
                                         context,
-                                        mobile: 2.0,
-                                        tablet: 2.5,
-                                        desktop: 3.0,
+                                        mobile: 8.0,
+                                        tablet: 10.0,
+                                        desktop: 12.0,
                                       ),
+                                      offset: const Offset(0, 4),
                                     ),
-                                  ),
-                                  child: ClipOval(
-                                    child:
-                                        _isUploading
-                                            ? Center(
-                                              child: SpinKitFadingCircle(
-                                                color: theme.primaryColor,
-                                                size: ResponsiveHelper.getValue(
-                                                  context,
-                                                  mobile: 30.0,
-                                                  tablet: 35.0,
-                                                  desktop: 40.0,
+                                  ],
+                                ),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: _isEditing ? _pickImage : null,
+                                      child: Container(
+                                        width: ResponsiveHelper.getValue(
+                                          context,
+                                          mobile: 130.0,
+                                          tablet: 150.0,
+                                          desktop: 170.0,
+                                        ),
+                                        height: ResponsiveHelper.getValue(
+                                          context,
+                                          mobile: 130.0,
+                                          tablet: 150.0,
+                                          desktop: 170.0,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: theme.primaryColor
+                                                .withOpacity(
+                                                  _isEditing ? 0.8 : 0.3,
                                                 ),
-                                              ),
-                                            )
-                                            : _imageFile != null
-                                            ? Image.file(
-                                              _imageFile!,
-                                              width: ResponsiveHelper.getValue(
-                                                context,
-                                                mobile: 130.0,
-                                                tablet: 150.0,
-                                                desktop: 170.0,
-                                              ),
-                                              height: ResponsiveHelper.getValue(
-                                                context,
-                                                mobile: 130.0,
-                                                tablet: 150.0,
-                                                desktop: 170.0,
-                                              ),
-                                              fit: BoxFit.cover,
-                                            )
-                                            : _uploadedImageUrl != null
-                                            ? Image.network(
-                                              _uploadedImageUrl!,
-                                              width: ResponsiveHelper.getValue(
-                                                context,
-                                                mobile: 130.0,
-                                                tablet: 150.0,
-                                                desktop: 170.0,
-                                              ),
-                                              height: ResponsiveHelper.getValue(
-                                                context,
-                                                mobile: 130.0,
-                                                tablet: 150.0,
-                                                desktop: 170.0,
-                                              ),
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (
-                                                    context,
-                                                    error,
-                                                    stackTrace,
-                                                  ) => Image.asset(
+                                            width: ResponsiveHelper.getValue(
+                                              context,
+                                              mobile: 2.0,
+                                              tablet: 2.5,
+                                              desktop: 3.0,
+                                            ),
+                                          ),
+                                        ),
+                                        child: ClipOval(
+                                          child:
+                                              _isUploading
+                                                  ? Center(
+                                                    child: SpinKitFadingCircle(
+                                                      color: theme.primaryColor,
+                                                      size:
+                                                          ResponsiveHelper.getValue(
+                                                            context,
+                                                            mobile: 30.0,
+                                                            tablet: 35.0,
+                                                            desktop: 40.0,
+                                                          ),
+                                                    ),
+                                                  )
+                                                  : _imageFile != null
+                                                  ? Image.file(
+                                                    _imageFile!,
+                                                    width:
+                                                        ResponsiveHelper.getValue(
+                                                          context,
+                                                          mobile: 130.0,
+                                                          tablet: 150.0,
+                                                          desktop: 170.0,
+                                                        ),
+                                                    height:
+                                                        ResponsiveHelper.getValue(
+                                                          context,
+                                                          mobile: 130.0,
+                                                          tablet: 150.0,
+                                                          desktop: 170.0,
+                                                        ),
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                  : _uploadedImageUrl != null
+                                                  ? Image.network(
+                                                    _uploadedImageUrl!,
+                                                    width:
+                                                        ResponsiveHelper.getValue(
+                                                          context,
+                                                          mobile: 130.0,
+                                                          tablet: 150.0,
+                                                          desktop: 170.0,
+                                                        ),
+                                                    height:
+                                                        ResponsiveHelper.getValue(
+                                                          context,
+                                                          mobile: 130.0,
+                                                          tablet: 150.0,
+                                                          desktop: 170.0,
+                                                        ),
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder:
+                                                        (
+                                                          context,
+                                                          error,
+                                                          stackTrace,
+                                                        ) => Image.asset(
+                                                          'assets/images/Avatar.png',
+                                                          width:
+                                                              ResponsiveHelper.getValue(
+                                                                context,
+                                                                mobile: 130.0,
+                                                                tablet: 150.0,
+                                                                desktop: 170.0,
+                                                              ),
+                                                          height:
+                                                              ResponsiveHelper.getValue(
+                                                                context,
+                                                                mobile: 130.0,
+                                                                tablet: 150.0,
+                                                                desktop: 170.0,
+                                                              ),
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                  )
+                                                  : Image.asset(
                                                     'assets/images/Avatar.png',
                                                     width:
                                                         ResponsiveHelper.getValue(
@@ -495,196 +535,185 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                         ),
                                                     fit: BoxFit.cover,
                                                   ),
-                                            )
-                                            : Image.asset(
-                                              'assets/images/Avatar.png',
-                                              width: ResponsiveHelper.getValue(
-                                                context,
-                                                mobile: 130.0,
-                                                tablet: 150.0,
-                                                desktop: 170.0,
+                                        ),
+                                      ),
+                                    ),
+                                    if (_isEditing)
+                                      Positioned(
+                                        bottom: 0,
+                                        right: 0,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: theme.primaryColor,
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black26,
+                                                blurRadius:
+                                                    ResponsiveHelper.getValue(
+                                                      context,
+                                                      mobile: 4.0,
+                                                      tablet: 5.0,
+                                                      desktop: 6.0,
+                                                    ),
+                                                offset: const Offset(0, 2),
                                               ),
-                                              height: ResponsiveHelper.getValue(
+                                            ],
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.all(
+                                              ResponsiveHelper.getValue(
                                                 context,
-                                                mobile: 130.0,
-                                                tablet: 150.0,
-                                                desktop: 170.0,
+                                                mobile: 8.0,
+                                                tablet: 10.0,
+                                                desktop: 12.0,
                                               ),
-                                              fit: BoxFit.cover,
                                             ),
-                                  ),
+                                            child: Icon(
+                                              _isUploading
+                                                  ? Icons.hourglass_top
+                                                  : Icons.camera_alt,
+                                              color: Colors.white,
+                                              size: ResponsiveHelper.getValue(
+                                                context,
+                                                mobile: 24.0,
+                                                tablet: 26.0,
+                                                desktop: 28.0,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
-                              if (_isEditing)
-                                Positioned(
-                                  bottom: 0,
-                                  right: 0,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: theme.primaryColor,
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black26,
-                                          blurRadius: ResponsiveHelper.getValue(
-                                            context,
-                                            mobile: 4.0,
-                                            tablet: 5.0,
-                                            desktop: 6.0,
-                                          ),
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Padding(
-                                      padding: EdgeInsets.all(
-                                        ResponsiveHelper.getValue(
-                                          context,
-                                          mobile: 8.0,
-                                          tablet: 10.0,
-                                          desktop: 12.0,
-                                        ),
-                                      ),
-                                      child: Icon(
-                                        _isUploading
-                                            ? Icons.hourglass_top
-                                            : Icons.camera_alt,
-                                        color: Colors.white,
-                                        size: ResponsiveHelper.getValue(
-                                          context,
-                                          mobile: 24.0,
-                                          tablet: 26.0,
-                                          desktop: 28.0,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
+                            ),
+                            SizedBox(
+                              height: ResponsiveHelper.getValue(
+                                context,
+                                mobile: 32.0,
+                                tablet: 36.0,
+                                desktop: 40.0,
+                              ),
+                            ),
+                            _buildTextField(
+                              label: 'Your Name',
+                              controller: _nameController,
+                              enabled: _isEditing,
+                              validator:
+                                  (value) =>
+                                      value == null || value.isEmpty
+                                          ? 'Please enter your name'
+                                          : null,
+                            ),
+                            SizedBox(
+                              height: ResponsiveHelper.getValue(
+                                context,
+                                mobile: 24.0,
+                                tablet: 28.0,
+                                desktop: 32.0,
+                              ),
+                            ),
+                            _buildTextField(
+                              label: 'Email',
+                              controller: _emailController,
+                              enabled: false,
+                            ),
+                            SizedBox(
+                              height: ResponsiveHelper.getValue(
+                                context,
+                                mobile: 24.0,
+                                tablet: 28.0,
+                                desktop: 32.0,
+                              ),
+                            ),
+                            _buildTextField(
+                              label: 'Weight (kg)',
+                              controller: _weightController,
+                              enabled: _isEditing,
+                              keyboardType: TextInputType.number,
+                              suffixText: 'kg',
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your weight';
+                                }
+                                if (double.tryParse(value) == null) {
+                                  return 'Please enter a valid number';
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(
+                              height: ResponsiveHelper.getValue(
+                                context,
+                                mobile: 24.0,
+                                tablet: 28.0,
+                                desktop: 32.0,
+                              ),
+                            ),
+                            _buildTextField(
+                              label: 'Height (cm)',
+                              controller: _heightController,
+                              enabled: _isEditing,
+                              keyboardType: TextInputType.number,
+                              suffixText: 'cm',
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your height';
+                                }
+                                if (double.tryParse(value) == null) {
+                                  return 'Please enter a valid number';
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(
+                              height: ResponsiveHelper.getValue(
+                                context,
+                                mobile: 24.0,
+                                tablet: 28.0,
+                                desktop: 32.0,
+                              ),
+                            ),
+                            _buildDropdownField(
+                              label: 'Gender',
+                              value: _selectedGender,
+                              items: _genders,
+                              enabled: _isEditing,
+                              onChanged:
+                                  (value) =>
+                                      setState(() => _selectedGender = value),
+                              validator:
+                                  (value) =>
+                                      value == null
+                                          ? 'Please select your gender'
+                                          : null,
+                            ),
+                            SizedBox(
+                              height: ResponsiveHelper.getValue(
+                                context,
+                                mobile: 24.0,
+                                tablet: 28.0,
+                                desktop: 32.0,
+                              ),
+                            ),
+                            _buildDateField(
+                              label: 'Date of Birth',
+                              date: _selectedDate,
+                              onTap: () => _selectDate(context),
+                              enabled: _isEditing,
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(
-                        height: ResponsiveHelper.getValue(
-                          context,
-                          mobile: 32.0,
-                          tablet: 36.0,
-                          desktop: 40.0,
-                        ),
-                      ),
-                      _buildTextField(
-                        label: 'Your Name',
-                        controller: _nameController,
-                        enabled: _isEditing,
-                        validator:
-                            (value) =>
-                                value == null || value.isEmpty
-                                    ? 'Please enter your name'
-                                    : null,
-                      ),
-                      SizedBox(
-                        height: ResponsiveHelper.getValue(
-                          context,
-                          mobile: 24.0,
-                          tablet: 28.0,
-                          desktop: 32.0,
-                        ),
-                      ),
-                      _buildTextField(
-                        label: 'Email',
-                        controller: _emailController,
-                        enabled: false,
-                      ),
-                      SizedBox(
-                        height: ResponsiveHelper.getValue(
-                          context,
-                          mobile: 24.0,
-                          tablet: 28.0,
-                          desktop: 32.0,
-                        ),
-                      ),
-                      _buildTextField(
-                        label: 'Weight (kg)',
-                        controller: _weightController,
-                        enabled: _isEditing,
-                        keyboardType: TextInputType.number,
-                        suffixText: 'kg',
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your weight';
-                          }
-                          if (double.tryParse(value) == null) {
-                            return 'Please enter a valid number';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(
-                        height: ResponsiveHelper.getValue(
-                          context,
-                          mobile: 24.0,
-                          tablet: 28.0,
-                          desktop: 32.0,
-                        ),
-                      ),
-                      _buildTextField(
-                        label: 'Height (cm)',
-                        controller: _heightController,
-                        enabled: _isEditing,
-                        keyboardType: TextInputType.number,
-                        suffixText: 'cm',
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your height';
-                          }
-                          if (double.tryParse(value) == null) {
-                            return 'Please enter a valid number';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(
-                        height: ResponsiveHelper.getValue(
-                          context,
-                          mobile: 24.0,
-                          tablet: 28.0,
-                          desktop: 32.0,
-                        ),
-                      ),
-                      _buildDropdownField(
-                        label: 'Gender',
-                        value: _selectedGender,
-                        items: _genders,
-                        enabled: _isEditing,
-                        onChanged:
-                            (value) => setState(() => _selectedGender = value),
-                        validator:
-                            (value) =>
-                                value == null
-                                    ? 'Please select your gender'
-                                    : null,
-                      ),
-                      SizedBox(
-                        height: ResponsiveHelper.getValue(
-                          context,
-                          mobile: 24.0,
-                          tablet: 28.0,
-                          desktop: 32.0,
-                        ),
-                      ),
-                      _buildDateField(
-                        label: 'Date of Birth',
-                        date: _selectedDate,
-                        onTap: () => _selectDate(context),
-                        enabled: _isEditing,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
+          ),
+        ],
+      ),
     );
   }
 
+  // Keep all the helper methods (_buildTextField, _buildDropdownField, _buildDateField) exactly the same
   Widget _buildTextField({
     required String label,
     required TextEditingController controller,

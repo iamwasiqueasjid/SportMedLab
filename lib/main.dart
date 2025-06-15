@@ -5,7 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test_project/screens/patient/patient_dashboard.dart';
-import 'package:test_project/screens/profile/edit_profile.dart';
+// import 'package:test_project/screens/profile/edit_profile.dart';
 import 'package:test_project/screens/profile/profile_setup_page.dart';
 import 'package:test_project/screens/doctor/blog_upload_screen.dart';
 import 'package:test_project/screens/patient/patients_screen.dart';
@@ -94,7 +94,7 @@ class _MyAppState extends State<MyApp> {
         '/profileSetup': (context) => const ProfileSetupScreen(),
         '/doctorDashboard': (context) => const DoctorDashboard(),
         '/patientDashboard': (context) => const PatientDashboard(),
-        '/profile': (context) => const ProfileScreen(),
+        // '/profile': (context) => const ProfileScreen(),
         '/blogUpload': (context) => AdvancedBlogEditorScreen(),
         '/patientsBlog': (context) => const PatientsScreen(),
       },
