@@ -61,6 +61,7 @@ dependencies:
   flutter_html: ^3.0.0
   xml: ^6.5.0
   dart_quill_delta: ^10.8.3
+  shared_preferences: ^2.5.3
 
 
 

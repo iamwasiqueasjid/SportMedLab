@@ -45,61 +45,72 @@ class _PatientsScreenState extends State<PatientsScreen> {
         title: const Text('Posted Blogs for Patients'),
         elevation: 2,
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _errorMessage != null
-          ? Center(child: Text(_errorMessage!))
-          : FutureBuilder<List<Map<String, dynamic>>>(
-        future: _blogsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No blogs available.'));
-          }
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _errorMessage != null
+              ? Center(child: Text(_errorMessage!))
+              : FutureBuilder<List<Map<String, dynamic>>>(
+                future: _blogsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError ||
+                      !snapshot.hasData ||
+                      snapshot.data!.isEmpty) {
+                    return const Center(child: Text('No blogs available.'));
+                  }
 
-          final blogs = snapshot.data!;
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: blogs.length,
-            itemBuilder: (context, index) {
-              final blog = blogs[index];
-              return Card(
-                elevation: 2,
-                margin: const EdgeInsets.only(bottom: 16),
-                child: ListTile(
-                  title: Text(
-                    blog['title'] ?? 'Untitled',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    blog['extractedText']?.substring(0, 50) ?? 'No preview available',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PatientBlogPreviewScreen(
-                          title: blog['title'] ?? 'Untitled',
-                          controller: QuillController(
-                            document: Document.fromJson(blog['content']),
-                            selection: const TextSelection.collapsed(offset: 0),
+                  final blogs = snapshot.data!;
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: blogs.length,
+                    itemBuilder: (context, index) {
+                      final blog = blogs[index];
+                      return Card(
+                        elevation: 2,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: ListTile(
+                          title: Text(
+                            blog['title'] ?? 'Untitled',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          tags: blog['tags'] as List<String>? ?? [],
-                          category: blog['category'] ?? 'Uncategorized',
+                          subtitle: Text(
+                            blog['extractedText']?.substring(0, 50) ??
+                                'No preview available',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => PatientBlogScreen(
+                                      title: blog['title'] ?? 'Untitled',
+                                      controller: QuillController(
+                                        document: Document.fromJson(
+                                          blog['content'],
+                                        ),
+                                        selection:
+                                            const TextSelection.collapsed(
+                                              offset: 0,
+                                            ),
+                                      ),
+                                      tags: blog['tags'] as List<String>? ?? [],
+                                      category:
+                                          blog['category'] ?? 'Uncategorized',
+                                    ),
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
-          );
-        },
-      ),
+                      );
+                    },
+                  );
+                },
+              ),
     );
   }
 }

@@ -28,19 +28,6 @@ class SignUpScreenState extends State<SignUpScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            Positioned(
-              top: 16,
-              left: 16,
-              child: IconButton(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(theme.primaryColor),
-                ),
-                icon: Icon(Icons.arrow_back, color: Colors.white, size: 35),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/auth');
-                },
-              ),
-            ),
             Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
@@ -311,6 +298,19 @@ class SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                 ),
+              ),
+            ),
+            Positioned(
+              top: 16,
+              left: 16,
+              child: IconButton(
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(theme.primaryColor),
+                ),
+                icon: Icon(Icons.arrow_back, color: Colors.white, size: 35),
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/auth');
+                },
               ),
             ),
           ],

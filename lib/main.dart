@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test_project/screens/patient/patient_dashboard.dart';
 import 'package:test_project/screens/profile/edit_profile.dart';
 import 'package:test_project/screens/profile/profile_setup_page.dart';
@@ -41,6 +42,14 @@ void main() async {
     throw Exception('Error loading .env file: $e');
   }
 
+  // Initialize shared_preferences and check rememberMe
+  final prefs = await SharedPreferences.getInstance();
+  final rememberMe = prefs.getBool('remember_me') ?? true;
+  if (!rememberMe) {
+    // Clear session if rememberMe was false
+    await firebase_auth.FirebaseAuth.instance.signOut();
+  }
+
   runApp(const MyApp());
 }
 
@@ -70,13 +79,11 @@ class _MyAppState extends State<MyApp> {
       themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
       home: const SplashScreen(),
       initialRoute: '/splash',
-
       supportedLocales: const [Locale('en')],
       localizationsDelegates: const [
         ...GlobalMaterialLocalizations.delegates,
         quill.FlutterQuillLocalizations.delegate,
       ],
-
       routes: {
         '/splash': (context) => const SplashScreen(),
         '/authWrapper': (context) => const AuthWrapper(),
@@ -93,13 +100,9 @@ class _MyAppState extends State<MyApp> {
         '/patientsBlog': (context) => const PatientsScreen(),
         '/poseDetection': (context) => PoseDetectorView(),
       },
-
       onGenerateRoute: (settings) {
         if (settings.name == '/chat') {
           final arguments = settings.arguments as Map<String, dynamic>?;
-          if (arguments == null) {
-            return MaterialPageRoute(builder: (context) => const ChatScreen());
-          }
           return MaterialPageRoute(
             builder: (context) => ChatScreen(arguments: arguments),
           );
@@ -130,7 +133,7 @@ class _MyAppState extends State<MyApp> {
                     final controller = quill.QuillController.basic();
                     return role == 'Doctor'
                         ? AdvancedBlogEditorScreen()
-                        : PatientBlogPreviewScreen(
+                        : PatientBlogScreen(
                           title: 'Patient Blogs',
                           controller: controller,
                           tags: [],
@@ -170,6 +173,7 @@ class AuthWrapper extends StatelessWidget {
             builder: (context, userSnapshot) {
               if (userSnapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(
+                  backgroundColor: Colors.white,
                   body: Center(
                     child: SpinKitDoubleBounce(
                       color: Color(0xFF0A2D7B),

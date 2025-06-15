@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 
-class PatientBlogPreviewScreen extends StatelessWidget {
+class PatientBlogScreen extends StatelessWidget {
   final String title;
   final QuillController controller;
   final List<String> tags;
   final String category;
 
-  const PatientBlogPreviewScreen({
+  const PatientBlogScreen({
     super.key,
     required this.title,
     required this.controller,
@@ -18,10 +18,7 @@ class PatientBlogPreviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        elevation: 2,
-      ),
+      appBar: AppBar(title: Text(title), elevation: 2),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -34,9 +31,15 @@ class PatientBlogPreviewScreen extends StatelessWidget {
               // Removed configurations and readOnly due to undefined errors
             ),
             const SizedBox(height: 16),
-            Text('Category: $category', style: TextStyle(fontStyle: FontStyle.italic)),
+            Text(
+              'Category: $category',
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
             const SizedBox(height: 8),
-            Text('Tags: ${tags.join(', ')}', style: TextStyle(fontStyle: FontStyle.italic)),
+            Text(
+              'Tags: ${tags.join(', ')}',
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {

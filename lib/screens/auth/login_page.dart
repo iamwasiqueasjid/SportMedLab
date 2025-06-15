@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
@@ -34,19 +35,6 @@ class LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            Positioned(
-              top: 16,
-              left: 16,
-              child: IconButton(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(theme.primaryColor),
-                ),
-                icon: Icon(Icons.arrow_back, color: Colors.white, size: 35),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/auth');
-                },
-              ),
-            ),
             Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
@@ -196,21 +184,41 @@ class LoginScreenState extends State<LoginScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  Checkbox(
-                                    value: _rememberMe,
-                                    onChanged:
-                                        (value) => setState(
-                                          () => _rememberMe = value!,
-                                        ),
-                                    activeColor: theme.primaryColor,
-                                  ),
-                                  const Text(
-                                    'Remember Me',
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                ],
+                              GestureDetector(
+                                onTap:
+                                    () => setState(
+                                      () => _rememberMe = !_rememberMe,
+                                    ),
+                                child: Row(
+                                  children: [
+                                    Checkbox(
+                                      value: _rememberMe,
+                                      onChanged:
+                                          (value) => setState(
+                                            () => _rememberMe = value!,
+                                          ),
+                                      activeColor: theme.primaryColor,
+                                      checkColor: Colors.white,
+                                      side: BorderSide(
+                                        color: theme.primaryColor,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    AnimatedDefaultTextStyle(
+                                      duration: const Duration(
+                                        milliseconds: 200,
+                                      ),
+                                      style: TextStyle(
+                                        color: theme.primaryColor,
+                                        fontWeight:
+                                            _rememberMe
+                                                ? FontWeight.w600
+                                                : FontWeight.normal,
+                                      ),
+                                      child: const Text('Remember Me'),
+                                    ),
+                                  ],
+                                ),
                               ),
                               TextButton(
                                 onPressed: () {
@@ -248,10 +256,18 @@ class LoginScreenState extends State<LoginScreen> {
                               ),
                               onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
+                                  // Save rememberMe state
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  await prefs.setBool(
+                                    'remember_me',
+                                    _rememberMe,
+                                  );
                                   bool result = await _authService.login(
                                     email: _emailController.text.trim(),
                                     password: _passwordController.text.trim(),
                                     context: context,
+                                    rememberMe: _rememberMe,
                                   );
                                   if (result) {
                                     _emailController.clear();
@@ -294,6 +310,19 @@ class LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
+              ),
+            ),
+            Positioned(
+              top: 16,
+              left: 16,
+              child: IconButton(
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(theme.primaryColor),
+                ),
+                icon: Icon(Icons.arrow_back, color: Colors.white, size: 35),
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/auth');
+                },
               ),
             ),
           ],

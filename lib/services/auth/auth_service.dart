@@ -3,7 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:test_project/models/user.dart'; // Import the new model
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:test_project/models/user.dart';
 import 'package:test_project/services/cloudinary_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
@@ -25,8 +26,14 @@ class AuthService {
     required String email,
     required String password,
     required BuildContext context,
+    required rememberMe,
   }) async {
     try {
+      // Note: Removed setPersistence as it's not supported on mobile platforms
+      // Store rememberMe in shared_preferences (already done in LoginScreen)
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('remember_me', rememberMe);
+
       final firebase_auth.UserCredential userCredential = await _auth
           .signInWithEmailAndPassword(email: email, password: password);
 
@@ -58,8 +65,15 @@ class AuthService {
   }
 
   // Google Sign-In
-  Future<bool> signInWithGoogle({required BuildContext context}) async {
+  Future<bool> signInWithGoogle({
+    required BuildContext context,
+    bool rememberMe = true,
+  }) async {
     try {
+      // Store rememberMe in shared_preferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('remember_me', rememberMe);
+
       // Sign out from Google first to force account selection
       await _googleSignIn.signOut();
 
@@ -170,6 +184,10 @@ class AuthService {
     required BuildContext context,
   }) async {
     try {
+      // Default to persistent session for sign-up
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('remember_me', true); // Default for new users
+
       final firebase_auth.UserCredential credential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
 
@@ -211,6 +229,10 @@ class AuthService {
   // Sign Out
   Future<void> signOut(BuildContext context) async {
     try {
+      // Clear rememberMe preference
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('remember_me');
+
       // Sign out from Google if signed in with Google
       if (await _googleSignIn.isSignedIn()) {
         await _googleSignIn.signOut();
@@ -223,7 +245,6 @@ class AuthService {
             'Logged Out Successfully',
             type: MessageType.info,
           ),
-
           Navigator.pushReplacementNamed(context, '/login'),
         },
       );
@@ -312,24 +333,6 @@ class AuthService {
     final userData = await fetchUserData();
     return userData?.role;
   }
-
-  // // Fetch user data from Firestore
-  // Future<Map<String, dynamic>?> fetchUserData() async {
-  //   try {
-  //     firebase_auth.User? currentUser = _auth.currentUser;
-  //     if (currentUser != null) {
-  //       DocumentSnapshot userDoc =
-  //           await _firestore.collection('users').doc(currentUser.uid).get();
-
-  //       if (userDoc.exists) {
-  //         return userDoc.data() as Map<String, dynamic>;
-  //       }
-  //     }
-  //     return null;
-  //   } catch (e) {
-  //     throw Exception('Failed to fetch user data: $e');
-  //   }
-  // }
 
   // Save profile data
   Future<bool> saveProfileData({
