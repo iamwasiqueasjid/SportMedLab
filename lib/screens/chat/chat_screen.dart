@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
+import 'package:test_project/utils/responsive_extension.dart';
+import 'package:test_project/utils/responsive_helper.dart';
 
 class ChatScreen extends StatefulWidget {
   final Map<String, dynamic>? arguments;
@@ -121,12 +123,23 @@ class _ChatScreenState extends State<ChatScreen> {
         elevation: 2,
         title: Text(
           _otherUserName ?? 'Chat',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: context.responsiveTitleLarge.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.call),
-            color: Colors.white,
+            icon: Icon(
+              Icons.call,
+              size: ResponsiveHelper.getValue(
+                context,
+                mobile: 24.0,
+                tablet: 26.0,
+                desktop: 28.0,
+              ),
+              color: Colors.white,
+            ),
             onPressed: () {
               // Add call functionality if needed
             },
@@ -135,26 +148,53 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body:
           _isLoading
-              ? const Center(
+              ? Center(
                 child: SpinKitDoubleBounce(
-                  color: Color(0xFF0A2D7B),
-                  size: 40.0,
+                  color: const Color(0xFF0A2D7B),
+                  size: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 40.0,
+                    tablet: 50.0,
+                    desktop: 60.0,
+                  ),
                 ),
               )
               : _currentUserId == null || _chatId == null
-              ? const Center(child: Text('Unable to load chat'))
+              ? Center(
+                child: Text(
+                  'Unable to load chat',
+                  style: context.responsiveBodyLarge,
+                ),
+              )
               : Column(
                 children: [
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 8.0,
+                          tablet: 12.0,
+                          desktop: 16.0,
+                        ),
+                        vertical: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 4.0,
+                          tablet: 6.0,
+                          desktop: 8.0,
+                        ),
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(16),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(
+                            ResponsiveHelper.getValue(
+                              context,
+                              mobile: 16.0,
+                              tablet: 18.0,
+                              desktop: 20.0,
+                            ),
+                          ),
                         ),
                       ),
                       child: StreamBuilder<List<Map<String, dynamic>>>(
@@ -162,10 +202,15 @@ class _ChatScreenState extends State<ChatScreen> {
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return const Center(
+                            return Center(
                               child: SpinKitDoubleBounce(
-                                color: Color(0xFF0A2D7B),
-                                size: 40.0,
+                                color: const Color(0xFF0A2D7B),
+                                size: ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 40.0,
+                                  tablet: 50.0,
+                                  desktop: 60.0,
+                                ),
                               ),
                             );
                           }
@@ -173,6 +218,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             return Center(
                               child: Text(
                                 'Error loading messages: ${snapshot.error}',
+                                style: context.responsiveBodyLarge,
                               ),
                             );
                           }
@@ -180,7 +226,14 @@ class _ChatScreenState extends State<ChatScreen> {
                           print('Messages received: $messages');
                           return ListView.builder(
                             reverse: true,
-                            padding: const EdgeInsets.all(8),
+                            padding: EdgeInsets.all(
+                              ResponsiveHelper.getValue(
+                                context,
+                                mobile: 8.0,
+                                tablet: 10.0,
+                                desktop: 12.0,
+                              ),
+                            ),
                             itemCount: messages.length,
                             itemBuilder: (context, index) {
                               final message = messages[index];
@@ -194,18 +247,37 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(8),
+                    padding: EdgeInsets.all(
+                      ResponsiveHelper.getValue(
+                        context,
+                        mobile: 8.0,
+                        tablet: 10.0,
+                        desktop: 12.0,
+                      ),
+                    ),
                     child: Row(
                       children: [
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(
+                                ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 24.0,
+                                  tablet: 26.0,
+                                  desktop: 28.0,
+                                ),
+                              ),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 4,
+                                  blurRadius: ResponsiveHelper.getValue(
+                                    context,
+                                    mobile: 4.0,
+                                    tablet: 5.0,
+                                    desktop: 6.0,
+                                  ),
                                   offset: const Offset(0, 2),
                                 ),
                               ],
@@ -214,24 +286,68 @@ class _ChatScreenState extends State<ChatScreen> {
                               controller: _messageController,
                               decoration: InputDecoration(
                                 hintText: 'Type a message...',
-                                hintStyle: TextStyle(color: Colors.grey[600]),
+                                hintStyle: context.responsiveBodyMedium
+                                    .copyWith(color: Colors.grey[600]),
                                 border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: ResponsiveHelper.getValue(
+                                    context,
+                                    mobile: 16.0,
+                                    tablet: 18.0,
+                                    desktop: 20.0,
+                                  ),
+                                  vertical: ResponsiveHelper.getValue(
+                                    context,
+                                    mobile: 12.0,
+                                    tablet: 14.0,
+                                    desktop: 16.0,
+                                  ),
                                 ),
                               ),
-                              style: TextStyle(color: Colors.black87),
+                              style: context.responsiveBodyLarge.copyWith(
+                                color: Colors.black87,
+                              ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 8.0,
+                            tablet: 10.0,
+                            desktop: 12.0,
+                          ),
+                        ),
                         FloatingActionButton(
                           backgroundColor: theme.primaryColor,
                           onPressed: _sendMessage,
-                          child: const Icon(Icons.send, color: Colors.white),
-                          elevation: 4,
-                          shape: const CircleBorder(),
+                          child: Icon(
+                            Icons.send,
+                            color: Colors.white,
+                            size: ResponsiveHelper.getValue(
+                              context,
+                              mobile: 20.0,
+                              tablet: 22.0,
+                              desktop: 24.0,
+                            ),
+                          ),
+                          elevation: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 4.0,
+                            tablet: 5.0,
+                            desktop: 6.0,
+                          ),
+                          shape: CircleBorder(
+                            side: BorderSide(
+                              color: theme.primaryColor,
+                              width: ResponsiveHelper.getValue(
+                                context,
+                                mobile: 1.0,
+                                tablet: 1.5,
+                                desktop: 2.0,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -248,7 +364,20 @@ class _ChatScreenState extends State<ChatScreen> {
         timestamp != null ? DateFormat('HH:mm').format(timestamp) : '';
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      margin: EdgeInsets.symmetric(
+        vertical: ResponsiveHelper.getValue(
+          context,
+          mobile: 4.0,
+          tablet: 6.0,
+          desktop: 8.0,
+        ),
+        horizontal: ResponsiveHelper.getValue(
+          context,
+          mobile: 8.0,
+          tablet: 10.0,
+          desktop: 12.0,
+        ),
+      ),
       child: Row(
         mainAxisAlignment:
             isSentByMe ? MainAxisAlignment.end : MainAxisAlignment.start,
@@ -256,12 +385,33 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           if (!isSentByMe)
             Padding(
-              padding: const EdgeInsets.only(right: 8),
+              padding: EdgeInsets.only(
+                right: ResponsiveHelper.getValue(
+                  context,
+                  mobile: 8.0,
+                  tablet: 10.0,
+                  desktop: 12.0,
+                ),
+              ),
               child: CircleAvatar(
+                radius: ResponsiveHelper.getValue(
+                  context,
+                  mobile: 16.0,
+                  tablet: 18.0,
+                  desktop: 20.0,
+                ),
                 backgroundColor: theme.primaryColor.withOpacity(0.2),
                 child: Text(
                   _otherUserName?[0].toUpperCase() ?? '?',
-                  style: TextStyle(color: theme.primaryColor),
+                  style: TextStyle(
+                    color: theme.primaryColor,
+                    fontSize: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 12.0,
+                      tablet: 14.0,
+                      desktop: 16.0,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -273,9 +423,19 @@ class _ChatScreenState extends State<ChatScreen> {
                       : CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 12.0,
+                      tablet: 14.0,
+                      desktop: 16.0,
+                    ),
+                    vertical: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 8.0,
+                      tablet: 10.0,
+                      desktop: 12.0,
+                    ),
                   ),
                   decoration: BoxDecoration(
                     color:
@@ -283,21 +443,54 @@ class _ChatScreenState extends State<ChatScreen> {
                             ? theme.primaryColor.withOpacity(0.8)
                             : Colors.grey[300],
                     borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(12),
-                      topRight: const Radius.circular(12),
+                      topLeft: Radius.circular(
+                        ResponsiveHelper.getValue(
+                          context,
+                          mobile: 12.0,
+                          tablet: 14.0,
+                          desktop: 16.0,
+                        ),
+                      ),
+                      topRight: Radius.circular(
+                        ResponsiveHelper.getValue(
+                          context,
+                          mobile: 12.0,
+                          tablet: 14.0,
+                          desktop: 16.0,
+                        ),
+                      ),
                       bottomLeft:
                           isSentByMe
-                              ? const Radius.circular(12)
-                              : const Radius.circular(0),
+                              ? Radius.circular(
+                                ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 12.0,
+                                  tablet: 14.0,
+                                  desktop: 16.0,
+                                ),
+                              )
+                              : Radius.circular(0),
                       bottomRight:
                           isSentByMe
-                              ? const Radius.circular(0)
-                              : const Radius.circular(12),
+                              ? Radius.circular(0)
+                              : Radius.circular(
+                                ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 12.0,
+                                  tablet: 14.0,
+                                  desktop: 16.0,
+                                ),
+                              ),
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.1),
-                        blurRadius: 4,
+                        blurRadius: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 4.0,
+                          tablet: 5.0,
+                          desktop: 6.0,
+                        ),
                         offset: const Offset(0, 2),
                       ),
                     ],
@@ -306,15 +499,36 @@ class _ChatScreenState extends State<ChatScreen> {
                     message['message'],
                     style: TextStyle(
                       color: isSentByMe ? Colors.white : Colors.black87,
+                      fontSize: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 14.0,
+                        tablet: 16.0,
+                        desktop: 18.0,
+                      ),
                     ),
                   ),
                 ),
                 if (formattedTime.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.only(top: 4),
+                    padding: EdgeInsets.only(
+                      top: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 4.0,
+                        tablet: 6.0,
+                        desktop: 8.0,
+                      ),
+                    ),
                     child: Text(
                       formattedTime,
-                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                      style: TextStyle(
+                        fontSize: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 10.0,
+                          tablet: 11.0,
+                          desktop: 12.0,
+                        ),
+                        color: Colors.grey[600],
+                      ),
                     ),
                   ),
               ],
@@ -322,12 +536,33 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           if (isSentByMe)
             Padding(
-              padding: const EdgeInsets.only(left: 8),
+              padding: EdgeInsets.only(
+                left: ResponsiveHelper.getValue(
+                  context,
+                  mobile: 8.0,
+                  tablet: 10.0,
+                  desktop: 12.0,
+                ),
+              ),
               child: CircleAvatar(
+                radius: ResponsiveHelper.getValue(
+                  context,
+                  mobile: 16.0,
+                  tablet: 18.0,
+                  desktop: 20.0,
+                ),
                 backgroundColor: theme.primaryColor.withOpacity(0.2),
                 child: Text(
                   _currentUserId?[0].toUpperCase() ?? '?',
-                  style: TextStyle(color: theme.primaryColor),
+                  style: TextStyle(
+                    color: theme.primaryColor,
+                    fontSize: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 12.0,
+                      tablet: 14.0,
+                      desktop: 16.0,
+                    ),
+                  ),
                 ),
               ),
             ),

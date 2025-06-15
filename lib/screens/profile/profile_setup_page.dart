@@ -6,6 +6,8 @@ import 'package:test_project/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:test_project/utils/responsive_extension.dart';
+import 'package:test_project/utils/responsive_helper.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -51,9 +53,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Error picking image: $e',
+            style: context.responsiveBodyMedium,
+          ),
+        ),
+      );
     }
   }
 
@@ -140,29 +147,47 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 icon: Icon(
                   Icons.menu,
                   color: theme.primaryColor,
-                ), // Use primaryColor
+                  size: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 24.0,
+                    tablet: 26.0,
+                    desktop: 28.0,
+                  ),
+                ),
                 onPressed: () {
                   Scaffold.of(context).openDrawer();
                 },
               ),
         ),
       ),
-      // drawer: CustomSidebar(
-      //   userName: _nameController.text.isEmpty ? "User" : _nameController.text,
-      // ),
       body:
           _isLoading
-              ? const Center(
+              ? Center(
                 child: SpinKitDoubleBounce(
-                  color: Color(0xFF0A2D7B),
-                  size: 40.0,
+                  color: const Color(0xFF0A2D7B),
+                  size: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 40.0,
+                    tablet: 50.0,
+                    desktop: 60.0,
+                  ),
                 ),
               )
               : SafeArea(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 20,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 24.0,
+                      tablet: 32.0,
+                      desktop: 40.0,
+                    ),
+                    vertical: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 20.0,
+                      tablet: 24.0,
+                      desktop: 28.0,
+                    ),
                   ),
                   child: Form(
                     key: _formKey,
@@ -172,20 +197,32 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         // Title
                         Text(
                           'Profile Setup',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black, // Match LoginScreen
+                          style: context.responsiveHeadlineMedium.copyWith(
+                            color: Colors.black,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 8.0,
+                            tablet: 10.0,
+                            desktop: 12.0,
+                          ),
+                        ),
                         Text(
                           'Complete your profile to get started.',
-                          style: TextStyle(
+                          style: context.responsiveBodyMedium.copyWith(
                             color: Colors.grey[700],
-                          ), // Match LoginScreen
+                          ),
                         ),
-                        const SizedBox(height: 32),
+                        SizedBox(
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 32.0,
+                            tablet: 36.0,
+                            desktop: 40.0,
+                          ),
+                        ),
 
                         // Image picker
                         Center(
@@ -195,26 +232,42 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                               GestureDetector(
                                 onTap: _isUploading ? null : _pickImage,
                                 child: Container(
-                                  width: 120,
-                                  height: 120,
+                                  width: ResponsiveHelper.getValue(
+                                    context,
+                                    mobile: 120.0,
+                                    tablet: 140.0,
+                                    desktop: 160.0,
+                                  ),
+                                  height: ResponsiveHelper.getValue(
+                                    context,
+                                    mobile: 120.0,
+                                    tablet: 140.0,
+                                    desktop: 160.0,
+                                  ),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color:
-                                        Colors
-                                            .grey[100], // Match LoginScreen field fill
+                                    color: Colors.grey[100],
                                     border: Border.all(
-                                      color:
-                                          theme
-                                              .primaryColor, // Match LoginScreen
-                                      width: 1,
+                                      color: theme.primaryColor,
+                                      width: ResponsiveHelper.getValue(
+                                        context,
+                                        mobile: 1.0,
+                                        tablet: 1.5,
+                                        desktop: 2.0,
+                                      ),
                                     ),
                                   ),
                                   child:
                                       _isUploading
                                           ? Center(
                                             child: SpinKitDoubleBounce(
-                                              color: Color(0xFF0A2D7B),
-                                              size: 40.0,
+                                              color: const Color(0xFF0A2D7B),
+                                              size: ResponsiveHelper.getValue(
+                                                context,
+                                                mobile: 30.0,
+                                                tablet: 35.0,
+                                                desktop: 40.0,
+                                              ),
                                             ),
                                           )
                                           : ClipOval(
@@ -222,14 +275,38 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                                 _imageFile != null
                                                     ? Image.file(
                                                       _imageFile!,
-                                                      width: 120,
-                                                      height: 120,
+                                                      width:
+                                                          ResponsiveHelper.getValue(
+                                                            context,
+                                                            mobile: 120.0,
+                                                            tablet: 140.0,
+                                                            desktop: 160.0,
+                                                          ),
+                                                      height:
+                                                          ResponsiveHelper.getValue(
+                                                            context,
+                                                            mobile: 120.0,
+                                                            tablet: 140.0,
+                                                            desktop: 160.0,
+                                                          ),
                                                       fit: BoxFit.cover,
                                                     )
                                                     : Image.asset(
                                                       'assets/images/Avatar.png',
-                                                      width: 120,
-                                                      height: 120,
+                                                      width:
+                                                          ResponsiveHelper.getValue(
+                                                            context,
+                                                            mobile: 120.0,
+                                                            tablet: 140.0,
+                                                            desktop: 160.0,
+                                                          ),
+                                                      height:
+                                                          ResponsiveHelper.getValue(
+                                                            context,
+                                                            mobile: 120.0,
+                                                            tablet: 140.0,
+                                                            desktop: 160.0,
+                                                          ),
                                                       fit: BoxFit.cover,
                                                     ),
                                           ),
@@ -237,20 +314,29 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  color:
-                                      theme.primaryColor, // Match LoginScreen
+                                  color: theme.primaryColor,
                                   shape: BoxShape.circle,
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: EdgeInsets.all(
+                                    ResponsiveHelper.getValue(
+                                      context,
+                                      mobile: 8.0,
+                                      tablet: 10.0,
+                                      desktop: 12.0,
+                                    ),
+                                  ),
                                   child: Icon(
                                     _isUploading
                                         ? Icons.hourglass_top
                                         : Icons.camera_alt,
-                                    color:
-                                        Colors
-                                            .white, // Match LoginScreen button text
-                                    size: 20,
+                                    color: Colors.white,
+                                    size: ResponsiveHelper.getValue(
+                                      context,
+                                      mobile: 20.0,
+                                      tablet: 22.0,
+                                      desktop: 24.0,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -260,46 +346,78 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         if (_uploadedImageUrl != null)
                           Center(
                             child: Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
+                              padding: EdgeInsets.only(
+                                top: ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 8.0,
+                                  tablet: 10.0,
+                                  desktop: 12.0,
+                                ),
+                              ),
                               child: Text(
                                 'Image uploaded successfully!',
-                                style: TextStyle(
+                                style: context.responsiveBodyMedium.copyWith(
                                   color: Colors.green,
-                                  fontSize: 12,
                                 ),
                               ),
                             ),
                           ),
-                        const SizedBox(height: 24),
+                        SizedBox(
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 24.0,
+                            tablet: 28.0,
+                            desktop: 32.0,
+                          ),
+                        ),
 
                         // Name input
                         Text(
                           'Your Name',
-                          style: TextStyle(
+                          style: context.responsiveBodyLarge.copyWith(
                             color: theme.primaryColor,
-                          ), // Match LoginScreen
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 8.0,
+                            tablet: 10.0,
+                            desktop: 12.0,
+                          ),
+                        ),
                         TextFormField(
                           controller: _nameController,
-                          style: TextStyle(
+                          style: context.responsiveBodyLarge.copyWith(
                             color: theme.primaryColor,
-                          ), // Match LoginScreen
+                          ),
                           decoration: InputDecoration(
                             hintText: 'Enter your name',
-                            hintStyle: TextStyle(
+                            hintStyle: context.responsiveBodyMedium.copyWith(
                               color: theme.primaryColor,
-                            ), // Match LoginScreen
+                            ),
                             filled: true,
-                            fillColor: Colors.grey[100], // Match LoginScreen
+                            fillColor: Colors.grey[100],
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: theme.primaryColor,
-                              ), // Match LoginScreen
+                              borderRadius: BorderRadius.circular(
+                                ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 12.0,
+                                  tablet: 14.0,
+                                  desktop: 16.0,
+                                ),
+                              ),
+                              borderSide: BorderSide(color: theme.primaryColor),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(
+                                ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 12.0,
+                                  tablet: 14.0,
+                                  desktop: 16.0,
+                                ),
+                              ),
                               borderSide: BorderSide(
                                 color: theme.primaryColor,
                                 width: 2,
@@ -313,50 +431,75 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 24.0,
+                            tablet: 28.0,
+                            desktop: 32.0,
+                          ),
+                        ),
 
                         // Weight input with unit toggle
                         Text(
                           'Weight',
-                          style: TextStyle(
+                          style: context.responsiveBodyLarge.copyWith(
                             color: theme.primaryColor,
-                          ), // Match LoginScreen
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 8.0,
+                            tablet: 10.0,
+                            desktop: 12.0,
+                          ),
+                        ),
                         Row(
                           children: [
                             Expanded(
                               child: TextFormField(
                                 controller: _weightController,
-                                style: TextStyle(
+                                style: context.responsiveBodyLarge.copyWith(
                                   color: theme.primaryColor,
-                                ), // Match LoginScreen
+                                ),
                                 keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
                                   hintText: 'Enter your weight',
-                                  hintStyle: TextStyle(
-                                    color: theme.primaryColor,
-                                  ), // Match LoginScreen
+                                  hintStyle: context.responsiveBodyMedium
+                                      .copyWith(color: theme.primaryColor),
                                   filled: true,
-                                  fillColor:
-                                      Colors.grey[100], // Match LoginScreen
+                                  fillColor: Colors.grey[100],
                                   enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(
+                                      ResponsiveHelper.getValue(
+                                        context,
+                                        mobile: 12.0,
+                                        tablet: 14.0,
+                                        desktop: 16.0,
+                                      ),
+                                    ),
                                     borderSide: BorderSide(
                                       color: theme.primaryColor,
                                     ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(
+                                      ResponsiveHelper.getValue(
+                                        context,
+                                        mobile: 12.0,
+                                        tablet: 14.0,
+                                        desktop: 16.0,
+                                      ),
+                                    ),
                                     borderSide: BorderSide(
                                       color: theme.primaryColor,
                                       width: 2,
                                     ),
                                   ),
                                   suffixText: 'kg',
-                                  suffixStyle: TextStyle(
-                                    color: theme.primaryColor,
-                                  ), // Match LoginScreen
+                                  suffixStyle: context.responsiveBodyMedium
+                                      .copyWith(color: theme.primaryColor),
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -371,44 +514,72 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 24.0,
+                            tablet: 28.0,
+                            desktop: 32.0,
+                          ),
+                        ),
 
                         // Height input
                         Text(
                           'Height (cm)',
-                          style: TextStyle(
+                          style: context.responsiveBodyLarge.copyWith(
                             color: theme.primaryColor,
-                          ), // Match LoginScreen
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 8.0,
+                            tablet: 10.0,
+                            desktop: 12.0,
+                          ),
+                        ),
                         TextFormField(
                           controller: _heightController,
-                          style: TextStyle(
+                          style: context.responsiveBodyLarge.copyWith(
                             color: theme.primaryColor,
-                          ), // Match LoginScreen
+                          ),
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             hintText: 'Enter your height',
-                            hintStyle: TextStyle(
+                            hintStyle: context.responsiveBodyMedium.copyWith(
                               color: theme.primaryColor,
-                            ), // Match LoginScreen
+                            ),
                             filled: true,
-                            fillColor: Colors.grey[100], // Match LoginScreen
+                            fillColor: Colors.grey[100],
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(
+                                ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 12.0,
+                                  tablet: 14.0,
+                                  desktop: 16.0,
+                                ),
+                              ),
                               borderSide: BorderSide(color: theme.primaryColor),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(
+                                ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 12.0,
+                                  tablet: 14.0,
+                                  desktop: 16.0,
+                                ),
+                              ),
                               borderSide: BorderSide(
                                 color: theme.primaryColor,
                                 width: 2,
                               ),
                             ),
                             suffixText: 'cm',
-                            suffixStyle: TextStyle(
+                            suffixStyle: context.responsiveBodyMedium.copyWith(
                               color: theme.primaryColor,
-                            ), // Match LoginScreen
+                            ),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -420,31 +591,59 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 24.0,
+                            tablet: 28.0,
+                            desktop: 32.0,
+                          ),
+                        ),
 
                         // Gender dropdown
                         Text(
                           'Gender',
-                          style: TextStyle(
+                          style: context.responsiveBodyLarge.copyWith(
                             color: theme.primaryColor,
-                          ), // Match LoginScreen
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 8.0,
+                            tablet: 10.0,
+                            desktop: 12.0,
+                          ),
+                        ),
                         DropdownButtonFormField<String>(
                           value: _selectedGender,
                           decoration: InputDecoration(
                             hintText: 'Select gender',
-                            hintStyle: TextStyle(
+                            hintStyle: context.responsiveBodyMedium.copyWith(
                               color: theme.primaryColor,
-                            ), // Match LoginScreen
+                            ),
                             filled: true,
-                            fillColor: Colors.grey[100], // Match LoginScreen
+                            fillColor: Colors.grey[100],
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(
+                                ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 12.0,
+                                  tablet: 14.0,
+                                  desktop: 16.0,
+                                ),
+                              ),
                               borderSide: BorderSide(color: theme.primaryColor),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(
+                                ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 12.0,
+                                  tablet: 14.0,
+                                  desktop: 16.0,
+                                ),
+                              ),
                               borderSide: BorderSide(
                                 color: theme.primaryColor,
                                 width: 2,
@@ -458,9 +657,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                       value: gender,
                                       child: Text(
                                         gender,
-                                        style: TextStyle(
-                                          color: theme.primaryColor,
-                                        ), // Match LoginScreen
+                                        style: context.responsiveBodyLarge
+                                            .copyWith(
+                                              color: theme.primaryColor,
+                                            ),
                                       ),
                                     ),
                                   )
@@ -470,12 +670,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                               _selectedGender = value;
                             });
                           },
-                          style: TextStyle(
+                          style: context.responsiveBodyLarge.copyWith(
                             color: theme.primaryColor,
-                          ), // Match LoginScreen
-                          dropdownColor: Colors.grey[100], // Match LoginScreen
-                          iconEnabledColor:
-                              theme.primaryColor, // Match LoginScreen
+                          ),
+                          dropdownColor: Colors.grey[100],
+                          iconEnabledColor: theme.primaryColor,
                           validator: (value) {
                             if (value == null) {
                               return 'Please select your gender';
@@ -483,34 +682,62 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 24.0,
+                            tablet: 28.0,
+                            desktop: 32.0,
+                          ),
+                        ),
 
                         // Date of birth
                         Text(
                           'Date of Birth',
-                          style: TextStyle(
+                          style: context.responsiveBodyLarge.copyWith(
                             color: theme.primaryColor,
-                          ), // Match LoginScreen
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 8.0,
+                            tablet: 10.0,
+                            desktop: 12.0,
+                          ),
+                        ),
                         InkWell(
                           onTap: () => _selectDate(context),
                           child: InputDecorator(
                             decoration: InputDecoration(
                               hintText: 'Select date',
-                              hintStyle: TextStyle(
+                              hintStyle: context.responsiveBodyMedium.copyWith(
                                 color: theme.primaryColor,
-                              ), // Match LoginScreen
+                              ),
                               filled: true,
-                              fillColor: Colors.grey[100], // Match LoginScreen
+                              fillColor: Colors.grey[100],
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(
+                                  ResponsiveHelper.getValue(
+                                    context,
+                                    mobile: 12.0,
+                                    tablet: 14.0,
+                                    desktop: 16.0,
+                                  ),
+                                ),
                                 borderSide: BorderSide(
                                   color: theme.primaryColor,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(
+                                  ResponsiveHelper.getValue(
+                                    context,
+                                    mobile: 12.0,
+                                    tablet: 14.0,
+                                    desktop: 16.0,
+                                  ),
+                                ),
                                 borderSide: BorderSide(
                                   color: theme.primaryColor,
                                   width: 2,
@@ -523,28 +750,46 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                   : DateFormat(
                                     'yyyy-MM-dd',
                                   ).format(_selectedDate!),
-                              style: TextStyle(
+                              style: context.responsiveBodyLarge.copyWith(
                                 color: theme.primaryColor,
-                              ), // Match LoginScreen
+                              ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 24.0,
+                            tablet: 28.0,
+                            desktop: 32.0,
+                          ),
+                        ),
 
                         // Continue button
                         SizedBox(
                           width: double.infinity,
-                          height: 50, // Match LoginScreen button height
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 50.0,
+                            tablet: 55.0,
+                            desktop: 60.0,
+                          ),
                           child: ElevatedButton(
                             onPressed:
                                 (_isLoading || _isUploading)
                                     ? null
                                     : _handleContinue,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  theme.primaryColor, // Match LoginScreen
+                              backgroundColor: theme.primaryColor,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(
+                                  ResponsiveHelper.getValue(
+                                    context,
+                                    mobile: 12.0,
+                                    tablet: 14.0,
+                                    desktop: 16.0,
+                                  ),
+                                ),
                               ),
                               disabledBackgroundColor: theme.primaryColor
                                   .withOpacity(0.5),
@@ -553,20 +798,31 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                 _isLoading
                                     ? SpinKitDoubleBounce(
                                       color: theme.primaryColor,
-                                      size: 40.0,
-                                    )
-                                    : const Text(
-                                      'Continue',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color:
-                                            Colors.white, // Match LoginScreen
-                                        fontWeight: FontWeight.bold,
+                                      size: ResponsiveHelper.getValue(
+                                        context,
+                                        mobile: 30.0,
+                                        tablet: 35.0,
+                                        desktop: 40.0,
                                       ),
+                                    )
+                                    : Text(
+                                      'Continue',
+                                      style: context.responsiveBodyLarge
+                                          .copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                     ),
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(
+                          height: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 24.0,
+                            tablet: 28.0,
+                            desktop: 32.0,
+                          ),
+                        ),
                       ],
                     ),
                   ),
