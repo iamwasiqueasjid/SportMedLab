@@ -63,6 +63,11 @@ dependencies:
   dart_quill_delta: ^10.8.3
   shared_preferences: ^2.5.3
   youtube_player_flutter: ^9.1.1
+  flutter_tts: ^4.2.3
+
+
+
+
 
 
 flutter_launcher_icons:

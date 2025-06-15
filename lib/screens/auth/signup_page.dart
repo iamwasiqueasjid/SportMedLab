@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:test_project/services/auth/auth_service.dart';
-import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/utils/responsive_extension.dart';
 import 'package:test_project/utils/responsive_helper.dart';
 import 'package:test_project/utils/responsive_widget.dart';
-import 'package:test_project/widgets/app_message_notifier.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});

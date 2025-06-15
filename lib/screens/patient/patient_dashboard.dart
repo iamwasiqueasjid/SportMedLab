@@ -1,4 +1,5 @@
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:test_project/screens/profile/edit_profile.dart';
 import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/utils/responsive_extension.dart';
@@ -6,6 +7,7 @@ import 'package:test_project/utils/responsive_helper.dart';
 import 'package:test_project/utils/responsive_widget.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:test_project/workout_pose/exercise_selection_screen.dart';
 
 class PatientDashboard extends StatefulWidget {
   const PatientDashboard({super.key});
@@ -49,6 +51,7 @@ class PatientDashboardState extends State<PatientDashboard> {
       appBar: AppBar(
         backgroundColor: theme.primaryColor,
         elevation: 0,
+        automaticallyImplyLeading: false, // Remove the back button
         title: Text(
           'Patient Dashboard',
           style: context.responsiveTitleLarge.copyWith(color: Colors.white),
@@ -107,22 +110,14 @@ class PatientDashboardState extends State<PatientDashboard> {
   }
 
   Widget _buildMobileLayout(BuildContext context, ThemeData theme) {
-    return Column(
-      children: [
-        _buildHeader(context, theme),
-        Expanded(child: _buildPlanTabs(context, theme)),
-      ],
-    );
+    return Column(children: [Expanded(child: _buildPlanTabs(context, theme))]);
   }
 
   Widget _buildTabletLayout(BuildContext context, ThemeData theme) {
     return Padding(
       padding: context.horizontalPadding,
       child: Column(
-        children: [
-          _buildHeader(context, theme),
-          Expanded(child: _buildPlanTabs(context, theme)),
-        ],
+        children: [Expanded(child: _buildPlanTabs(context, theme))],
       ),
     );
   }
@@ -133,10 +128,7 @@ class PatientDashboardState extends State<PatientDashboard> {
         constraints: const BoxConstraints(maxWidth: 1200),
         padding: context.allPadding,
         child: Column(
-          children: [
-            _buildHeader(context, theme),
-            Expanded(child: _buildPlanTabs(context, theme)),
-          ],
+          children: [Expanded(child: _buildPlanTabs(context, theme))],
         ),
       ),
     );
@@ -193,20 +185,15 @@ class PatientDashboardState extends State<PatientDashboard> {
           Expanded(
             child: TabBarView(
               children: [
-                _buildAvailablePlans(context, theme),
-                _buildEnrolledPlans(context, theme),
+                _buildCoursesTabs(),
                 Center(
-                  child: Text(
-                    'Workout Plans',
-                    style: context.responsiveTitleLarge,
-                  ),
+                  child: Text('Blogs', style: context.responsiveTitleLarge),
                 ),
+                ExerciseSelectionWidget(),
                 Center(
                   child: Text('Chats', style: context.responsiveTitleLarge),
                 ),
-                Center(
-                  child: Text('Profile', style: context.responsiveTitleLarge),
-                ),
+                ProfileWidget(),
               ],
             ),
           ),
@@ -363,6 +350,35 @@ class PatientDashboardState extends State<PatientDashboard> {
         final plan = plans[index];
         return _buildPlanCard(context, theme, plan);
       },
+    );
+  }
+
+  Widget _buildCoursesTabs() {
+    final theme = Theme.of(context);
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          _buildHeader(context, theme),
+          TabBar(
+            labelColor: theme.primaryColor, // Match LoginScreen
+            unselectedLabelColor: Colors.grey[600], // Match LoginScreen
+            indicatorColor: theme.primaryColor, // Match LoginScreen
+            tabs: [
+              Tab(text: 'Available Plans'),
+              Tab(text: 'My Enrolled Plans'),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              children: [
+                _buildAvailablePlans(context, theme),
+                _buildEnrolledPlans(context, theme),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -441,7 +441,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
 
   Widget _buildPlanTabs(BuildContext context, ThemeData theme, Widget child) {
     return DefaultTabController(
-      length: 5,
+      length: 4,
       child: Column(
         children: [
           Expanded(
@@ -451,12 +451,6 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                 // Dashboard/Courses tab
                 Center(
                   child: Text('Blogs', style: context.responsiveTitleLarge),
-                ),
-                Center(
-                  child: Text(
-                    'Workout Plans',
-                    style: context.responsiveTitleLarge,
-                  ),
                 ),
                 Center(
                   child: Text('Chats', style: context.responsiveTitleLarge),
@@ -537,18 +531,6 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                     ),
                   ),
                   text: 'Blogs',
-                ),
-                Tab(
-                  icon: Icon(
-                    Icons.fitness_center_outlined,
-                    size: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 20.0,
-                      tablet: 22.0,
-                      desktop: 24.0,
-                    ),
-                  ),
-                  text: 'Workout',
                 ),
                 Tab(
                   icon: Icon(

@@ -4,18 +4,17 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
-import 'package:test_project/services/auth/auth_service.dart';
 
 class CameraView extends StatefulWidget {
-  const CameraView({
-    super.key,
+  CameraView({
+    Key? key,
     required this.customPaint,
     required this.onImage,
     this.onCameraFeedReady,
     this.onDetectorViewModeChanged,
     this.onCameraLensDirectionChanged,
-    this.initialCameraLensDirection = CameraLensDirection.back,
-  });
+    this.initialCameraLensDirection = CameraLensDirection.front,
+  }) : super(key: key);
 
   final CustomPaint? customPaint;
   final Function(InputImage inputImage) onImage;
@@ -29,7 +28,6 @@ class CameraView extends StatefulWidget {
 }
 
 class _CameraViewState extends State<CameraView> {
-  final AuthService authService = AuthService();
   static List<CameraDescription> _cameras = [];
   CameraController? _controller;
   int _cameraIndex = -1;
@@ -107,17 +105,7 @@ class _CameraViewState extends State<CameraView> {
       width: 50.0,
       child: FloatingActionButton(
         heroTag: Object(),
-        onPressed:
-            () =>
-            // Navigator.of(context).pop()
-            {
-              authService.getUserRole().then((role) {
-                final targetRoute =
-                    role == 'Doctor' ? '/doctorDashboard' : '/patientDashboard';
-
-                Navigator.pushReplacementNamed(context, targetRoute);
-              }),
-            },
+        onPressed: () => Navigator.of(context).pop(),
         backgroundColor: Colors.black54,
         child: Icon(Icons.arrow_back_ios_outlined, size: 20),
       ),

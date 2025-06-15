@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 
 import 'camera_view.dart';
-// import 'gallery_view.dart';
 
 enum DetectorViewMode { liveFeed, gallery }
 
 class DetectorView extends StatefulWidget {
-  const DetectorView({
-    super.key,
+  DetectorView({
+    Key? key,
     required this.title,
     required this.onImage,
     this.customPaint,
@@ -19,7 +18,7 @@ class DetectorView extends StatefulWidget {
     this.onCameraFeedReady,
     this.onDetectorViewModeChanged,
     this.onCameraLensDirectionChanged,
-  });
+  }) : super(key: key);
 
   final String title;
   final CustomPaint? customPaint;
