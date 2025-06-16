@@ -5,7 +5,7 @@ import 'package:test_project/services/blog/blog_service.dart';
 import 'package:test_project/utils/blogs/constants.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
-import '../../../utils/blogs/content_formatter.dart';
+import '../../../services/blog/content_formatter.dart';
 import '../../../services/blog/metadata_service.dart';
 import 'blog_upload_widgets.dart';
 import 'blog_preview.dart';
