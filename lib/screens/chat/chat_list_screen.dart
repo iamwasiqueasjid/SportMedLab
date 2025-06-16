@@ -136,7 +136,6 @@ class _ChatListWidgetState extends State<ChatListWidget> {
               desktop: 24.0,
             ),
           ),
-
           Expanded(
             child:
                 _currentUserId == null
@@ -250,6 +249,7 @@ class _ChatListWidgetState extends State<ChatListWidget> {
         }
         final userDetails = snapshot.data!;
         final displayName = userDetails['displayName'] ?? 'Unknown';
+        final photoURL = userDetails['photoURL'] as String?;
         final lastMessage = chat['lastMessage'] ?? '';
         final lastMessageTimestamp = chat['lastMessageTimestamp'] as DateTime?;
         final formattedTime =
@@ -266,7 +266,7 @@ class _ChatListWidgetState extends State<ChatListWidget> {
               desktop: 16.0,
             ),
           ),
-          color: Colors.white, // Set background color to white
+          color: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(
               ResponsiveHelper.getValue(
@@ -276,10 +276,7 @@ class _ChatListWidgetState extends State<ChatListWidget> {
                 desktop: 16.0,
               ),
             ),
-            side: BorderSide(
-              color: theme.primaryColor, // Set border color to blue
-              width: 1.0,
-            ),
+            side: BorderSide(color: theme.primaryColor, width: 1.0),
           ),
           elevation: ResponsiveHelper.getValue(
             context,
@@ -304,24 +301,33 @@ class _ChatListWidgetState extends State<ChatListWidget> {
                 desktop: 24.0,
               ),
               backgroundColor: theme.primaryColor.withOpacity(0.2),
-              child: Text(
-                displayName[0].toUpperCase(),
-                style: TextStyle(
-                  color: theme.primaryColor,
-                  fontSize: ResponsiveHelper.getValue(
-                    context,
-                    mobile: 16.0,
-                    tablet: 18.0,
-                    desktop: 20.0,
-                  ),
-                ),
-              ),
+              backgroundImage:
+                  photoURL != null && photoURL.isNotEmpty
+                      ? NetworkImage(photoURL)
+                      : null,
+              child:
+                  photoURL == null || photoURL.isEmpty
+                      ? Text(
+                        displayName.isNotEmpty
+                            ? displayName[0].toUpperCase()
+                            : '?',
+                        style: TextStyle(
+                          color: theme.primaryColor,
+                          fontSize: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 16.0,
+                            tablet: 18.0,
+                            desktop: 20.0,
+                          ),
+                        ),
+                      )
+                      : null,
             ),
             title: Text(
               displayName,
               style: context.responsiveBodyLarge.copyWith(
                 fontWeight: FontWeight.bold,
-                color: theme.primaryColor, // Set title color to white
+                color: theme.primaryColor,
               ),
             ),
             subtitle: Text(
@@ -329,7 +335,7 @@ class _ChatListWidgetState extends State<ChatListWidget> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: context.responsiveBodyMedium.copyWith(
-                color: theme.primaryColor, // Set recent text color to white
+                color: theme.primaryColor,
               ),
             ),
             trailing: Text(

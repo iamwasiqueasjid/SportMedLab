@@ -67,23 +67,25 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   Future<void> _loadData() async {
     try {
       final userData = await _authService.fetchUserData();
-      if (userData != null) {
-        // Fetch other user's profile data
-        final otherUserData = await _authService.fetchUserData(
-          // widget.arguments?['otherUserId'] ?? ''
-        );
+      final otherUserData = await _databaseService.fetchUserDetails(
+        widget.arguments?['otherUserId'] ?? '',
+      );
 
+      if (userData != null && otherUserData != null) {
         setState(() {
           _currentUserId = userData.uid;
           _currentUserProfilePic = userData.photoURL;
-          _otherUserId =
-              widget.arguments?['otherUserId'] ?? _retryLoadArguments();
-          _chatId = widget.arguments?['chatId'] ?? _retryLoadArguments();
+          _otherUserId = widget.arguments?['otherUserId'];
+          _chatId = widget.arguments?['chatId'];
           _otherUserName = widget.arguments?['otherUserName'] ?? 'Unknown';
-          _otherUserProfilePic = otherUserData?.photoURL;
+          _otherUserProfilePic = otherUserData['photoURL'] as String?;
           _isLoading = false;
         });
         _animationController.forward();
+        await _databaseService.markMessagesAsRead(
+          chatId: _chatId!,
+          userId: _currentUserId!,
+        );
       } else {
         setState(() => _isLoading = false);
         AppNotifier.show(
@@ -151,7 +153,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       appBar: _buildFuturisticAppBar(theme),
       body:
           _isLoading
-              ? _buildLoadingIndicator()
+              ? _buildLoadingIndicator(theme)
               : _currentUserId == null || _chatId == null
               ? _buildErrorState()
               : FadeTransition(
@@ -203,7 +205,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       ),
       title: Row(
         children: [
-          _buildProfileAvatar(_otherUserProfilePic, _otherUserName, 20),
+          _buildProfileAvatar(_otherUserProfilePic, _otherUserName, 20, theme),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -211,17 +213,17 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               children: [
                 Text(
                   _otherUserName ?? 'Chat',
-                  // style: context.responsiveTitleMedium.copyWith(
-                  //   color: Colors.white,
-                  //   fontWeight: FontWeight.bold,
-                  // ),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Text(
                   'Online',
-                  // style: context.responsiveBodySmall.copyWith(
-                  //   color: const Color(0xFF00FF88),
-                  //   fontSize: 12,
-                  // ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: theme.primaryColor,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
@@ -229,14 +231,18 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         ],
       ),
       actions: [
-        _buildActionButton(Icons.videocam, () {}),
-        _buildActionButton(Icons.call, () {}),
-        _buildActionButton(Icons.more_vert, () {}),
+        _buildActionButton(Icons.videocam, () {}, theme),
+        _buildActionButton(Icons.call, () {}, theme),
+        _buildActionButton(Icons.more_vert, () {}, theme),
       ],
     );
   }
 
-  Widget _buildActionButton(IconData icon, VoidCallback onPressed) {
+  Widget _buildActionButton(
+    IconData icon,
+    VoidCallback onPressed,
+    ThemeData theme,
+  ) {
     return Container(
       margin: const EdgeInsets.only(right: 8),
       child: IconButton(
@@ -246,6 +252,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             color: Colors.white.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.white.withOpacity(0.2)),
+            boxShadow: [
+              BoxShadow(
+                color: theme.primaryColor.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Icon(icon, color: Colors.white, size: 20),
         ),
@@ -254,7 +267,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildLoadingIndicator() {
+  Widget _buildLoadingIndicator(ThemeData theme) {
     return Container(
       decoration: const BoxDecoration(
         gradient: RadialGradient(
@@ -267,7 +280,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SpinKitPulse(
-              color: const Color(0xFF00FF88),
+              color: theme.primaryColor,
               size: ResponsiveHelper.getValue(
                 context,
                 mobile: 60.0,
@@ -329,14 +342,14 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       ),
       child: Column(
         children: [
-          Expanded(child: _buildMessagesList()),
+          Expanded(child: _buildMessagesList(theme)),
           _buildMessageInput(theme),
         ],
       ),
     );
   }
 
-  Widget _buildMessagesList() {
+  Widget _buildMessagesList(ThemeData theme) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8),
       child: StreamBuilder<List<Map<String, dynamic>>>(
@@ -345,7 +358,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: SpinKitThreeBounce(
-                color: const Color(0xFF00FF88),
+                color: theme.primaryColor,
                 size: ResponsiveHelper.getValue(
                   context,
                   mobile: 30.0,
@@ -373,7 +386,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             itemBuilder: (context, index) {
               final message = messages[index];
               final isSentByMe = message['senderId'] == _currentUserId;
-              return _buildFuturisticMessageBubble(message, isSentByMe);
+              return _buildFuturisticMessageBubble(message, isSentByMe, theme);
             },
           );
         },
@@ -384,6 +397,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   Widget _buildFuturisticMessageBubble(
     Map<String, dynamic> message,
     bool isSentByMe,
+    ThemeData theme,
   ) {
     final timestamp = message['timestamp'] as DateTime?;
     final formattedTime =
@@ -397,7 +411,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isSentByMe) ...[
-            _buildProfileAvatar(_otherUserProfilePic, _otherUserName, 16),
+            _buildProfileAvatar(
+              _otherUserProfilePic,
+              _otherUserName,
+              16,
+              theme,
+            ),
             const SizedBox(width: 8),
           ],
           Flexible(
@@ -419,8 +438,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     decoration: BoxDecoration(
                       gradient:
                           isSentByMe
-                              ? const LinearGradient(
-                                colors: [Color(0xFF00FF88), Color(0xFF00CC6A)],
+                              ? LinearGradient(
+                                colors: [
+                                  theme.primaryColor,
+                                  theme.primaryColor.withOpacity(0.8),
+                                ],
                               )
                               : LinearGradient(
                                 colors: [Colors.grey[800]!, Colors.grey[700]!],
@@ -434,7 +456,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       boxShadow: [
                         BoxShadow(
                           color: (isSentByMe
-                                  ? const Color(0xFF00FF88)
+                                  ? theme.primaryColor
                                   : Colors.grey[600]!)
                               .withOpacity(0.3),
                           blurRadius: 8,
@@ -445,7 +467,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     child: Text(
                       message['message'],
                       style: TextStyle(
-                        color: isSentByMe ? Colors.black87 : Colors.white,
+                        color: isSentByMe ? Colors.white : Colors.white,
                         fontSize: ResponsiveHelper.getValue(
                           context,
                           mobile: 14.0,
@@ -474,7 +496,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           ),
           if (isSentByMe) ...[
             const SizedBox(width: 8),
-            _buildProfileAvatar(_currentUserProfilePic, _currentUserId, 16),
+            _buildProfileAvatar(
+              _currentUserProfilePic,
+              _currentUserId,
+              16,
+              theme,
+            ),
           ],
         ],
       ),
@@ -485,13 +512,14 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     String? imageUrl,
     String? fallbackText,
     double radius,
+    ThemeData theme,
   ) {
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00FF88).withOpacity(0.3),
+            color: theme.primaryColor.withOpacity(0.3),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -511,7 +539,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       ? fallbackText![0].toUpperCase()
                       : '?',
                   style: TextStyle(
-                    color: const Color(0xFF00FF88),
+                    color: theme.primaryColor,
                     fontSize: radius * 0.75,
                     fontWeight: FontWeight.bold,
                   ),
@@ -527,10 +555,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: const Color(0xFF1A1A2E).withOpacity(0.8),
         border: Border(
-          top: BorderSide(
-            color: const Color(0xFF00FF88).withOpacity(0.2),
-            width: 1,
-          ),
+          top: BorderSide(color: theme.primaryColor.withOpacity(0.2), width: 1),
         ),
       ),
       child: Row(
@@ -543,7 +568,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 border: Border.all(
                   color:
                       _isTyping
-                          ? const Color(0xFF00FF88).withOpacity(0.5)
+                          ? theme.primaryColor.withOpacity(0.5)
                           : Colors.grey.withOpacity(0.3),
                   width: 1.5,
                 ),
@@ -551,7 +576,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   BoxShadow(
                     color:
                         _isTyping
-                            ? const Color(0xFF00FF88).withOpacity(0.2)
+                            ? theme.primaryColor.withOpacity(0.2)
                             : Colors.black.withOpacity(0.1),
                     blurRadius: _isTyping ? 10 : 5,
                     offset: const Offset(0, 2),
@@ -581,13 +606,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           const SizedBox(width: 12),
           Container(
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF00FF88), Color(0xFF00CC6A)],
+              gradient: LinearGradient(
+                colors: [
+                  theme.primaryColor,
+                  theme.primaryColor.withOpacity(0.8),
+                ],
               ),
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF00FF88).withOpacity(0.4),
+                  color: theme.primaryColor.withOpacity(0.4),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -597,7 +625,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               onPressed: _sendMessage,
               icon: const Icon(
                 Icons.send_rounded,
-                color: Colors.black87,
+                color: Colors.white,
                 size: 24,
               ),
               padding: const EdgeInsets.all(12),
