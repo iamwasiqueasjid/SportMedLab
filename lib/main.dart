@@ -14,7 +14,7 @@ import 'package:test_project/screens/auth/login_page.dart';
 import 'package:test_project/screens/auth/signup_page.dart';
 import 'package:test_project/screens/chat/chat_screen.dart';
 import 'package:test_project/screens/doctor/doctor_dashboard.dart';
-import 'package:test_project/screens/patient/blog/view_blog.dart';
+import 'package:test_project/screens/blogs/view_blog.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:test_project/theme/app_theme.dart' show lightTheme, darkTheme;
 import 'package:flutter_spinkit/flutter_spinkit.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../services/blog/blog_service.dart';
+import '../../services/blog/blog_service.dart';
 import 'view_blog.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 

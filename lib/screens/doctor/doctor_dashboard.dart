@@ -1,7 +1,8 @@
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/models/course.dart';
+import 'package:test_project/screens/blogs/blog_list.dart';
 import 'package:test_project/screens/chat/chat_list_screen.dart';
-import 'package:test_project/screens/doctor/blog/blog_upload.dart';
+import 'package:test_project/screens/blogs/doctor_side/blog_upload.dart';
 import 'package:test_project/screens/courses/course_lesson_screen.dart';
 import 'package:test_project/screens/profile/edit_profile.dart';
 import 'package:test_project/services/database_service.dart';
@@ -457,7 +458,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
           Expanded(
             child: TabBarView(
               children: [
-                Text("Blogs content here"), // Placeholder for Blogs tab
+                             BlogList(),
                 AdvancedBlogEditorWidget(),
               ],
             ),
