@@ -3,6 +3,7 @@ import 'package:test_project/models/course.dart';
 import 'package:test_project/screens/chat/chat_list_screen.dart';
 import 'package:test_project/screens/courses/course_lesson_screen.dart';
 import 'package:test_project/screens/patient/blog/patients_blog_list.dart';
+import 'package:test_project/screens/patient/blog/patients_blog_list.dart';
 import 'package:test_project/screens/profile/edit_profile.dart';
 import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/services/database_service.dart';
@@ -35,10 +36,7 @@ class PatientDashboardState extends State<PatientDashboard>
   void initState() {
     super.initState();
     _loadUserData();
-    _courseTabController = TabController(
-      length: 2,
-      vsync: this,
-    ); // Controller for Available Plans and My Enrolled Plans
+    _courseTabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -155,37 +153,55 @@ class PatientDashboardState extends State<PatientDashboard>
 
   Widget _buildHeader(BuildContext context, ThemeData theme) {
     return Container(
-      padding: EdgeInsets.all(
-        ResponsiveHelper.getValue(
+      height: ResponsiveHelper.getValue(
+        context,
+        mobile: 80.0,
+        tablet: 100.0,
+        desktop: 120.0,
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveHelper.getValue(
           context,
-          mobile: 8.0,
-          tablet: 12.0,
-          desktop: 16.0,
+          mobile: 16.0,
+          tablet: 20.0,
+          desktop: 24.0,
+        ),
+        vertical: ResponsiveHelper.getValue(
+          context,
+          mobile: 12.0,
+          tablet: 16.0,
+          desktop: 20.0,
         ),
       ),
       color: theme.primaryColor,
       child: Row(
         children: [
-          CircleAvatar(
-            radius: ResponsiveHelper.getValue(
-              context,
-              mobile: 20.0,
-              tablet: 25.0,
-              desktop: 30.0,
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 1.0),
             ),
-            backgroundImage:
-                _photoUrl != null
-                    ? NetworkImage(_photoUrl!)
-                    : const AssetImage('assets/images/avatar.png')
-                        as ImageProvider,
-            backgroundColor: Colors.grey[100],
-            onBackgroundImageError:
-                (_, __) => const Icon(Icons.person), // Fallback if asset fails
+            child: CircleAvatar(
+              radius: ResponsiveHelper.getValue(
+                context,
+                mobile: 22.0,
+                tablet: 25.0,
+                desktop: 30.0,
+              ),
+              backgroundImage:
+                  _photoUrl != null
+                      ? NetworkImage(_photoUrl!)
+                      : const AssetImage('assets/images/avatar.png')
+                          as ImageProvider,
+              backgroundColor: Colors.grey[100],
+              onBackgroundImageError: (_, __) => const Icon(Icons.person),
+            ),
           ),
           SizedBox(width: context.smallSpacing),
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'Welcome, ${_userName ?? 'Patient'}',
@@ -211,7 +227,7 @@ class PatientDashboardState extends State<PatientDashboard>
 
   Widget _buildPlanTabs(BuildContext context, ThemeData theme) {
     return DefaultTabController(
-      length: 5, // For bottom navigation tabs
+      length: 5,
       child: Column(
         children: [
           Expanded(
@@ -230,7 +246,7 @@ class PatientDashboardState extends State<PatientDashboard>
                           ),
                         );
                       },
-                      child: Text('Create Blog'),
+                      child: const Text('Create Blog'),
                     ),
                   ],
                 ),
@@ -364,7 +380,10 @@ class PatientDashboardState extends State<PatientDashboard>
           labelColor: theme.primaryColor,
           unselectedLabelColor: Colors.grey[600],
           indicatorColor: theme.primaryColor,
-          tabs: [Tab(text: 'Available Plans'), Tab(text: 'My Enrolled Plans')],
+          tabs: const [
+            Tab(text: 'Available Plans'),
+            Tab(text: 'My Enrolled Plans'),
+          ],
         ),
         Expanded(
           child: TabBarView(
@@ -381,7 +400,7 @@ class PatientDashboardState extends State<PatientDashboard>
 
   Widget _buildAvailablePlans(BuildContext context, ThemeData theme) {
     return StreamBuilder<List<Course>>(
-      stream: _databaseService.fetchAllCoursesRealTime(),
+      stream: _databaseService.fetchAvailableCoursesRealTime(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
@@ -799,15 +818,19 @@ class PatientDashboardState extends State<PatientDashboard>
                                     );
                                   }
                                   : () async {
-                                    final success = await _databaseService
-                                        .enrollInCourse(
-                                          courseId: course.id,
-                                          context: context,
-                                        );
-                                    if (success) {
-                                      _courseTabController.animateTo(
-                                        1,
-                                      ); // Switch to My Enrolled Plans
+                                    final userId =
+                                        (await _authService.fetchUserData())
+                                            ?.uid;
+                                    if (userId != null) {
+                                      final success = await _databaseService
+                                          .enrollInCourse(
+                                            courseId: course.id,
+                                            context: context,
+                                          );
+                                      if (success) {
+                                        setState(() {});
+                                        _courseTabController.animateTo(1);
+                                      }
                                     }
                                   },
                           style: ElevatedButton.styleFrom(

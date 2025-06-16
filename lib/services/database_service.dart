@@ -134,6 +134,30 @@ class DatabaseService {
     });
   }
 
+  Stream<List<Course>> fetchAvailableCoursesRealTime() {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return Stream.value([]);
+    }
+
+    return _firestore.collection('courses').snapshots().asyncMap((
+      snapshot,
+    ) async {
+      final enrolledCoursesSnapshot =
+          await _firestore
+              .collection('courses')
+              .where('enrolledStudents', arrayContains: user.uid)
+              .get();
+      final enrolledCourseIds =
+          enrolledCoursesSnapshot.docs.map((doc) => doc.id).toList();
+
+      return snapshot.docs
+          .map((doc) => Course.fromMap(doc.data(), doc.id))
+          .where((course) => !enrolledCourseIds.contains(course.id))
+          .toList();
+    });
+  }
+
   Future<Course?> getCourseById(String courseId) async {
     try {
       DocumentSnapshot doc =
