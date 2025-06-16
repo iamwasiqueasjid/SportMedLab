@@ -14,8 +14,6 @@ class BlogService {
     String? selectedCategory,
     String? extractedText,
     String? uploadedFileName,
-    // Function(String) showErrorSnackBar,
-    // Function(String) showSuccessSnackBar,
   ) async {
     final title = titleController.text.trim();
     final delta = controller.document.toDelta();
@@ -32,7 +30,6 @@ class BlogService {
         'Please enter a blog title.',
         type: MessageType.error,
       );
-      // showErrorSnackBar('Please enter a blog title.');
       return;
     }
 
@@ -42,7 +39,6 @@ class BlogService {
         'Please add content to your blog.',
         type: MessageType.error,
       );
-      // showErrorSnackBar('Please add content to your blog.');
       return;
     }
 
@@ -52,7 +48,6 @@ class BlogService {
         'Please select a category.',
         type: MessageType.error,
       );
-      // showErrorSnackBar('Please select a category.');
       return;
     }
 
@@ -81,16 +76,12 @@ class BlogService {
         'Blog published successfully with enhanced formatting!',
         type: MessageType.success,
       );
-      // showSuccessSnackBar(
-      //   'Blog published successfully with enhanced formatting!',
-      // );
     } catch (e) {
       AppNotifier.show(
         context,
         'Error publishing blog: ${e.toString()}',
         type: MessageType.error,
       );
-      // showErrorSnackBar('Error publishing blog: ${e.toString()}');
     }
   }
 

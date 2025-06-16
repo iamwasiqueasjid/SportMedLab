@@ -3,22 +3,25 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:test_project/utils/blogs/constants.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
 
 class MetadataService {
   static Future<void> generateMetadataWithAI(
+    context,
     String text,
     TextEditingController titleController,
     TextEditingController tagsController,
     List<String> suggestedTags,
     Function(String?) onCategorySelected,
-    Function(String) showSuccessSnackBar,
-    Function(String) showErrorSnackBar,
   ) async {
     final geminiApiKey = dotenv.env['GEMINI_API_KEY'];
     if (geminiApiKey == null || geminiApiKey.isEmpty) {
-      showErrorSnackBar(
+      AppNotifier.show(
+        context,
         'Gemini API key not found. Using fallback tag generation.',
-      );
+        type: MessageType.error,
+);
       generateBasicTags(text, titleController, tagsController, suggestedTags);
       return;
     }
@@ -95,10 +98,11 @@ class MetadataService {
                 )) {
               onCategorySelected(jsonData['category'].toString());
             }
-
-            showSuccessSnackBar(
+            AppNotifier.show(
+              context,
               'AI analysis complete! Enhanced metadata generated.',
-            );
+              type: MessageType.success,
+);
             return;
           }
         }

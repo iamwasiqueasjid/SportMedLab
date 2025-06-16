@@ -3,10 +3,12 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:test_project/services/blog/file_processor.dart';
 import 'package:test_project/services/blog/blog_service.dart';
 import 'package:test_project/utils/blogs/constants.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
 import '../../../utils/blogs/content_formatter.dart';
 import '../../../services/blog/metadata_service.dart';
-import '../../../utils/blogs/ui_utils.dart'; // Use alias to avoid conflicts
-import 'blog_preview_screen.dart';
+import 'blog_upload_widgets.dart';
+import 'blog_preview.dart';
 
 class AdvancedBlogEditorWidget extends StatefulWidget {
   const AdvancedBlogEditorWidget({super.key});
@@ -59,20 +61,25 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
               setState(() => _isGeneratingTags = isGenerating),
         );
         await MetadataService.generateMetadataWithAI(
+          context,
           result['extractedText'],
           _titleController,
           _tagsController,
           _suggestedTags,
           (String? category) => setState(() => _selectedCategory = category),
-          _showSuccessSnackBar,
-          _showErrorSnackBar,
         );
-        _showSuccessSnackBar(
+        AppNotifier.show(
+          context,
           'File processed successfully! Content added to editor with formatting.',
+          type: MessageType.success,
         );
       }
     } catch (e) {
-      _showErrorSnackBar('Error processing file: ${e.toString()}');
+      AppNotifier.show(
+        context,
+        'Error processing file: ${e.toString()}',
+        type: MessageType.error,
+      );
     } finally {
       setState(() => _isProcessingFile = false);
     }
@@ -80,14 +87,18 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
 
   void _previewBlog() {
     if (_titleController.text.trim().isEmpty) {
-      _showErrorSnackBar('Please enter a title before previewing.');
+      AppNotifier.show(
+        context,
+        'Please enter a title before previewing.',
+        type: MessageType.error,
+      );
       return;
     }
     Navigator.push(
       context,
       MaterialPageRoute(
         builder:
-            (context) => BlogPreviewScreen(
+            (context) => BlogPreviewPopup(
               title: _titleController.text.trim(),
               controller: _controller,
               tags:
@@ -113,12 +124,14 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
         _selectedCategory,
         _extractedText,
         _uploadedFileName,
-        // _showErrorSnackBar,
-        // _showSuccessSnackBar,
       );
       _clearForm();
     } catch (e) {
-      _showErrorSnackBar('Error publishing blog: ${e.toString()}');
+      AppNotifier.show(
+        context,
+        'Error publishing blog: ${e.toString()}',
+        type: MessageType.error,
+      );
     } finally {
       setState(() => _isPublishing = false);
     }
@@ -134,14 +147,6 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
       _extractedText = null;
       _uploadedFileName = null;
     });
-  }
-
-  void _showErrorSnackBar(String message) {
-    UIUtils.showErrorSnackBar(context, message);
-  }
-
-  void _showSuccessSnackBar(String message) {
-    UIUtils.showSuccessSnackBar(context, message);
   }
 
   @override
@@ -250,7 +255,7 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
             _buildSection(
               title: 'Document Upload',
               icon: Icons.upload_file,
-              child: UIUtils.buildFileUploadSection(
+              child: BlogUploadWidgets.buildFileUploadSection(
                 context,
                 _uploadedFileName,
                 _isProcessingFile,
@@ -266,16 +271,16 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
               icon: Icons.article,
               child: Column(
                 children: [
-                  UIUtils.buildTitleInput(context, _titleController),
+                  BlogUploadWidgets.buildTitleInput(context, _titleController),
                   const SizedBox(height: 20),
-                  UIUtils.buildCategorySelector(
+                  BlogUploadWidgets.buildCategorySelector(
                     context,
                     _selectedCategory,
                     (String? value) =>
                         setState(() => _selectedCategory = value),
                   ),
                   const SizedBox(height: 20),
-                  UIUtils.buildTagsInput(
+                  BlogUploadWidgets.buildTagsInput(
                     context,
                     _tagsController,
                     _suggestedTags,
@@ -291,7 +296,7 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
             _buildSection(
               title: 'Content Editor',
               icon: Icons.edit,
-              child: UIUtils.buildQuillEditor(context, _controller),
+              child: BlogUploadWidgets.buildQuillEditor(context, _controller),
             ),
 
             const SizedBox(height: 32),
