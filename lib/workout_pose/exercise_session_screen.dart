@@ -13,8 +13,7 @@ enum ExercisePhase { starting, down, up, transition }
 class ExerciseSessionScreen extends StatefulWidget {
   final Exercise exercise;
 
-  const ExerciseSessionScreen({Key? key, required this.exercise})
-    : super(key: key);
+  const ExerciseSessionScreen({super.key, required this.exercise});
 
   @override
   _ExerciseSessionScreenState createState() => _ExerciseSessionScreenState();
@@ -26,7 +25,7 @@ class _ExerciseSessionScreenState extends State<ExerciseSessionScreen> {
   String _feedback = 'Start performing the exercise';
   int _reps = 0;
   ExercisePhase _currentPhase = ExercisePhase.starting;
-  List<Map<String, dynamic>> _sessionData = [];
+  final List<Map<String, dynamic>> _sessionData = [];
 
   // TTS management
   bool _isSpeaking = false;
@@ -34,8 +33,8 @@ class _ExerciseSessionScreenState extends State<ExerciseSessionScreen> {
   DateTime _lastSpeechTime = DateTime.now();
 
   // Exercise state tracking
-  bool _wasInCorrectStartPosition = false;
-  DateTime _lastPhaseChange = DateTime.now();
+  final bool _wasInCorrectStartPosition = false;
+  final DateTime _lastPhaseChange = DateTime.now();
 
   @override
   void initState() {

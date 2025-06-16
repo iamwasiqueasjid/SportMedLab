@@ -5,7 +5,7 @@ import 'history_screen.dart';
 import 'exercise_data.dart';
 
 class ExerciseSelectionWidget extends StatelessWidget {
-  const ExerciseSelectionWidget({Key? key}) : super(key: key);
+  const ExerciseSelectionWidget({super.key});
 
   void _showHistoryPopup(BuildContext context) {
     showDialog(

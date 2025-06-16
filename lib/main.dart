@@ -7,8 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test_project/screens/patient/patient_dashboard.dart';
 // import 'package:test_project/screens/profile/edit_profile.dart';
 import 'package:test_project/screens/profile/profile_setup_page.dart';
-import 'package:test_project/screens/doctor/blog_upload_screen.dart';
-import 'package:test_project/screens/patient/patients_screen.dart';
+// import 'package:test_project/screens/doctor/blog_upload_screen.dart';
+// import 'package:test_project/screens/patient/patients_screen.dart';
 import 'package:test_project/screens/starter_page.dart';
 import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/screens/splash_screen.dart';
@@ -95,8 +95,8 @@ class _MyAppState extends State<MyApp> {
         '/doctorDashboard': (context) => const DoctorDashboard(),
         '/patientDashboard': (context) => const PatientDashboard(),
         // '/profile': (context) => const ProfileScreen(),
-        '/blogUpload': (context) => AdvancedBlogEditorScreen(),
-        '/patientsBlog': (context) => const PatientsScreen(),
+        // '/blogUpload': (context) => AdvancedBlogEditorScreen(),
+        // '/patientsBlog': (context) => const PatientsScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/chat') {
@@ -129,9 +129,12 @@ class _MyAppState extends State<MyApp> {
                     }
                     final role = snapshot.data ?? 'Patient';
                     final controller = quill.QuillController.basic();
-                    return role == 'Doctor'
-                        ? AdvancedBlogEditorScreen()
-                        : PatientBlogScreen(
+                    return
+                    // role ==
+                    // 'Doctor'
+                    //                         ? AdvancedBlogEditorScreen()
+                    //                         :
+                    PatientBlogScreen(
                           title: 'Patient Blogs',
                           controller: controller,
                           tags: [],

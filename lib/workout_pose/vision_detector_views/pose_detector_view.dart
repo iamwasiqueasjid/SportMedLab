@@ -10,10 +10,10 @@ class PoseDetectorView extends StatefulWidget {
   final CameraLensDirection initialCameraLensDirection;
 
   const PoseDetectorView({
-    Key? key,
+    super.key,
     required this.onImage,
     this.initialCameraLensDirection = CameraLensDirection.front,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _PoseDetectorViewState();

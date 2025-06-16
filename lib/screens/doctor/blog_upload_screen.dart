@@ -8,15 +8,15 @@ import '../../widgets/ui_utils.dart'; // Use alias to avoid conflicts
 import 'blog_preview_screen.dart';
 import '../../constants/constants.dart';
 
-class AdvancedBlogEditorScreen extends StatefulWidget {
-  const AdvancedBlogEditorScreen({super.key});
+class AdvancedBlogEditorWidget extends StatefulWidget {
+  const AdvancedBlogEditorWidget({super.key});
 
   @override
-  State<AdvancedBlogEditorScreen> createState() =>
-      _AdvancedBlogEditorScreenState();
+  State<AdvancedBlogEditorWidget> createState() =>
+      _AdvancedBlogEditorWidgetState();
 }
 
-class _AdvancedBlogEditorScreenState extends State<AdvancedBlogEditorScreen> {
+class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
   late QuillController _controller;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _tagsController = TextEditingController();
@@ -145,55 +145,298 @@ class _AdvancedBlogEditorScreenState extends State<AdvancedBlogEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Enhanced Blog Editor'),
-        elevation: 2,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.preview),
-            onPressed: _previewBlog,
-            tooltip: 'Preview Blog',
+    return Container(
+      color: Colors.grey[50],
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header Section
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.edit_note,
+                      color: Colors.blue[600],
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Blog Editor',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Create and publish engaging blog content',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue[600],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: _previewBlog,
+                        child: const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.preview,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Preview',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // File Upload Section
+            _buildSection(
+              title: 'Document Upload',
+              icon: Icons.upload_file,
+              child: UIUtils.buildFileUploadSection(
+                context,
+                _uploadedFileName,
+                _isProcessingFile,
+                _uploadFile,
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Blog Details Section
+            _buildSection(
+              title: 'Blog Details',
+              icon: Icons.article,
+              child: Column(
+                children: [
+                  UIUtils.buildTitleInput(context, _titleController),
+                  const SizedBox(height: 20),
+                  UIUtils.buildCategorySelector(
+                    context,
+                    _selectedCategory,
+                    (String? value) =>
+                        setState(() => _selectedCategory = value),
+                  ),
+                  const SizedBox(height: 20),
+                  UIUtils.buildTagsInput(
+                    context,
+                    _tagsController,
+                    _suggestedTags,
+                    _isGeneratingTags,
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Content Editor Section
+            _buildSection(
+              title: 'Content Editor',
+              icon: Icons.edit,
+              child: UIUtils.buildQuillEditor(context, _controller),
+            ),
+
+            const SizedBox(height: 32),
+
+            // Action Buttons
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _clearForm,
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: BorderSide(color: Colors.grey[300]!),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.clear, color: Colors.grey[600]),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Clear',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: _isPublishing ? null : _publishBlog,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green[600],
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child:
+                          _isPublishing
+                              ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                              : const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.publish, color: Colors.white),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Publish Blog',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required IconData icon,
+    required Widget child,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            UIUtils.buildFileUploadSection(
-              context,
-              _uploadedFileName,
-              _isProcessingFile,
-              _uploadFile,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
             ),
-            const SizedBox(height: 16),
-            UIUtils.buildTitleInput(context, _titleController),
-            const SizedBox(height: 16),
-            UIUtils.buildCategorySelector(
-              context,
-              _selectedCategory,
-              (String? value) => setState(() => _selectedCategory = value),
+            child: Row(
+              children: [
+                Icon(icon, color: Colors.grey[700], size: 20),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[800],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            UIUtils.buildTagsInput(
-              context,
-              _tagsController,
-              _suggestedTags,
-              _isGeneratingTags,
-            ),
-            const SizedBox(height: 16),
-            UIUtils.buildQuillEditor(context, _controller),
-            const SizedBox(height: 24),
-            UIUtils.buildActionButtons(
-              context,
-              _isPublishing,
-              _clearForm,
-              _publishBlog,
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
+          ),
+          Padding(padding: const EdgeInsets.all(20), child: child),
+        ],
       ),
     );
   }

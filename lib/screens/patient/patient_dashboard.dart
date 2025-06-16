@@ -1,5 +1,6 @@
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/screens/chat/chat_list_screen.dart';
+import 'package:test_project/screens/patient/patients_blog_list.dart';
 import 'package:test_project/screens/profile/edit_profile.dart';
 import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/utils/message_type.dart';
@@ -187,8 +188,21 @@ class PatientDashboardState extends State<PatientDashboard> {
             child: TabBarView(
               children: [
                 _buildCoursesTabs(),
-                Center(
-                  child: Text('Blogs', style: context.responsiveTitleLarge),
+                Column(
+                  children: [
+                    Text('Blogs', style: context.responsiveTitleLarge),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PatientsScreen(),
+                          ),
+                        );
+                      },
+                      child: Text('Create Blog'),
+                    ),
+                  ],
                 ),
                 ExerciseSelectionWidget(),
                 ChatListWidget(),

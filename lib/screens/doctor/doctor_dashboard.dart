@@ -1,6 +1,7 @@
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/models/course.dart';
 import 'package:test_project/screens/chat/chat_list_screen.dart';
+import 'package:test_project/screens/doctor/blog_upload_screen.dart';
 import 'package:test_project/screens/doctor/course_lesson_screen.dart';
 import 'package:test_project/screens/profile/edit_profile.dart';
 import 'package:test_project/services/database_service.dart';
@@ -440,7 +441,49 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         return _buildMobileLayout(context, theme);
     }
   }
-
+  Widget _buildBlogsTabs() {
+    final theme = Theme.of(context);
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          // _buildHeader(context, theme),
+          TabBar(
+            labelColor: theme.primaryColor, // Match LoginScreen
+            unselectedLabelColor: Colors.grey[600], // Match LoginScreen
+            indicatorColor: theme.primaryColor, // Match LoginScreen
+            tabs: [Tab(text: 'Blogs'), Tab(text: 'add new blog')],
+          ),
+          Expanded(
+            child: TabBarView(
+              children: [
+                Text("Blogs content here"), // Placeholder for Blogs tab
+                // Center(
+                //   child: Column(
+                //     children: [
+                //       Text('Blogs', style: context.responsiveTitleLarge),
+                //       ElevatedButton(
+                //         onPressed: () {
+                //           Navigator.push(
+                //             context,
+                //             MaterialPageRoute(
+                //               builder: (context) => AdvancedBlogEditorScreen(),
+                //             ),
+                //           );
+                //         },
+                //         child: Text('Create Blog'),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                AdvancedBlogEditorWidget(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   Widget _buildPlanTabs(BuildContext context, ThemeData theme, Widget child) {
     return DefaultTabController(
       length: 4,
@@ -451,9 +494,25 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
               children: [
                 _buildCoursesTab(context, theme),
                 // Dashboard/Courses tab
-                Center(
-                  child: Text('Blogs', style: context.responsiveTitleLarge),
-                ),
+                // Center(
+                //   child: Column(
+                //     children: [
+                //       Text('Blogs', style: context.responsiveTitleLarge),
+                //       ElevatedButton(
+                //         onPressed: () {
+                //           Navigator.push(
+                //             context,
+                //             MaterialPageRoute(
+                //               builder: (context) => AdvancedBlogEditorScreen(),
+                //             ),
+                //           );
+                //         },
+                //         child: Text('Create Blog'),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                _buildBlogsTabs(),
                 ChatListWidget(),
                 ProfileWidget(),
               ],

@@ -25,6 +25,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
     setState(() => _isLoading = true);
     try {
       final blogs = await BlogService.getPublishedBlogs();
+print(blogs);
       setState(() {
         _blogsFuture = Future.value(blogs);
         _isLoading = false;
