@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import '../../Services/file_processor.dart';
-import '../../utils/content_formatter.dart';
-import '../../services/metadata_service.dart';
-import '../../Services/blog_service.dart';
-import '../../widgets/ui_utils.dart'; // Use alias to avoid conflicts
+import 'package:test_project/utils/blogs/constants.dart';
+import '../../../Services/file_processor.dart';
+import '../../../utils/blogs/content_formatter.dart';
+import '../../../services/blog/metadata_service.dart';
+import '../../../Services/blog_service.dart';
+import '../../../utils/blogs/ui_utils.dart'; // Use alias to avoid conflicts
 import 'blog_preview_screen.dart';
-import '../../constants/constants.dart';
 
 class AdvancedBlogEditorWidget extends StatefulWidget {
   const AdvancedBlogEditorWidget({super.key});
@@ -106,14 +106,15 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
     setState(() => _isPublishing = true);
     try {
       await BlogService.publishBlog(
+        context,
         _titleController,
         _controller,
         _tagsController,
         _selectedCategory,
         _extractedText,
         _uploadedFileName,
-        _showErrorSnackBar,
-        _showSuccessSnackBar,
+        // _showErrorSnackBar,
+        // _showSuccessSnackBar,
       );
       _clearForm();
     } catch (e) {
@@ -382,7 +383,7 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
           ],
         ),

@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../constants/constants.dart';
+import 'package:test_project/utils/blogs/constants.dart';
+import 'package:test_project/utils/message_type.dart';
+import 'package:test_project/widgets/app_message_notifier.dart';
 
 class BlogService {
   static Future<void> publishBlog(
+    context,
     TextEditingController titleController,
     QuillController controller,
     TextEditingController tagsController,
     String? selectedCategory,
     String? extractedText,
     String? uploadedFileName,
-    Function(String) showErrorSnackBar,
-    Function(String) showSuccessSnackBar,
+    // Function(String) showErrorSnackBar,
+    // Function(String) showSuccessSnackBar,
   ) async {
     final title = titleController.text.trim();
     final delta = controller.document.toDelta();
@@ -24,17 +27,32 @@ class BlogService {
             .toList();
 
     if (title.isEmpty) {
-      showErrorSnackBar('Please enter a blog title.');
+      AppNotifier.show(
+        context,
+        'Please enter a blog title.',
+        type: MessageType.error,
+      );
+      // showErrorSnackBar('Please enter a blog title.');
       return;
     }
 
     if (controller.document.isEmpty()) {
-      showErrorSnackBar('Please add content to your blog.');
+      AppNotifier.show(
+        context,
+        'Please add content to your blog.',
+        type: MessageType.error,
+      );
+      // showErrorSnackBar('Please add content to your blog.');
       return;
     }
 
     if (selectedCategory == null) {
-      showErrorSnackBar('Please select a category.');
+      AppNotifier.show(
+        context,
+        'Please select a category.',
+        type: MessageType.error,
+      );
+      // showErrorSnackBar('Please select a category.');
       return;
     }
 
@@ -58,11 +76,21 @@ class BlogService {
       }
 
       await FirebaseFirestore.instance.collection('blogs').add(blogData);
-      showSuccessSnackBar(
+      AppNotifier.show(
+        context,
         'Blog published successfully with enhanced formatting!',
+        type: MessageType.success,
       );
+      // showSuccessSnackBar(
+      //   'Blog published successfully with enhanced formatting!',
+      // );
     } catch (e) {
-      showErrorSnackBar('Error publishing blog: ${e.toString()}');
+      AppNotifier.show(
+        context,
+        'Error publishing blog: ${e.toString()}',
+        type: MessageType.error,
+      );
+      // showErrorSnackBar('Error publishing blog: ${e.toString()}');
     }
   }
 

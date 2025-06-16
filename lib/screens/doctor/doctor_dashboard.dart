@@ -1,8 +1,8 @@
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/models/course.dart';
 import 'package:test_project/screens/chat/chat_list_screen.dart';
-import 'package:test_project/screens/doctor/blog_upload_screen.dart';
-import 'package:test_project/screens/doctor/course_lesson_screen.dart';
+import 'package:test_project/screens/doctor/blog/blog_upload_screen.dart';
+import 'package:test_project/screens/doctor/courses/course_lesson_screen.dart';
 import 'package:test_project/screens/profile/edit_profile.dart';
 import 'package:test_project/services/database_service.dart';
 import 'package:test_project/services/auth/auth_service.dart';
@@ -458,24 +458,6 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
             child: TabBarView(
               children: [
                 Text("Blogs content here"), // Placeholder for Blogs tab
-                // Center(
-                //   child: Column(
-                //     children: [
-                //       Text('Blogs', style: context.responsiveTitleLarge),
-                //       ElevatedButton(
-                //         onPressed: () {
-                //           Navigator.push(
-                //             context,
-                //             MaterialPageRoute(
-                //               builder: (context) => AdvancedBlogEditorScreen(),
-                //             ),
-                //           );
-                //         },
-                //         child: Text('Create Blog'),
-                //       ),
-                //     ],
-                //   ),
-                // ),
                 AdvancedBlogEditorWidget(),
               ],
             ),
@@ -484,7 +466,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
       ),
     );
   }
-  Widget _buildPlanTabs(BuildContext context, ThemeData theme, Widget child) {
+  Widget _buildTabBar(BuildContext context, ThemeData theme, Widget child) {
     return DefaultTabController(
       length: 4,
       child: Column(
@@ -493,128 +475,111 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
             child: TabBarView(
               children: [
                 _buildCoursesTab(context, theme),
-                // Dashboard/Courses tab
-                // Center(
-                //   child: Column(
-                //     children: [
-                //       Text('Blogs', style: context.responsiveTitleLarge),
-                //       ElevatedButton(
-                //         onPressed: () {
-                //           Navigator.push(
-                //             context,
-                //             MaterialPageRoute(
-                //               builder: (context) => AdvancedBlogEditorScreen(),
-                //             ),
-                //           );
-                //         },
-                //         child: Text('Create Blog'),
-                //       ),
-                //     ],
-                //   ),
-                // ),
                 _buildBlogsTabs(),
                 ChatListWidget(),
                 ProfileWidget(),
               ],
             ),
           ),
-          Container(
-            margin: EdgeInsets.all(
-              ResponsiveHelper.getValue(
-                context,
-                mobile: 8.0,
-                tablet: 12.0,
-                desktop: 16.0,
-              ),
-            ),
-            decoration: BoxDecoration(
-              // backgroundBlendMode: BlendMode.srcOver,
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(context.mediumSpacing),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: ResponsiveHelper.getValue(
-                    context,
-                    mobile: 12.0,
-                    tablet: 16.0,
-                    desktop: 20.0,
-                  ),
+          SafeArea(
+            child: Container(
+              margin: EdgeInsets.all(
+                ResponsiveHelper.getValue(
+                  context,
+                  mobile: 8.0,
+                  tablet: 12.0,
+                  desktop: 16.0,
                 ),
-              ],
-            ),
-            child: TabBar(
-              labelColor: theme.primaryColor,
-              unselectedLabelColor: theme.primaryColor.withOpacity(0.8),
-              indicatorColor: theme.primaryColor,
-              indicatorSize: TabBarIndicatorSize.tab,
-              unselectedLabelStyle: context.responsiveBodyMedium,
-              labelStyle: context.responsiveBodyLarge,
-              indicator: BoxDecoration(
-                color: theme.primaryColor.withOpacity(0.1),
+              ),
+              decoration: BoxDecoration(
+                // backgroundBlendMode: BlendMode.srcOver,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(context.mediumSpacing),
-                border: Border(
-                  top: BorderSide(
-                    color: theme.primaryColor,
-                    width: ResponsiveHelper.getValue(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: ResponsiveHelper.getValue(
                       context,
-                      mobile: 2.0,
-                      tablet: 2.5,
-                      desktop: 3.0,
+                      mobile: 12.0,
+                      tablet: 16.0,
+                      desktop: 20.0,
                     ),
                   ),
-                ),
+                ],
               ),
-              tabs: [
-                Tab(
-                  icon: Icon(
-                    Icons.dashboard_outlined,
-                    size: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 20.0,
-                      tablet: 22.0,
-                      desktop: 24.0,
+              child: TabBar(
+                labelColor: theme.primaryColor,
+                unselectedLabelColor: theme.primaryColor.withOpacity(0.8),
+                indicatorColor: theme.primaryColor,
+                indicatorSize: TabBarIndicatorSize.tab,
+                unselectedLabelStyle: context.responsiveBodyMedium,
+                labelStyle: context.responsiveBodyLarge,
+                indicator: BoxDecoration(
+                  color: theme.primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(context.mediumSpacing),
+                  border: Border(
+                    top: BorderSide(
+                      color: theme.primaryColor,
+                      width: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 2.0,
+                        tablet: 2.5,
+                        desktop: 3.0,
+                      ),
                     ),
                   ),
-                  text: 'Courses',
                 ),
-                Tab(
-                  icon: Icon(
-                    Icons.article_outlined,
-                    size: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 20.0,
-                      tablet: 22.0,
-                      desktop: 24.0,
+                tabs: [
+                  Tab(
+                    icon: Icon(
+                      Icons.dashboard_outlined,
+                      size: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 20.0,
+                        tablet: 22.0,
+                        desktop: 24.0,
+                      ),
                     ),
+                    text: 'Courses',
                   ),
-                  text: 'Blogs',
-                ),
-                Tab(
-                  icon: Icon(
-                    Icons.chat_bubble_outline,
-                    size: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 20.0,
-                      tablet: 22.0,
-                      desktop: 24.0,
+                  Tab(
+                    icon: Icon(
+                      Icons.article_outlined,
+                      size: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 20.0,
+                        tablet: 22.0,
+                        desktop: 24.0,
+                      ),
                     ),
+                    text: 'Blogs',
                   ),
-                  text: 'Chat',
-                ),
-                Tab(
-                  icon: Icon(
-                    Icons.person_outline,
-                    size: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 20.0,
-                      tablet: 22.0,
-                      desktop: 24.0,
+                  Tab(
+                    icon: Icon(
+                      Icons.chat_bubble_outline,
+                      size: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 20.0,
+                        tablet: 22.0,
+                        desktop: 24.0,
+                      ),
                     ),
+                    text: 'Chat',
                   ),
-                  text: 'Profile',
-                ),
-              ],
+                  Tab(
+                    icon: Icon(
+                      Icons.person_outline,
+                      size: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 20.0,
+                        tablet: 22.0,
+                        desktop: 24.0,
+                      ),
+                    ),
+                    text: 'Profile',
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -624,7 +589,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
 
   Widget _buildMobileLayout(BuildContext context, ThemeData theme) {
     final child = Padding(padding: EdgeInsets.all(0));
-    return _buildPlanTabs(context, theme, child);
+    return _buildTabBar(context, theme, child);
   }
 
   Widget _buildTabletLayout(BuildContext context, ThemeData theme) {
@@ -638,7 +603,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         ),
       ),
     );
-    return _buildPlanTabs(context, theme, child);
+    return _buildTabBar(context, theme, child);
   }
 
   Widget _buildDesktopLayout(BuildContext context, ThemeData theme) {
@@ -655,7 +620,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         ),
       ),
     );
-    return _buildPlanTabs(context, theme, child);
+    return _buildTabBar(context, theme, child);
   }
 
   Widget _buildCoursesTab(BuildContext context, ThemeData theme) {

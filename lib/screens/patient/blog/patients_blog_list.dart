@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/blog_service.dart';
+import '../../../services/blog/blog_service.dart';
 import 'blog_view_patient.dart'; // Changed import to new patient-specific screen
 import 'package:flutter_quill/flutter_quill.dart';
 
@@ -25,7 +25,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
     setState(() => _isLoading = true);
     try {
       final blogs = await BlogService.getPublishedBlogs();
-print(blogs);
+      print(blogs);
       setState(() {
         _blogsFuture = Future.value(blogs);
         _isLoading = false;

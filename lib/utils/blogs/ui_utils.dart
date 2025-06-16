@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import '../constants/constants.dart';
+import 'package:test_project/utils/blogs/constants.dart';
 
 class UIUtils {
   static void showErrorSnackBar(BuildContext context, String message) {
@@ -24,11 +24,11 @@ class UIUtils {
   }
 
   static Widget buildFileUploadSection(
-      BuildContext context,
-      String? uploadedFileName,
-      bool isProcessingFile,
-      VoidCallback onUpload,
-      ) {
+    BuildContext context,
+    String? uploadedFileName,
+    bool isProcessingFile,
+    VoidCallback onUpload,
+  ) {
     return Card(
       elevation: 3,
       child: Padding(
@@ -42,14 +42,18 @@ class UIUtils {
                 const SizedBox(width: 8),
                 Text(
                   'Smart Document Upload',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
               'Upload PDF or Word document to auto-populate content with preserved formatting, generate smart metadata, and extract structure',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 12),
             if (uploadedFileName != null) ...[
@@ -62,7 +66,11 @@ class UIUtils {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.green.shade600,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Column(
@@ -78,7 +86,10 @@ class UIUtils {
                           ),
                           Text(
                             uploadedFileName,
-                            style: TextStyle(color: Colors.green.shade600, fontSize: 11),
+                            style: TextStyle(
+                              color: Colors.green.shade600,
+                              fontSize: 11,
+                            ),
                           ),
                         ],
                       ),
@@ -92,15 +103,20 @@ class UIUtils {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: isProcessingFile ? null : onUpload,
-                icon: isProcessingFile
-                    ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-                    : const Icon(Icons.cloud_upload),
-                label: Text(isProcessingFile ? 'Processing...' : 'Upload Document'),
-                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
+                icon:
+                    isProcessingFile
+                        ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : const Icon(Icons.cloud_upload),
+                label: Text(
+                  isProcessingFile ? 'Processing...' : 'Upload Document',
+                ),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
               ),
             ),
           ],
@@ -109,7 +125,10 @@ class UIUtils {
     );
   }
 
-  static Widget buildTitleInput(BuildContext context, TextEditingController titleController) {
+  static Widget buildTitleInput(
+    BuildContext context,
+    TextEditingController titleController,
+  ) {
     return Card(
       elevation: 2,
       child: Padding(
@@ -119,7 +138,9 @@ class UIUtils {
           children: [
             Text(
               'Blog Title',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -138,10 +159,10 @@ class UIUtils {
   }
 
   static Widget buildCategorySelector(
-      BuildContext context,
-      String? selectedCategory,
-      Function(String?) onChanged,
-      ) {
+    BuildContext context,
+    String? selectedCategory,
+    Function(String?) onChanged,
+  ) {
     return Card(
       elevation: 2,
       child: Padding(
@@ -151,7 +172,9 @@ class UIUtils {
           children: [
             Text(
               'Category',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
@@ -161,12 +184,13 @@ class UIUtils {
                 prefixIcon: Icon(Icons.category),
               ),
               hint: const Text('Select a category'),
-              items: AppConstants.categories.map((String category) {
-                return DropdownMenuItem<String>(
-                  value: category,
-                  child: Text(category),
-                );
-              }).toList(),
+              items:
+                  AppConstants.categories.map((String category) {
+                    return DropdownMenuItem<String>(
+                      value: category,
+                      child: Text(category),
+                    );
+                  }).toList(),
               onChanged: onChanged,
             ),
           ],
@@ -176,11 +200,11 @@ class UIUtils {
   }
 
   static Widget buildTagsInput(
-      BuildContext context,
-      TextEditingController tagsController,
-      List<String> suggestedTags,
-      bool isGeneratingTags,
-      ) {
+    BuildContext context,
+    TextEditingController tagsController,
+    List<String> suggestedTags,
+    bool isGeneratingTags,
+  ) {
     return Card(
       elevation: 2,
       child: Padding(
@@ -192,7 +216,9 @@ class UIUtils {
               children: [
                 Text(
                   'Tags',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 if (isGeneratingTags) ...[
                   const SizedBox(width: 8),
@@ -218,25 +244,28 @@ class UIUtils {
               const SizedBox(height: 12),
               Text(
                 'AI Suggested Tags:',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
-                children: suggestedTags.map((tag) {
-                  return ActionChip(
-                    label: Text(tag),
-                    onPressed: () {
-                      String currentTags = tagsController.text;
-                      if (currentTags.isEmpty) {
-                        tagsController.text = tag;
-                      } else if (!currentTags.contains(tag)) {
-                        tagsController.text = '$currentTags, $tag';
-                      }
-                    },
-                  );
-                }).toList(),
+                children:
+                    suggestedTags.map((tag) {
+                      return ActionChip(
+                        label: Text(tag),
+                        onPressed: () {
+                          String currentTags = tagsController.text;
+                          if (currentTags.isEmpty) {
+                            tagsController.text = tag;
+                          } else if (!currentTags.contains(tag)) {
+                            tagsController.text = '$currentTags, $tag';
+                          }
+                        },
+                      );
+                    }).toList(),
               ),
             ],
           ],
@@ -245,7 +274,10 @@ class UIUtils {
     );
   }
 
-  static Widget buildQuillEditor(BuildContext context, QuillController controller) {
+  static Widget buildQuillEditor(
+    BuildContext context,
+    QuillController controller,
+  ) {
     return Card(
       elevation: 2,
       child: Padding(
@@ -255,7 +287,9 @@ class UIUtils {
           children: [
             Text(
               'Blog Content',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Container(
@@ -282,35 +316,43 @@ class UIUtils {
                         // Bold Button
                         IconButton(
                           icon: const Icon(Icons.format_bold),
-                          onPressed: () => controller.formatSelection(Attribute.bold),
+                          onPressed:
+                              () => controller.formatSelection(Attribute.bold),
                           tooltip: 'Bold',
                           iconSize: 20,
                         ),
                         // Italic Button
                         IconButton(
                           icon: const Icon(Icons.format_italic),
-                          onPressed: () => controller.formatSelection(Attribute.italic),
+                          onPressed:
+                              () =>
+                                  controller.formatSelection(Attribute.italic),
                           tooltip: 'Italic',
                           iconSize: 20,
                         ),
                         // Underline Button
                         IconButton(
                           icon: const Icon(Icons.format_underlined),
-                          onPressed: () => controller.formatSelection(Attribute.underline),
+                          onPressed:
+                              () => controller.formatSelection(
+                                Attribute.underline,
+                              ),
                           tooltip: 'Underline',
                           iconSize: 20,
                         ),
                         // Bullet List Button
                         IconButton(
                           icon: const Icon(Icons.format_list_bulleted),
-                          onPressed: () => controller.formatSelection(Attribute.ul),
+                          onPressed:
+                              () => controller.formatSelection(Attribute.ul),
                           tooltip: 'Bullet List',
                           iconSize: 20,
                         ),
                         // Numbered List Button
                         IconButton(
                           icon: const Icon(Icons.format_list_numbered),
-                          onPressed: () => controller.formatSelection(Attribute.ol),
+                          onPressed:
+                              () => controller.formatSelection(Attribute.ol),
                           tooltip: 'Numbered List',
                           iconSize: 20,
                         ),
@@ -318,12 +360,25 @@ class UIUtils {
                         PopupMenuButton<int>(
                           icon: const Icon(Icons.title),
                           tooltip: 'Header',
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(value: 1, child: Text('Header 1')),
-                            const PopupMenuItem(value: 2, child: Text('Header 2')),
-                            const PopupMenuItem(value: 3, child: Text('Header 3')),
-                            const PopupMenuItem(value: 0, child: Text('Normal')),
-                          ],
+                          itemBuilder:
+                              (context) => [
+                                const PopupMenuItem(
+                                  value: 1,
+                                  child: Text('Header 1'),
+                                ),
+                                const PopupMenuItem(
+                                  value: 2,
+                                  child: Text('Header 2'),
+                                ),
+                                const PopupMenuItem(
+                                  value: 3,
+                                  child: Text('Header 3'),
+                                ),
+                                const PopupMenuItem(
+                                  value: 0,
+                                  child: Text('Normal'),
+                                ),
+                              ],
                           onSelected: (value) {
                             switch (value) {
                               case 1:
@@ -336,8 +391,11 @@ class UIUtils {
                                 controller.formatSelection(Attribute.h3);
                                 break;
                               case 0:
-                              // Remove header formatting
-                                if (controller.getSelectionStyle().attributes.containsKey(Attribute.header.key)) {
+                                // Remove header formatting
+                                if (controller
+                                    .getSelectionStyle()
+                                    .attributes
+                                    .containsKey(Attribute.header.key)) {
                                   controller.formatSelection(Attribute.header);
                                 }
                                 break;
@@ -353,15 +411,24 @@ class UIUtils {
                             if (selection.isCollapsed) return;
 
                             // Toggle off bold if active
-                            if (controller.getSelectionStyle().attributes.containsKey(Attribute.bold.key)) {
+                            if (controller
+                                .getSelectionStyle()
+                                .attributes
+                                .containsKey(Attribute.bold.key)) {
                               controller.formatSelection(Attribute.bold);
                             }
                             // Toggle off italic if active
-                            if (controller.getSelectionStyle().attributes.containsKey(Attribute.italic.key)) {
+                            if (controller
+                                .getSelectionStyle()
+                                .attributes
+                                .containsKey(Attribute.italic.key)) {
                               controller.formatSelection(Attribute.italic);
                             }
                             // Toggle off underline if active
-                            if (controller.getSelectionStyle().attributes.containsKey(Attribute.underline.key)) {
+                            if (controller
+                                .getSelectionStyle()
+                                .attributes
+                                .containsKey(Attribute.underline.key)) {
                               controller.formatSelection(Attribute.underline);
                             }
                           },
@@ -394,11 +461,11 @@ class UIUtils {
   }
 
   static Widget buildActionButtons(
-      BuildContext context,
-      bool isPublishing,
-      VoidCallback onClear,
-      VoidCallback onPublish,
-      ) {
+    BuildContext context,
+    bool isPublishing,
+    VoidCallback onClear,
+    VoidCallback onPublish,
+  ) {
     return Row(
       children: [
         Expanded(
@@ -406,22 +473,30 @@ class UIUtils {
             onPressed: onClear,
             icon: const Icon(Icons.clear),
             label: const Text('Clear'),
-            style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
           ),
         ),
         const SizedBox(width: 16),
         Expanded(
           child: ElevatedButton.icon(
             onPressed: isPublishing ? null : onPublish,
-            icon: isPublishing
-                ? const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-            )
-                : const Icon(Icons.publish),
+            icon:
+                isPublishing
+                    ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                    : const Icon(Icons.publish),
             label: Text(isPublishing ? 'Publishing...' : 'Publish Blog'),
-            style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
           ),
         ),
       ],

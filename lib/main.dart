@@ -5,21 +5,16 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test_project/screens/patient/patient_dashboard.dart';
-// import 'package:test_project/screens/profile/edit_profile.dart';
 import 'package:test_project/screens/profile/profile_setup_page.dart';
-// import 'package:test_project/screens/doctor/blog_upload_screen.dart';
-// import 'package:test_project/screens/patient/patients_screen.dart';
-import 'package:test_project/screens/starter_page.dart';
+import 'package:test_project/screens/launch/starter_page.dart';
 import 'package:test_project/services/auth/auth_service.dart';
-import 'package:test_project/screens/splash_screen.dart';
+import 'package:test_project/screens/launch/splash_screen.dart';
 import 'package:test_project/screens/auth/authentication_page.dart';
 import 'package:test_project/screens/auth/login_page.dart';
 import 'package:test_project/screens/auth/signup_page.dart';
-// import 'package:test_project/screens/chat/chat_list_screen.dart';
 import 'package:test_project/screens/chat/chat_screen.dart';
-import 'package:test_project/screens/course_details.dart';
 import 'package:test_project/screens/doctor/doctor_dashboard.dart';
-import 'package:test_project/screens/patient/blog_view_patient.dart';
+import 'package:test_project/screens/patient/blog/blog_view_patient.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:test_project/theme/app_theme.dart' show lightTheme, darkTheme;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -105,12 +100,6 @@ class _MyAppState extends State<MyApp> {
             builder: (context) => ChatScreen(arguments: arguments),
           );
         }
-        if (settings.name == '/courseDetails') {
-          final String courseId = settings.arguments as String;
-          return MaterialPageRoute(
-            builder: (context) => CourseDetailsScreen(courseId: courseId),
-          );
-        }
         if (settings.name == '/blogs') {
           return MaterialPageRoute(
             builder:
@@ -130,10 +119,6 @@ class _MyAppState extends State<MyApp> {
                     final role = snapshot.data ?? 'Patient';
                     final controller = quill.QuillController.basic();
                     return
-                    // role ==
-                    // 'Doctor'
-                    //                         ? AdvancedBlogEditorScreen()
-                    //                         :
                     PatientBlogScreen(
                           title: 'Patient Blogs',
                           controller: controller,

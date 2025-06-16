@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../../constants/constants.dart';
+import 'package:test_project/utils/blogs/constants.dart';
 
 class MetadataService {
   static Future<void> generateMetadataWithAI(

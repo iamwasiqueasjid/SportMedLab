@@ -74,4 +74,18 @@ class CloudinaryService {
       return null;
     }
   }
+
+  /// Deletes a resource from Cloudinary using its public ID.
+  Future<bool> deleteFromCloudinary(String publicId) async {
+    try {
+      if (publicId.isEmpty) {
+        return false;
+      }
+
+      final response = await _cloudinary.destroy(publicId);
+      return response.isSuccessful;
+    } catch (e) {
+      return false;
+    }
+  }
 }
