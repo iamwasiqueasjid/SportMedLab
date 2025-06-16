@@ -1,8 +1,10 @@
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:test_project/models/course.dart';
 import 'package:test_project/screens/chat/chat_list_screen.dart';
-import 'package:test_project/screens/patient/blog/patients_blog_list.dart';
+import 'package:test_project/screens/courses/course_lesson_screen.dart';
 import 'package:test_project/screens/profile/edit_profile.dart';
 import 'package:test_project/services/auth/auth_service.dart';
+import 'package:test_project/services/database_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/utils/responsive_extension.dart';
 import 'package:test_project/utils/responsive_helper.dart';
@@ -10,6 +12,7 @@ import 'package:test_project/utils/responsive_widget.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:test_project/workout_pose/exercise_selection_screen.dart';
+import 'package:intl/intl.dart';
 
 class PatientDashboard extends StatefulWidget {
   const PatientDashboard({super.key});
@@ -18,16 +21,29 @@ class PatientDashboard extends StatefulWidget {
   PatientDashboardState createState() => PatientDashboardState();
 }
 
-class PatientDashboardState extends State<PatientDashboard> {
+class PatientDashboardState extends State<PatientDashboard>
+    with SingleTickerProviderStateMixin {
   final AuthService _authService = AuthService();
+  final DatabaseService _databaseService = DatabaseService();
   String? _userName;
   String? _photoUrl;
   bool _isLoading = true;
+  late TabController _courseTabController;
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _courseTabController = TabController(
+      length: 2,
+      vsync: this,
+    ); // Controller for Available Plans and My Enrolled Plans
+  }
+
+  @override
+  void dispose() {
+    _courseTabController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadUserData() async {
@@ -53,7 +69,7 @@ class PatientDashboardState extends State<PatientDashboard> {
       appBar: AppBar(
         backgroundColor: theme.primaryColor,
         elevation: 0,
-        automaticallyImplyLeading: false, // Remove the back button
+        automaticallyImplyLeading: false,
         title: Text(
           'Patient Dashboard',
           style: context.responsiveTitleLarge.copyWith(color: Colors.white),
@@ -138,16 +154,23 @@ class PatientDashboardState extends State<PatientDashboard> {
 
   Widget _buildHeader(BuildContext context, ThemeData theme) {
     return Container(
-      padding: context.allPadding,
+      padding: EdgeInsets.all(
+        ResponsiveHelper.getValue(
+          context,
+          mobile: 8.0,
+          tablet: 12.0,
+          desktop: 16.0,
+        ),
+      ),
       color: theme.primaryColor,
       child: Row(
         children: [
           CircleAvatar(
             radius: ResponsiveHelper.getValue(
               context,
-              mobile: 30.0,
-              tablet: 40.0,
-              desktop: 50.0,
+              mobile: 20.0,
+              tablet: 25.0,
+              desktop: 30.0,
             ),
             backgroundImage:
                 _photoUrl != null
@@ -155,24 +178,30 @@ class PatientDashboardState extends State<PatientDashboard> {
                     : const AssetImage('assets/images/avatar.png')
                         as ImageProvider,
             backgroundColor: Colors.grey[100],
+            onBackgroundImageError:
+                (_, __) => const Icon(Icons.person), // Fallback if asset fails
           ),
-          SizedBox(width: context.mediumSpacing),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Welcome, ${_userName ?? 'Patient'}',
-                style: context.responsiveHeadlineMedium.copyWith(
-                  color: Colors.white,
+          SizedBox(width: context.smallSpacing),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Welcome, ${_userName ?? 'Patient'}',
+                  style: context.responsiveHeadlineMedium.copyWith(
+                    color: Colors.white,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              Text(
-                'Explore your fitness journey',
-                style: context.responsiveBodyMedium.copyWith(
-                  color: Colors.grey[400],
+                Text(
+                  'Explore your fitness journey',
+                  style: context.responsiveBodyMedium.copyWith(
+                    color: Colors.grey[400],
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -181,28 +210,15 @@ class PatientDashboardState extends State<PatientDashboard> {
 
   Widget _buildPlanTabs(BuildContext context, ThemeData theme) {
     return DefaultTabController(
-      length: 5,
+      length: 5, // For bottom navigation tabs
       child: Column(
         children: [
           Expanded(
             child: TabBarView(
               children: [
-                _buildCoursesTabs(),
-                Column(
-                  children: [
-                    Text('Blogs', style: context.responsiveTitleLarge),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PatientsScreen(),
-                          ),
-                        );
-                      },
-                      child: Text('Create Blog'),
-                    ),
-                  ],
+                _buildCoursesTabs(context, theme),
+                Center(
+                  child: Text('Blogs', style: context.responsiveTitleLarge),
                 ),
                 ExerciseSelectionWidget(),
                 ChatListWidget(),
@@ -211,7 +227,14 @@ class PatientDashboardState extends State<PatientDashboard> {
             ),
           ),
           Container(
-            margin: context.allPadding,
+            margin: EdgeInsets.all(
+              ResponsiveHelper.getValue(
+                context,
+                mobile: 8.0,
+                tablet: 12.0,
+                desktop: 16.0,
+              ),
+            ),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(context.mediumSpacing),
@@ -318,137 +341,274 @@ class PatientDashboardState extends State<PatientDashboard> {
     );
   }
 
-  Widget _buildAvailablePlans(BuildContext context, ThemeData theme) {
-    final plans = [
-      {
-        'title': 'Weight Loss Program',
-        'doctor': 'Dr. John Smith',
-        'enrolled': 42,
-        'image': null,
-      },
-      {
-        'title': 'Muscle Gain Plan',
-        'doctor': 'Dr. Jane Doe',
-        'enrolled': 28,
-        'image': null,
-      },
-      {
-        'title': 'Cardio Fitness',
-        'doctor': 'Dr. Alex Johnson',
-        'enrolled': 56,
-        'image': null,
-      },
-    ];
-
-    return GridView.builder(
-      padding: context.allPadding,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: ResponsiveHelper.getValue(
-          context,
-          mobile: 2,
-          tablet: 3,
-          desktop: 4,
+  Widget _buildCoursesTabs(BuildContext context, ThemeData theme) {
+    return Column(
+      children: [
+        _buildHeader(context, theme),
+        TabBar(
+          controller: _courseTabController,
+          labelColor: theme.primaryColor,
+          unselectedLabelColor: Colors.grey[600],
+          indicatorColor: theme.primaryColor,
+          tabs: [Tab(text: 'Available Plans'), Tab(text: 'My Enrolled Plans')],
         ),
-        childAspectRatio: ResponsiveHelper.getValue(
-          context,
-          mobile: 0.7,
-          tablet: 0.8,
-          desktop: 0.9,
+        Expanded(
+          child: TabBarView(
+            controller: _courseTabController,
+            children: [
+              _buildAvailablePlans(context, theme),
+              _buildEnrolledPlans(context, theme),
+            ],
+          ),
         ),
-        crossAxisSpacing: context.mediumSpacing,
-        mainAxisSpacing: context.mediumSpacing,
-      ),
-      itemCount: plans.length,
-      itemBuilder: (context, index) {
-        final plan = plans[index];
-        return _buildPlanCard(context, theme, plan);
-      },
+      ],
     );
   }
 
-  Widget _buildCoursesTabs() {
-    final theme = Theme.of(context);
-    return DefaultTabController(
-      length: 2,
-      child: Column(
-        children: [
-          _buildHeader(context, theme),
-          TabBar(
-            labelColor: theme.primaryColor, // Match LoginScreen
-            unselectedLabelColor: Colors.grey[600], // Match LoginScreen
-            indicatorColor: theme.primaryColor, // Match LoginScreen
-            tabs: [
-              Tab(text: 'Available Plans'),
-              Tab(text: 'My Enrolled Plans'),
-            ],
-          ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                _buildAvailablePlans(context, theme),
-                _buildEnrolledPlans(context, theme),
-              ],
+  Widget _buildAvailablePlans(BuildContext context, ThemeData theme) {
+    return StreamBuilder<List<Course>>(
+      stream: _databaseService.fetchAllCoursesRealTime(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: SpinKitDoubleBounce(
+              color: theme.primaryColor,
+              size: ResponsiveHelper.getValue(
+                context,
+                mobile: 40.0,
+                tablet: 50.0,
+                desktop: 60.0,
+              ),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          AppNotifier.show(
+            context,
+            'Error loading courses: ${snapshot.error}',
+            type: MessageType.error,
+          );
+          return Center(
+            child: Text(
+              'Error loading courses',
+              style: context.responsiveBodyLarge,
+            ),
+          );
+        }
+
+        final courses = snapshot.data ?? [];
+
+        if (courses.isEmpty) {
+          return Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.fitness_center_outlined,
+                    size: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 80.0,
+                      tablet: 100.0,
+                      desktop: 120.0,
+                    ),
+                    color: Colors.grey[600],
+                  ),
+                  SizedBox(height: context.mediumSpacing),
+                  Text(
+                    'No Available Plans',
+                    style: context.responsiveHeadlineMedium,
+                  ),
+                  SizedBox(height: context.smallSpacing),
+                  Text(
+                    'No fitness plans available at the moment',
+                    style: context.responsiveBodyLarge.copyWith(
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return GridView.builder(
+          padding: EdgeInsets.all(
+            ResponsiveHelper.getValue(
+              context,
+              mobile: 8.0,
+              tablet: 12.0,
+              desktop: 16.0,
             ),
           ),
-        ],
-      ),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: ResponsiveHelper.getValue(
+              context,
+              mobile: 2,
+              tablet: 3,
+              desktop: 4,
+            ),
+            childAspectRatio: ResponsiveHelper.getValue(
+              context,
+              mobile: 0.65,
+              tablet: 0.75,
+              desktop: 0.85,
+            ),
+            crossAxisSpacing: context.smallSpacing,
+            mainAxisSpacing: context.smallSpacing,
+          ),
+          itemCount: courses.length,
+          itemBuilder: (context, index) {
+            return _buildPlanCard(context, theme, courses[index]);
+          },
+        );
+      },
     );
   }
 
   Widget _buildEnrolledPlans(BuildContext context, ThemeData theme) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.fitness_center_outlined,
-            size: ResponsiveHelper.getValue(
-              context,
-              mobile: 80.0,
-              tablet: 100.0,
-              desktop: 120.0,
-            ),
-            color: Colors.grey[600],
-          ),
-          SizedBox(height: context.mediumSpacing),
-          Text('No Enrolled Plans', style: context.responsiveHeadlineMedium),
-          SizedBox(height: context.smallSpacing),
-          Text(
-            'Enroll in plans to see them here',
-            style: context.responsiveBodyLarge.copyWith(
-              color: Colors.grey[600],
-            ),
-          ),
-          SizedBox(height: context.largeSpacing),
-          ElevatedButton(
-            onPressed: () {
-              DefaultTabController.of(context).animateTo(0);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.primaryColor,
-              padding: EdgeInsets.symmetric(
-                horizontal: context.mediumSpacing * 1.5,
-                vertical: context.smallSpacing,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(context.smallSpacing),
+    return StreamBuilder<List<Course>>(
+      stream: _databaseService.fetchEnrolledCoursesRealTime(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: SpinKitDoubleBounce(
+              color: theme.primaryColor,
+              size: ResponsiveHelper.getValue(
+                context,
+                mobile: 40.0,
+                tablet: 50.0,
+                desktop: 60.0,
               ),
             ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          AppNotifier.show(
+            context,
+            'Error loading enrolled courses: ${snapshot.error}',
+            type: MessageType.error,
+          );
+          return Center(
             child: Text(
-              'Browse Plans',
-              style: context.responsiveTitleLarge.copyWith(color: Colors.white),
+              'Error loading enrolled courses',
+              style: context.responsiveBodyLarge,
+            ),
+          );
+        }
+
+        final courses = snapshot.data ?? [];
+
+        if (courses.isEmpty) {
+          return Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.fitness_center_outlined,
+                    size: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 80.0,
+                      tablet: 100.0,
+                      desktop: 120.0,
+                    ),
+                    color: Colors.grey[600],
+                  ),
+                  SizedBox(height: context.mediumSpacing),
+                  Text(
+                    'No Enrolled Plans',
+                    style: context.responsiveHeadlineMedium,
+                  ),
+                  SizedBox(height: context.smallSpacing),
+                  Text(
+                    'Enroll in plans to see them here',
+                    style: context.responsiveBodyLarge.copyWith(
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  SizedBox(height: context.largeSpacing),
+                  ElevatedButton(
+                    onPressed: () {
+                      _courseTabController.animateTo(0);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.primaryColor,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.mediumSpacing * 1.5,
+                        vertical: context.smallSpacing,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          context.smallSpacing,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      'Browse Plans',
+                      style: context.responsiveTitleLarge.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return GridView.builder(
+          padding: EdgeInsets.all(
+            ResponsiveHelper.getValue(
+              context,
+              mobile: 8.0,
+              tablet: 12.0,
+              desktop: 16.0,
             ),
           ),
-        ],
-      ),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: ResponsiveHelper.getValue(
+              context,
+              mobile: 2,
+              tablet: 3,
+              desktop: 4,
+            ),
+            childAspectRatio: ResponsiveHelper.getValue(
+              context,
+              mobile: 0.65,
+              tablet: 0.75,
+              desktop: 0.85,
+            ),
+            crossAxisSpacing: context.smallSpacing,
+            mainAxisSpacing: context.smallSpacing,
+          ),
+          itemCount: courses.length,
+          itemBuilder: (context, index) {
+            return _buildPlanCard(
+              context,
+              theme,
+              courses[index],
+              isEnrolled: true,
+            );
+          },
+        );
+      },
     );
   }
 
   Widget _buildPlanCard(
     BuildContext context,
     ThemeData theme,
-    Map<String, dynamic> plan,
-  ) {
+    Course course, {
+    bool isEnrolled = false,
+  }) {
+    String formattedDate = 'Date not available';
+    if (course.createdAt != null) {
+      formattedDate = DateFormat('MMM d, yyyy').format(course.createdAt!);
+    }
+
     return Card(
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
@@ -461,107 +621,217 @@ class PatientDashboardState extends State<PatientDashboard> {
         desktop: 8.0,
       ),
       color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: ResponsiveHelper.getValue(
+      child: InkWell(
+        onTap: () {
+          if (isEnrolled) {
+            Navigator.push(
               context,
-              mobile: 100.0,
-              tablet: 120.0,
-              desktop: 140.0,
-            ),
-            color: Colors.grey[100],
-            width: double.infinity,
-            child: Center(
-              child: Icon(
-                Icons.fitness_center,
-                size: ResponsiveHelper.getValue(
-                  context,
-                  mobile: 40.0,
-                  tablet: 50.0,
-                  desktop: 60.0,
-                ),
-                color: theme.primaryColor,
+              MaterialPageRoute(
+                builder: (context) => CourseLessonsScreen(courseId: course.id),
               ),
+            );
+          }
+        },
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: ResponsiveHelper.getValue(
+              context,
+              mobile: 200.0,
+              tablet: 250.0,
+              desktop: 300.0,
             ),
           ),
-          Padding(
-            padding: EdgeInsets.all(context.smallSpacing),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  plan['title'],
-                  style: context.responsiveTitleLarge,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                flex: 2,
+                child: SizedBox(
+                  width: double.infinity,
+                  child:
+                      course.coverImageUrl != null &&
+                              course.coverImageUrl!.isNotEmpty
+                          ? Image.network(
+                            course.coverImageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (_, __, ___) => Container(
+                                  color: Colors.grey[100],
+                                  child: Icon(
+                                    Icons.image_not_supported,
+                                    size: ResponsiveHelper.getValue(
+                                      context,
+                                      mobile: 40.0,
+                                      tablet: 50.0,
+                                      desktop: 60.0,
+                                    ),
+                                    color: theme.primaryColor,
+                                  ),
+                                ),
+                          )
+                          : Container(
+                            color: Colors.grey[100],
+                            child: Icon(
+                              Icons.fitness_center,
+                              size: ResponsiveHelper.getValue(
+                                context,
+                                mobile: 40.0,
+                                tablet: 50.0,
+                                desktop: 60.0,
+                              ),
+                              color: theme.primaryColor,
+                            ),
+                          ),
                 ),
-                SizedBox(height: context.smallSpacing / 2),
-                Text(
-                  'By ${plan['doctor']}',
-                  style: context.responsiveBodyMedium.copyWith(
-                    color: Colors.grey[600],
-                  ),
-                ),
-                SizedBox(height: context.smallSpacing),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.people,
-                      size: ResponsiveHelper.getValue(
-                        context,
-                        mobile: 14.0,
-                        tablet: 16.0,
-                        desktop: 18.0,
-                      ),
-                      color: theme.primaryColor,
-                    ),
-                    SizedBox(width: context.smallSpacing / 2),
-                    Text(
-                      '${plan['enrolled']} patients',
-                      style: context.responsiveBodyMedium.copyWith(
-                        color: theme.primaryColor,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: context.smallSpacing),
-                ElevatedButton(
-                  onPressed: () {
-                    AppNotifier.show(
+              ),
+              Expanded(
+                flex: 3,
+                child: Padding(
+                  padding: EdgeInsets.all(
+                    ResponsiveHelper.getValue(
                       context,
-                      'Enrollment not implemented',
-                      type: MessageType.error,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.primaryColor,
-                    minimumSize: Size(
-                      double.infinity,
-                      ResponsiveHelper.getValue(
-                        context,
-                        mobile: 30.0,
-                        tablet: 35.0,
-                        desktop: 40.0,
-                      ),
-                    ),
-                    padding: EdgeInsets.zero,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(context.smallSpacing),
+                      mobile: 4.0,
+                      tablet: 6.0,
+                      desktop: 8.0,
                     ),
                   ),
-                  child: Text(
-                    'Enroll Now',
-                    style: context.responsiveBodyLarge.copyWith(
-                      color: Colors.white,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              course.title.isNotEmpty
+                                  ? course.title
+                                  : 'Untitled Plan',
+                              style: context.responsiveTitleLarge,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(height: context.smallSpacing / 2),
+                            FutureBuilder<Map<String, dynamic>?>(
+                              future: _databaseService.fetchUserDetails(
+                                course.tutorId,
+                              ),
+                              builder: (context, snapshot) {
+                                String doctorName = 'Unknown Doctor';
+                                if (snapshot.hasData && snapshot.data != null) {
+                                  doctorName =
+                                      snapshot.data!['displayName'] ??
+                                      'Unknown Doctor';
+                                }
+                                return Text(
+                                  'By $doctorName',
+                                  style: context.responsiveBodyMedium.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                );
+                              },
+                            ),
+                            SizedBox(height: context.smallSpacing),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.people,
+                                  size: ResponsiveHelper.getValue(
+                                    context,
+                                    mobile: 14.0,
+                                    tablet: 16.0,
+                                    desktop: 18.0,
+                                  ),
+                                  color: theme.primaryColor,
+                                ),
+                                SizedBox(width: context.smallSpacing / 2),
+                                Text(
+                                  '${course.enrolledCount} patients',
+                                  style: context.responsiveBodyMedium.copyWith(
+                                    color: theme.primaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: context.smallSpacing),
+                            Text(
+                              formattedDate,
+                              style: context.responsiveBodyMedium.copyWith(
+                                color: Colors.grey[600],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: context.smallSpacing),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed:
+                              isEnrolled
+                                  ? () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => CourseLessonsScreen(
+                                              courseId: course.id,
+                                            ),
+                                      ),
+                                    );
+                                  }
+                                  : () async {
+                                    final success = await _databaseService
+                                        .enrollInCourse(
+                                          courseId: course.id,
+                                          context: context,
+                                        );
+                                    if (success) {
+                                      _courseTabController.animateTo(
+                                        1,
+                                      ); // Switch to My Enrolled Plans
+                                    }
+                                  },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.primaryColor,
+                            minimumSize: Size(
+                              double.infinity,
+                              ResponsiveHelper.getValue(
+                                context,
+                                mobile: 30.0,
+                                tablet: 35.0,
+                                desktop: 40.0,
+                              ),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              vertical: context.smallSpacing,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                context.smallSpacing,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            isEnrolled ? 'View Lessons' : 'Enroll Now',
+                            style: context.responsiveBodyLarge.copyWith(
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

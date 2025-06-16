@@ -18,6 +18,7 @@ import 'package:test_project/screens/patient/blog/blog_view_patient.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:test_project/theme/app_theme.dart' show lightTheme, darkTheme;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:test_project/screens/courses/course_details_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -85,13 +86,9 @@ class _MyAppState extends State<MyApp> {
         '/auth': (context) => AuthenticationPage(),
         '/signUp': (context) => const SignUpScreen(),
         '/login': (context) => const LoginScreen(),
-        // '/messaging': (context) => const ChatListScreen(),
         '/profileSetup': (context) => const ProfileSetupScreen(),
         '/doctorDashboard': (context) => const DoctorDashboard(),
         '/patientDashboard': (context) => const PatientDashboard(),
-        // '/profile': (context) => const ProfileScreen(),
-        // '/blogUpload': (context) => AdvancedBlogEditorScreen(),
-        // '/patientsBlog': (context) => const PatientsScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/chat') {
@@ -100,6 +97,16 @@ class _MyAppState extends State<MyApp> {
             builder: (context) => ChatScreen(arguments: arguments),
           );
         }
+        if (settings.name == '/courseDetails') {
+          final String courseId = settings.arguments as String;
+          return MaterialPageRoute(
+            builder:
+                (context) => CourseDetailsScreen(
+                  courseId: courseId,
+                ), // Use the imported widget
+          );
+        }
+
         if (settings.name == '/blogs') {
           return MaterialPageRoute(
             builder:
@@ -118,13 +125,12 @@ class _MyAppState extends State<MyApp> {
                     }
                     final role = snapshot.data ?? 'Patient';
                     final controller = quill.QuillController.basic();
-                    return
-                    PatientBlogScreen(
-                          title: 'Patient Blogs',
-                          controller: controller,
-                          tags: [],
-                          category: 'General',
-                        );
+                    return PatientBlogScreen(
+                      title: 'Patient Blogs',
+                      controller: controller,
+                      tags: [],
+                      category: 'General',
+                    );
                   },
                 ),
           );

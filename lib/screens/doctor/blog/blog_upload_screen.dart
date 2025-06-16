@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:test_project/services/blog/file_processor.dart';
+import 'package:test_project/services/blog/blog_service.dart';
 import 'package:test_project/utils/blogs/constants.dart';
-import '../../../Services/file_processor.dart';
 import '../../../utils/blogs/content_formatter.dart';
 import '../../../services/blog/metadata_service.dart';
-import '../../../Services/blog_service.dart';
 import '../../../utils/blogs/ui_utils.dart'; // Use alias to avoid conflicts
 import 'blog_preview_screen.dart';
 
