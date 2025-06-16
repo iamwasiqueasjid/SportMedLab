@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/services/database_service.dart';
@@ -7,6 +8,7 @@ import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
 import 'package:test_project/utils/responsive_extension.dart';
 import 'package:test_project/utils/responsive_helper.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ChatListWidget extends StatefulWidget {
   const ChatListWidget({super.key});
@@ -293,36 +295,7 @@ class _ChatListWidgetState extends State<ChatListWidget> {
                 desktop: 12.0,
               ),
             ),
-            leading: CircleAvatar(
-              radius: ResponsiveHelper.getValue(
-                context,
-                mobile: 20.0,
-                tablet: 22.0,
-                desktop: 24.0,
-              ),
-              backgroundColor: theme.primaryColor.withOpacity(0.2),
-              backgroundImage:
-                  photoURL != null && photoURL.isNotEmpty
-                      ? NetworkImage(photoURL)
-                      : null,
-              child:
-                  photoURL == null || photoURL.isEmpty
-                      ? Text(
-                        displayName.isNotEmpty
-                            ? displayName[0].toUpperCase()
-                            : '?',
-                        style: TextStyle(
-                          color: theme.primaryColor,
-                          fontSize: ResponsiveHelper.getValue(
-                            context,
-                            mobile: 16.0,
-                            tablet: 18.0,
-                            desktop: 20.0,
-                          ),
-                        ),
-                      )
-                      : null,
-            ),
+            leading: _buildProfileAvatar(photoURL, displayName, 20, theme),
             title: Text(
               displayName,
               style: context.responsiveBodyLarge.copyWith(
@@ -361,220 +334,531 @@ class _ChatListWidgetState extends State<ChatListWidget> {
     );
   }
 
+  Widget _buildProfileAvatar(
+    String? imageUrl,
+    String? fallbackText,
+    double radius,
+    ThemeData theme,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: theme.primaryColor.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: CircleAvatar(
+        radius: radius,
+        backgroundColor: const Color(0xFF1A1A2E),
+        child: ClipOval(
+          child:
+              imageUrl != null && imageUrl.isNotEmpty
+                  ? CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    width: radius * 2,
+                    height: radius * 2,
+                    fit: BoxFit.cover,
+                    placeholder:
+                        (context, url) => const CircularProgressIndicator(),
+                    errorWidget:
+                        (context, url, error) => Image.asset(
+                          'assets/images/Avatar.png',
+                          width: radius * 2,
+                          height: radius * 2,
+                          fit: BoxFit.cover,
+                        ),
+                  )
+                  : Image.asset(
+                    'assets/images/Avatar.png',
+                    width: radius * 2,
+                    height: radius * 2,
+                    fit: BoxFit.cover,
+                  ),
+        ),
+      ),
+    );
+  }
+
   void _showInitiateChatDialog(BuildContext context) {
     final theme = Theme.of(context);
-    final emailController = TextEditingController();
-    final messageController = TextEditingController();
 
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            backgroundColor: Colors.white,
+      barrierDismissible: true,
+      barrierLabel: 'Dismiss',
+      barrierColor: Colors.black.withOpacity(0.6),
+      transitionDuration: const Duration(milliseconds: 400),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 1),
+            end: Offset.zero,
+          ).animate(
+            CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+          ),
+          child: FadeTransition(opacity: animation, child: child),
+        );
+      },
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Card(
+            color: Colors.white,
+            elevation: 10,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: theme.primaryColor.withOpacity(0.2),
+                width: 1,
+              ),
+            ),
+            child: Container(
+              padding: EdgeInsets.all(
                 ResponsiveHelper.getValue(
                   context,
-                  mobile: 16.0,
-                  tablet: 18.0,
-                  desktop: 20.0,
+                  mobile: 20.0,
+                  tablet: 24.0,
+                  desktop: 28.0,
                 ),
               ),
-            ),
-            title: Text(
-              'Start New Chat',
-              style: context.responsiveHeadlineMedium.copyWith(
-                color: theme.primaryColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            content: SingleChildScrollView(
-              child: Container(
-                padding: EdgeInsets.all(
-                  ResponsiveHelper.getValue(
-                    context,
-                    mobile: 16.0,
-                    tablet: 20.0,
-                    desktop: 24.0,
-                  ),
-                ),
-                width: ResponsiveHelper.getValue(
+              constraints: BoxConstraints(
+                maxWidth: ResponsiveHelper.getValue(
                   context,
                   mobile: double.infinity,
-                  tablet: 400.0,
-                  desktop: 500.0,
+                  tablet: 600.0,
+                  desktop: 700.0,
                 ),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(
-                    ResponsiveHelper.getValue(
-                      context,
-                      mobile: 12.0,
-                      tablet: 14.0,
-                      desktop: 16.0,
+                maxHeight: MediaQuery.of(context).size.height * 0.7,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Select a Doctor',
+                        style: context.responsiveHeadlineMedium.copyWith(
+                          color: const Color(0xFF0A2D7B),
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.close,
+                          color: const Color(0xFF0A2D7B),
+                          size: 28,
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Choose a healthcare professional to start a new conversation',
+                    style: context.responsiveBodyMedium.copyWith(
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: emailController,
-                      decoration: InputDecoration(
-                        labelText: 'Doctor Email',
-                        hintText: 'Enter doctor\'s email',
-                        labelStyle: context.responsiveBodyMedium.copyWith(
-                          color: theme.primaryColor,
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            ResponsiveHelper.getValue(
-                              context,
-                              mobile: 12.0,
-                              tablet: 14.0,
-                              desktop: 16.0,
+                  SizedBox(height: 20),
+                  Expanded(
+                    child: StreamBuilder<List<Map<String, dynamic>>>(
+                      stream: _databaseService.fetchUserChats(_currentUserId!),
+                      builder: (context, chatSnapshot) {
+                        if (chatSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(
+                            child: SpinKitDoubleBounce(
+                              color: const Color(0xFF0A2D7B),
+                              size: ResponsiveHelper.getValue(
+                                context,
+                                mobile: 40.0,
+                                tablet: 50.0,
+                                desktop: 60.0,
+                              ),
                             ),
-                          ),
-                          borderSide: BorderSide(color: theme.primaryColor),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            ResponsiveHelper.getValue(
-                              context,
-                              mobile: 12.0,
-                              tablet: 14.0,
-                              desktop: 16.0,
+                          );
+                        }
+                        if (chatSnapshot.hasError) {
+                          return Center(
+                            child: Text(
+                              'Error loading chats: ${chatSnapshot.error}',
+                              style: context.responsiveBodyLarge.copyWith(
+                                color: Colors.red[600],
+                              ),
                             ),
-                          ),
-                          borderSide: BorderSide(
-                            color: theme.primaryColor,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      style: context.responsiveBodyLarge.copyWith(
-                        color: Colors.black87,
-                      ),
+                          );
+                        }
+                        final chats = chatSnapshot.data ?? [];
+                        final chattedDoctorIds =
+                            chats
+                                .map(
+                                  (chat) => chat['participants'].firstWhere(
+                                    (id) => id != _currentUserId,
+                                    orElse: () => '',
+                                  ),
+                                )
+                                .where((id) => id.isNotEmpty)
+                                .toSet();
+
+                        return StreamBuilder<List<Map<String, dynamic>>>(
+                          stream: _databaseService.fetchDoctors(),
+                          builder: (context, doctorSnapshot) {
+                            if (doctorSnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(
+                                child: SpinKitDoubleBounce(
+                                  color: const Color(0xFF0A2D7B),
+                                  size: ResponsiveHelper.getValue(
+                                    context,
+                                    mobile: 40.0,
+                                    tablet: 50.0,
+                                    desktop: 60.0,
+                                  ),
+                                ),
+                              );
+                            }
+                            if (doctorSnapshot.hasError) {
+                              return Center(
+                                child: Text(
+                                  'Error loading doctors: ${doctorSnapshot.error}',
+                                  style: context.responsiveBodyLarge.copyWith(
+                                    color: Colors.red[600],
+                                  ),
+                                ),
+                              );
+                            }
+                            final doctors = doctorSnapshot.data ?? [];
+                            final filteredDoctors =
+                                doctors
+                                    .where(
+                                      (doctor) =>
+                                          !chattedDoctorIds.contains(
+                                            doctor['id'],
+                                          ),
+                                    )
+                                    .toList();
+
+                            if (filteredDoctors.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  'No new doctors available',
+                                  style: context.responsiveBodyLarge.copyWith(
+                                    color: Colors.grey[600],
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              );
+                            }
+
+                            return ListView.separated(
+                              shrinkWrap: true,
+                              itemCount: filteredDoctors.length,
+                              separatorBuilder:
+                                  (context, index) => Divider(
+                                    color: const Color(
+                                      0xFF0A2D7B,
+                                    ).withOpacity(0.1),
+                                    height: 1,
+                                    thickness: 1,
+                                  ),
+                              itemBuilder: (context, index) {
+                                final doctor = filteredDoctors[index];
+                                final doctorId = doctor['id'] as String;
+                                final displayName =
+                                    doctor['displayName'] as String;
+                                final photoURL = doctor['photoURL'] as String?;
+                                final email = doctor['email'] as String;
+
+                                return ListTile(
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: ResponsiveHelper.getValue(
+                                      context,
+                                      mobile: 12.0,
+                                      tablet: 14.0,
+                                      desktop: 16.0,
+                                    ),
+                                    vertical: 10.0,
+                                  ),
+                                  leading: _buildProfileAvatar(
+                                    photoURL,
+                                    displayName,
+                                    24,
+                                    theme,
+                                  ),
+                                  title: Text(
+                                    displayName,
+                                    style: context.responsiveBodyLarge.copyWith(
+                                      color: const Color(0xFF0A2D7B),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    email,
+                                    style: context.responsiveBodyMedium
+                                        .copyWith(color: Colors.grey[600]),
+                                  ),
+                                  trailing: Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: const Color(0xFF0A2D7B),
+                                    size: 18,
+                                  ),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    _showMessageInputDialog(
+                                      context,
+                                      doctorId,
+                                      displayName,
+                                      email,
+                                    );
+                                  },
+                                  hoverColor: const Color(
+                                    0xFF0A2D7B,
+                                  ).withOpacity(0.05),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        );
+                      },
                     ),
-                    SizedBox(
-                      height: ResponsiveHelper.getValue(
-                        context,
-                        mobile: 16.0,
-                        tablet: 20.0,
-                        desktop: 24.0,
-                      ),
-                    ),
-                    TextField(
-                      controller: messageController,
-                      decoration: InputDecoration(
-                        labelText: 'Initial Message',
-                        hintText: 'Type your message',
-                        labelStyle: context.responsiveBodyMedium.copyWith(
-                          color: theme.primaryColor,
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            ResponsiveHelper.getValue(
-                              context,
-                              mobile: 12.0,
-                              tablet: 14.0,
-                              desktop: 16.0,
-                            ),
-                          ),
-                          borderSide: BorderSide(color: theme.primaryColor),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            ResponsiveHelper.getValue(
-                              context,
-                              mobile: 12.0,
-                              tablet: 14.0,
-                              desktop: 16.0,
-                            ),
-                          ),
-                          borderSide: BorderSide(
-                            color: theme.primaryColor,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      style: context.responsiveBodyLarge.copyWith(
-                        color: Colors.black87,
-                      ),
-                      maxLines: 3,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'Cancel',
-                  style: context.responsiveBodyLarge.copyWith(
-                    color: theme.primaryColor,
-                  ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showMessageInputDialog(
+    BuildContext context,
+    String doctorId,
+    String doctorName,
+    String doctorEmail,
+  ) {
+    final theme = Theme.of(context);
+    final messageController = TextEditingController();
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Dismiss',
+      barrierColor: Colors.black.withOpacity(0.6),
+      transitionDuration: const Duration(milliseconds: 400),
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 1),
+            end: Offset.zero,
+          ).animate(
+            CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+          ),
+          child: FadeTransition(opacity: animation, child: child),
+        );
+      },
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Card(
+            color: Colors.white,
+            elevation: 10,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: theme.primaryColor.withOpacity(0.2),
+                width: 1,
+              ),
+            ),
+            child: Container(
+              padding: EdgeInsets.all(
+                ResponsiveHelper.getValue(
+                  context,
+                  mobile: 20.0,
+                  tablet: 24.0,
+                  desktop: 28.0,
                 ),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      ResponsiveHelper.getValue(
-                        context,
-                        mobile: 12.0,
-                        tablet: 14.0,
-                        desktop: 16.0,
+              constraints: BoxConstraints(
+                maxWidth: ResponsiveHelper.getValue(
+                  context,
+                  mobile: double.infinity,
+                  tablet: 500.0,
+                  desktop: 600.0,
+                ),
+                maxHeight: MediaQuery.of(context).size.height * 0.6,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Message $doctorName',
+                        style: context.responsiveHeadlineMedium.copyWith(
+                          color: const Color(0xFF0A2D7B),
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                        ),
                       ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.close,
+                          color: const Color(0xFF0A2D7B),
+                          size: 28,
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Start a new conversation with $doctorName',
+                    style: context.responsiveBodyMedium.copyWith(
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
-                ),
-                onPressed: () async {
-                  if (emailController.text.isEmpty ||
-                      messageController.text.isEmpty) {
-                    AppNotifier.show(
-                      context,
-                      'Please fill all fields',
-                      type: MessageType.warning,
-                    );
-                    return;
-                  }
-
-                  final chatId = await _databaseService.initiateChat(
-                    patientId: _currentUserId!,
-                    doctorEmail: emailController.text,
-                    initialMessage: messageController.text,
-                    context: context,
-                  );
-
-                  if (chatId != null) {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(
-                      context,
-                      '/chat',
-                      arguments: {
-                        'chatId': chatId,
-                        'otherUserId': chatId.split('_')[1],
-                        'otherUserName': emailController.text.split('@')[0],
-                      },
-                    );
-                  }
-                },
-                child: Text(
-                  'Send',
-                  style: context.responsiveBodyLarge.copyWith(
-                    color: Colors.white,
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: messageController,
+                    decoration: InputDecoration(
+                      labelText: 'Initial Message',
+                      hintText: 'Type your message',
+                      labelStyle: context.responsiveBodyMedium.copyWith(
+                        color: const Color(0xFF0A2D7B),
+                      ),
+                      hintStyle: context.responsiveBodyMedium.copyWith(
+                        color: Colors.grey[400],
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: const Color(0xFF0A2D7B),
+                          width: 1,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: const Color(0xFF0A2D7B),
+                          width: 2,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: const Color(0xFF0A2D7B).withOpacity(0.5),
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    style: context.responsiveBodyLarge.copyWith(
+                      color: Colors.black87,
+                    ),
+                    maxLines: 4,
+                    minLines: 2,
                   ),
-                ),
+                  SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          'Cancel',
+                          style: context.responsiveBodyLarge.copyWith(
+                            color: const Color(0xFF0A2D7B),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0A2D7B),
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: ResponsiveHelper.getValue(
+                              context,
+                              mobile: 20.0,
+                              tablet: 24.0,
+                              desktop: 28.0,
+                            ),
+                            vertical: ResponsiveHelper.getValue(
+                              context,
+                              mobile: 12.0,
+                              tablet: 14.0,
+                              desktop: 16.0,
+                            ),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 4,
+                        ),
+                        onPressed: () async {
+                          if (messageController.text.isEmpty) {
+                            AppNotifier.show(
+                              context,
+                              'Please enter a message',
+                              type: MessageType.warning,
+                            );
+                            return;
+                          }
+
+                          final chatId = await _databaseService.initiateChat(
+                            patientId: _currentUserId!,
+                            doctorEmail: doctorEmail,
+                            initialMessage: messageController.text,
+                            context: context,
+                          );
+
+                          if (chatId != null) {
+                            Navigator.pop(context);
+                            Navigator.pushNamed(
+                              context,
+                              '/chat',
+                              arguments: {
+                                'chatId': chatId,
+                                'otherUserId': doctorId,
+                                'otherUserName': doctorName,
+                              },
+                            );
+                          }
+                        },
+                        child: Text(
+                          'Send',
+                          style: context.responsiveBodyLarge.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
+        );
+      },
     );
   }
 }

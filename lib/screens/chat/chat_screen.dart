@@ -7,6 +7,7 @@ import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
 import 'package:test_project/utils/responsive_extension.dart';
 import 'package:test_project/utils/responsive_helper.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ChatScreen extends StatefulWidget {
   final Map<String, dynamic>? arguments;
@@ -528,23 +529,38 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       child: CircleAvatar(
         radius: radius,
         backgroundColor: const Color(0xFF1A1A2E),
-        backgroundImage:
-            imageUrl != null && imageUrl.isNotEmpty
-                ? NetworkImage(imageUrl)
-                : null,
-        child:
-            imageUrl == null || imageUrl.isEmpty
-                ? Text(
-                  fallbackText?.isNotEmpty == true
-                      ? fallbackText![0].toUpperCase()
-                      : '?',
-                  style: TextStyle(
-                    color: theme.primaryColor,
-                    fontSize: radius * 0.75,
-                    fontWeight: FontWeight.bold,
+        child: ClipOval(
+          child:
+              imageUrl != null && imageUrl.trim().isNotEmpty
+                  ? CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    width: radius * 2,
+                    height: radius * 2,
+                    fit: BoxFit.cover,
+                    placeholder:
+                        (context, url) => const Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white70,
+                            ),
+                          ),
+                        ),
+                    errorWidget:
+                        (context, url, error) => Image.asset(
+                          'assets/images/Avatar.png',
+                          width: radius * 2,
+                          height: radius * 2,
+                          fit: BoxFit.cover,
+                        ),
+                  )
+                  : Image.asset(
+                    'assets/images/Avatar.png',
+                    width: radius * 2,
+                    height: radius * 2,
+                    fit: BoxFit.cover,
                   ),
-                )
-                : null,
+        ),
       ),
     );
   }

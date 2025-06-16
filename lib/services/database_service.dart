@@ -672,4 +672,27 @@ class DatabaseService {
       return null;
     }
   }
+
+  /// Streams all doctors for chat initiation
+  Stream<List<Map<String, dynamic>>> fetchDoctors() {
+    try {
+      return _firestore
+          .collection('users')
+          .where('role', isEqualTo: 'Doctor')
+          .snapshots()
+          .map((snapshot) {
+            return snapshot.docs.map((doc) {
+              final data = doc.data();
+              return {
+                'id': doc.id,
+                'displayName': data['displayName'] ?? 'Unknown',
+                'email': data['email'] ?? '',
+                'photoURL': data['photoURL'] as String?,
+              };
+            }).toList();
+          });
+    } catch (e) {
+      return Stream.error(e);
+    }
+  }
 }
