@@ -1,4 +1,5 @@
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:test_project/screens/chat/chat_list_screen.dart';
 import 'package:test_project/screens/profile/edit_profile.dart';
 import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/utils/message_type.dart';
@@ -190,9 +191,7 @@ class PatientDashboardState extends State<PatientDashboard> {
                   child: Text('Blogs', style: context.responsiveTitleLarge),
                 ),
                 ExerciseSelectionWidget(),
-                Center(
-                  child: Text('Chats', style: context.responsiveTitleLarge),
-                ),
+                ChatListWidget(),
                 ProfileWidget(),
               ],
             ),

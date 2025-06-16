@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/services/database_service.dart';
-import 'package:test_project/widgets/custom_bottom_navbar.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/utils/message_type.dart';
@@ -9,14 +8,14 @@ import 'package:test_project/widgets/app_message_notifier.dart';
 import 'package:test_project/utils/responsive_extension.dart';
 import 'package:test_project/utils/responsive_helper.dart';
 
-class ChatListScreen extends StatefulWidget {
-  const ChatListScreen({super.key});
+class ChatListWidget extends StatefulWidget {
+  const ChatListWidget({super.key});
 
   @override
-  State<ChatListScreen> createState() => _ChatListScreenState();
+  State<ChatListWidget> createState() => _ChatListWidgetState();
 }
 
-class _ChatListScreenState extends State<ChatListScreen> {
+class _ChatListWidgetState extends State<ChatListWidget> {
   final AuthService _authService = AuthService();
   final DatabaseService _databaseService = DatabaseService();
   String? _currentUserId;
@@ -36,11 +35,13 @@ class _ChatListScreenState extends State<ChatListScreen> {
         _userRole = userData.role;
       });
     } else {
-      AppNotifier.show(
-        context,
-        'Failed to load user data',
-        type: MessageType.error,
-      );
+      if (mounted) {
+        AppNotifier.show(
+          context,
+          'Failed to load user data',
+          type: MessageType.error,
+        );
+      }
     }
   }
 
@@ -50,64 +51,59 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        backgroundColor: theme.primaryColor,
-        foregroundColor: Colors.white,
-        elevation: 2,
-        title: Text(
-          'Messages',
-          style: context.responsiveTitleLarge.copyWith(color: Colors.white),
-        ),
-        actions: [
-          if (_userRole == 'Patient')
-            IconButton(
-              icon: Icon(
-                Icons.add_comment,
-                size: ResponsiveHelper.getValue(
-                  context,
-                  mobile: 24.0,
-                  tablet: 26.0,
-                  desktop: 28.0,
-                ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(
+              ResponsiveHelper.getValue(
+                context,
+                mobile: 16.0,
+                tablet: 20.0,
+                desktop: 24.0,
               ),
-              onPressed: () => _showInitiateChatDialog(context),
             ),
-        ],
-      ),
-      body:
-          _currentUserId == null
-              ? Center(
-                child: SpinKitDoubleBounce(
-                  color: const Color(0xFF0A2D7B),
-                  size: ResponsiveHelper.getValue(
-                    context,
-                    mobile: 40.0,
-                    tablet: 50.0,
-                    desktop: 60.0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'All Chats',
+                  style: context.responsiveHeadlineMedium.copyWith(
+                    color: theme.primaryColor,
                   ),
                 ),
-              )
-              : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(
-                      ResponsiveHelper.getValue(
+                if (_userRole == 'Patient')
+                  IconButton(
+                    icon: Icon(
+                      Icons.add_comment,
+                      size: ResponsiveHelper.getValue(
                         context,
-                        mobile: 16.0,
-                        tablet: 20.0,
-                        desktop: 24.0,
+                        mobile: 24.0,
+                        tablet: 26.0,
+                        desktop: 28.0,
                       ),
+                      color: theme.primaryColor,
                     ),
-                    child: Text(
-                      'All Chats',
-                      style: context.responsiveHeadlineMedium.copyWith(
-                        color: theme.primaryColor,
-                      ),
-                    ),
+                    onPressed: () => _showInitiateChatDialog(context),
                   ),
-                  Expanded(
-                    child: StreamBuilder<List<Map<String, dynamic>>>(
+              ],
+            ),
+          ),
+          Expanded(
+            child:
+                _currentUserId == null
+                    ? Center(
+                      child: SpinKitDoubleBounce(
+                        color: const Color(0xFF0A2D7B),
+                        size: ResponsiveHelper.getValue(
+                          context,
+                          mobile: 40.0,
+                          tablet: 50.0,
+                          desktop: 60.0,
+                        ),
+                      ),
+                    )
+                    : StreamBuilder<List<Map<String, dynamic>>>(
                       stream: _databaseService.fetchUserChats(_currentUserId!),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
@@ -154,7 +150,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         }
                         final chats = snapshot.data ?? [];
                         if (chats.isEmpty) {
-                          print('No chats found for userId: $_currentUserId');
                           return Center(
                             child: Text(
                               'No chats yet',
@@ -180,10 +175,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         );
                       },
                     ),
-                  ),
-                ],
-              ),
-      bottomNavigationBar: CustomBottomNavBar(currentRoute: '/messaging'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -505,8 +499,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       arguments: {
                         'chatId': chatId,
                         'otherUserId': chatId.split('_')[1],
-                        'otherUserName':
-                            emailController.text.split('@')[0], // Fallback name
+                        'otherUserName': emailController.text.split('@')[0],
                       },
                     );
                   }

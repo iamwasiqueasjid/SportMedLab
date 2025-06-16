@@ -1,6 +1,8 @@
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/models/course.dart';
+import 'package:test_project/screens/chat/chat_list_screen.dart';
 import 'package:test_project/screens/doctor/course_lesson_screen.dart';
+import 'package:test_project/screens/profile/edit_profile.dart';
 import 'package:test_project/services/database_service.dart';
 import 'package:test_project/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -452,12 +454,8 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                 Center(
                   child: Text('Blogs', style: context.responsiveTitleLarge),
                 ),
-                Center(
-                  child: Text('Chats', style: context.responsiveTitleLarge),
-                ),
-                Center(
-                  child: Text('Profile', style: context.responsiveTitleLarge),
-                ),
+                ChatListWidget(),
+                ProfileWidget(),
               ],
             ),
           ),
@@ -471,6 +469,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
               ),
             ),
             decoration: BoxDecoration(
+              // backgroundBlendMode: BlendMode.srcOver,
               color: Colors.white,
               borderRadius: BorderRadius.circular(context.mediumSpacing),
               boxShadow: [
@@ -490,6 +489,8 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
               unselectedLabelColor: theme.primaryColor.withOpacity(0.8),
               indicatorColor: theme.primaryColor,
               indicatorSize: TabBarIndicatorSize.tab,
+              unselectedLabelStyle: context.responsiveBodyMedium,
+              labelStyle: context.responsiveBodyLarge,
               indicator: BoxDecoration(
                 color: theme.primaryColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(context.mediumSpacing),
@@ -505,8 +506,6 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                   ),
                 ),
               ),
-              labelStyle: context.responsiveBodyLarge,
-              unselectedLabelStyle: context.responsiveBodyMedium,
               tabs: [
                 Tab(
                   icon: Icon(
