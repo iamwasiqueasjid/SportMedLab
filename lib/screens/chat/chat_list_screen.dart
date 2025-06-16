@@ -54,41 +54,89 @@ class _ChatListWidgetState extends State<ChatListWidget> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: EdgeInsets.all(
-              ResponsiveHelper.getValue(
-                context,
-                mobile: 16.0,
-                tablet: 20.0,
-                desktop: 24.0,
+          Container(
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 20,
+              left: 24,
+              right: 24,
+              bottom: 24,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(
+                bottom: BorderSide(
+                  color: theme.primaryColor.withOpacity(0.2),
+                  width: 1,
+                ),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
+              ],
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'All Chats',
-                  style: context.responsiveHeadlineMedium.copyWith(
-                    color: theme.primaryColor,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Messages',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          color: theme.primaryColor,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      Text(
+                        _userRole == 'Patient'
+                            ? 'Connect with Healthcare Professionals'
+                            : 'Connect with Patients',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 if (_userRole == 'Patient')
-                  IconButton(
-                    icon: Icon(
-                      Icons.add_comment,
-                      size: ResponsiveHelper.getValue(
-                        context,
-                        mobile: 24.0,
-                        tablet: 26.0,
-                        desktop: 28.0,
+                  GestureDetector(
+                    onTap: () => _showInitiateChatDialog(context),
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: theme.primaryColor,
+                        boxShadow: [
+                          BoxShadow(
+                            color: theme.primaryColor.withOpacity(0.3),
+                            blurRadius: 8,
+                            spreadRadius: 1,
+                          ),
+                        ],
                       ),
-                      color: theme.primaryColor,
+                      child: Icon(Icons.add, color: Colors.white, size: 24),
                     ),
-                    onPressed: () => _showInitiateChatDialog(context),
                   ),
               ],
             ),
           ),
+          SizedBox(
+            height: ResponsiveHelper.getValue(
+              context,
+              mobile: 16.0,
+              tablet: 20.0,
+              desktop: 24.0,
+            ),
+          ),
+
           Expanded(
             child:
                 _currentUserId == null
@@ -218,6 +266,7 @@ class _ChatListWidgetState extends State<ChatListWidget> {
               desktop: 16.0,
             ),
           ),
+          color: Colors.white, // Set background color to white
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(
               ResponsiveHelper.getValue(
@@ -226,6 +275,10 @@ class _ChatListWidgetState extends State<ChatListWidget> {
                 tablet: 14.0,
                 desktop: 16.0,
               ),
+            ),
+            side: BorderSide(
+              color: theme.primaryColor, // Set border color to blue
+              width: 1.0,
             ),
           ),
           elevation: ResponsiveHelper.getValue(
@@ -267,14 +320,17 @@ class _ChatListWidgetState extends State<ChatListWidget> {
             title: Text(
               displayName,
               style: context.responsiveBodyLarge.copyWith(
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.bold,
+                color: theme.primaryColor, // Set title color to white
               ),
             ),
             subtitle: Text(
               lastMessage,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: context.responsiveBodyMedium,
+              style: context.responsiveBodyMedium.copyWith(
+                color: theme.primaryColor, // Set recent text color to white
+              ),
             ),
             trailing: Text(
               formattedTime,
