@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:test_project/workout_pose/history_screen.dart';
 import 'exercise_session_screen.dart';
 import 'history_screen.dart';
 import 'exercise_data.dart';
@@ -22,6 +21,7 @@ class ExerciseSelectionWidget extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
+        // Header with title and history icon
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -31,7 +31,7 @@ class ExerciseSelectionWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: theme.primaryColor, // Changed to theme.primaryColor
+                  color: theme.primaryColor,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -43,52 +43,121 @@ class ExerciseSelectionWidget extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 20),
-        for (var exercise in exercises)
-          Card(
-            color: Colors.white,
-            elevation: 4,
-            margin: const EdgeInsets.symmetric(vertical: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              side: BorderSide(color: theme.primaryColor, width: 1.0),
-            ),
-            child: ListTile(
-              leading:
-                  exercise.name.toLowerCase() == 'armpress'
-                      ? const Icon(Icons.fitness_center, color: Colors.blue)
-                      : exercise.name.toLowerCase() == 'pushups'
-                      ? const Icon(
-                        Icons.accessibility_new,
-                        color: Colors.orange,
-                      )
-                      : null,
-              title: Text(
-                exercise.name,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: theme.primaryColor,
+        // Search bar
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: 'What pose do you wish to align?',
+              hintStyle: TextStyle(color: Theme.of(context).primaryColor),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                borderSide: BorderSide(color: Theme.of(context).primaryColor),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                borderSide: BorderSide(color: Theme.of(context).primaryColor),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                borderSide: BorderSide(
+                  color: Theme.of(context).primaryColor,
+                  width: 2.0,
                 ),
               ),
-              subtitle: Text(
-                exercise.description,
-                style: TextStyle(color: theme.primaryColor),
-              ),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                color: theme.primaryColor,
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => ExerciseSessionScreen(exercise: exercise),
-                  ),
-                );
+              filled: true,
+              fillColor: Colors.grey[200],
+            ),
+            style: TextStyle(color: Theme.of(context).primaryColor),
+          ),
+        ),
+        const SizedBox(height: 20),
+        // Strength Alignment Section
+        Text(
+          'Available Exercises',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: theme.primaryColor,
+          ),
+        ),
+        const SizedBox(height: 10),
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          children: [
+            _buildExerciseCard(context, exercises[0], theme), // Arm Press
+            _buildExerciseCard(context, exercises[1], theme), // Push ups
+          ],
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget _buildExerciseCard(
+    BuildContext context,
+    Exercise exercise,
+    ThemeData theme,
+  ) {
+    // Determine the image path based on exercise name
+    String imagePath = '';
+    print('Exercise name: ${exercise.name}'); // Debug log
+    if (exercise.name.toLowerCase() == 'arm press') {
+      imagePath = 'assets/icons/muscle.png';
+    } else if (exercise.name.toLowerCase() == 'push ups') {
+      imagePath = 'assets/icons/push-up.png';
+    }
+
+    return Card(
+      color: Colors.white,
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        side: BorderSide(color: theme.primaryColor, width: 1.0),
+      ),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ExerciseSessionScreen(exercise: exercise),
+            ),
+          );
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              imagePath,
+              width: 65,
+              height: 65,
+              errorBuilder: (context, error, stackTrace) {
+                print(
+                  'Error loading image: $imagePath for ${exercise.name}',
+                ); // Debug log
+                return Icon(
+                  Icons.fitness_center,
+                  size: 50,
+                  color: theme.primaryColor,
+                ); // Fallback icon
               },
             ),
-          ),
-      ],
+            const SizedBox(height: 10),
+            Text(
+              exercise.name,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: theme.primaryColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

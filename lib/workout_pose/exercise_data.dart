@@ -90,7 +90,7 @@ final List<Exercise> exercises = [
     ],
   ),
   Exercise(
-    name: 'Push-ups',
+    name: 'Push ups',
     description: 'Build upper body and core strength',
     instructions:
         'Start in a plank position with hands under shoulders. Lower your body until your chest nearly touches the floor, keeping elbows at a 45-degree angle. Push back up to the starting position.',
@@ -100,13 +100,13 @@ final List<Exercise> exercises = [
         landmarkType: PoseLandmarkType.leftElbow,
         minAngle: 45,
         maxAngle: 90,
-        feedback: 'Keep your elbows between 45 and 90 degrees during push-ups.',
+        feedback: 'Keep your elbows between 45 and 90 degrees during Push ups.',
       ),
       AngleCheck(
         landmarkType: PoseLandmarkType.rightElbow,
         minAngle: 45,
         maxAngle: 90,
-        feedback: 'Keep your elbows between 45 and 90 degrees during push-ups.',
+        feedback: 'Keep your elbows between 45 and 90 degrees during Push ups.',
       ),
       // Shoulder angles
       AngleCheck(

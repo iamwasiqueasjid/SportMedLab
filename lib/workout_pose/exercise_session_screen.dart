@@ -93,7 +93,7 @@ class _ExerciseSessionScreenState extends State<ExerciseSessionScreen> {
     final pose = poses.first;
     final angles = _calculateAngles(pose);
 
-    if (widget.exercise.name == 'Push-ups') {
+    if (widget.exercise.name == 'Push ups') {
       _handlePushUpLogic(pose, angles);
     } else if (widget.exercise.name == 'Arm Press') {
       _handleArmPressLogic(pose, angles);
@@ -262,7 +262,7 @@ class _ExerciseSessionScreenState extends State<ExerciseSessionScreen> {
     }
 
     if (widget.exercise.name == 'Arm Press' ||
-        widget.exercise.name == 'Push-ups') {
+        widget.exercise.name == 'Push ups') {
       final leftElbowAngle = calculateAngle(
         pose.landmarks[PoseLandmarkType.leftShoulder]!,
         pose.landmarks[PoseLandmarkType.leftElbow]!,
