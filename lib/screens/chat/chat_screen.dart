@@ -539,11 +539,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     fit: BoxFit.cover,
                     placeholder:
                         (context, url) => const Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white70,
-                            ),
+                          child: SpinKitDoubleBounce(
+                            color: Color(0xFF0A2D7B),
+                            size: 40.0,
                           ),
                         ),
                     errorWidget:

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -48,7 +49,12 @@ class HistoryPopup extends StatelessWidget {
                 future: _loadSessions(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(
+                      child: SpinKitDoubleBounce(
+                        color: Color(0xFF0A2D7B),
+                        size: 40.0,
+                      ),
+                    );
                   }
                   final sessions = snapshot.data!;
                   if (sessions.isEmpty) {

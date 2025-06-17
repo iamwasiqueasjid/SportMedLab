@@ -138,28 +138,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white, // Match LoginScreen background
-      appBar: AppBar(
-        backgroundColor: Colors.white, // Match LoginScreen
-        elevation: 0,
-        leading: Builder(
-          builder:
-              (context) => IconButton(
-                icon: Icon(
-                  Icons.menu,
-                  color: theme.primaryColor,
-                  size: ResponsiveHelper.getValue(
-                    context,
-                    mobile: 24.0,
-                    tablet: 26.0,
-                    desktop: 28.0,
-                  ),
-                ),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              ),
-        ),
-      ),
       body:
           _isLoading
               ? Center(

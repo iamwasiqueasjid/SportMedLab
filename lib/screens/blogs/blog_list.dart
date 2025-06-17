@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../services/blog/blog_service.dart';
 import '../../models/blog.dart';
 import 'view_blog.dart';
@@ -53,8 +54,9 @@ class _BlogListState extends State<BlogList> {
       child:
           _isLoading
               ? const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2196F3)),
+                child: SpinKitDoubleBounce(
+                  color: Color(0xFF0A2D7B),
+                  size: 40.0,
                 ),
               )
               : _errorMessage != null
@@ -64,10 +66,9 @@ class _BlogListState extends State<BlogList> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Color(0xFF2196F3),
-                        ),
+                      child: SpinKitDoubleBounce(
+                        color: Color(0xFF0A2D7B),
+                        size: 40.0,
                       ),
                     );
                   }

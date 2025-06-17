@@ -52,178 +52,185 @@ class _ChatListWidgetState extends State<ChatListWidget> {
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack(
         children: [
-          Container(
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 20,
-              left: 24,
-              right: 24,
-              bottom: 24,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(
-                bottom: BorderSide(
-                  color: theme.primaryColor.withOpacity(0.2),
-                  width: 1,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top + 20,
+                  left: 24,
+                  right: 24,
+                  bottom: 24,
                 ),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Messages',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w700,
-                          color: theme.primaryColor,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                      Text(
-                        _userRole == 'Patient'
-                            ? 'Connect with Healthcare Professionals'
-                            : 'Connect with Patients',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(
+                    bottom: BorderSide(
+                      color: theme.primaryColor.withOpacity(0.2),
+                      width: 1,
+                    ),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.1),
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
                 ),
-                if (_userRole == 'Patient')
-                  GestureDetector(
-                    onTap: () => _showInitiateChatDialog(context),
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: theme.primaryColor,
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.primaryColor.withOpacity(0.3),
-                            blurRadius: 8,
-                            spreadRadius: 1,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Messages',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w700,
+                              color: theme.primaryColor,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          Text(
+                            _userRole == 'Patient'
+                                ? 'Connect with Healthcare Professionals'
+                                : 'Connect with Patients',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
                         ],
                       ),
-                      child: Icon(Icons.add, color: Colors.white, size: 24),
                     ),
-                  ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: ResponsiveHelper.getValue(
-              context,
-              mobile: 16.0,
-              tablet: 20.0,
-              desktop: 24.0,
-            ),
-          ),
-          Expanded(
-            child:
-                _currentUserId == null
-                    ? Center(
-                      child: SpinKitDoubleBounce(
-                        color: const Color(0xFF0A2D7B),
-                        size: ResponsiveHelper.getValue(
-                          context,
-                          mobile: 40.0,
-                          tablet: 50.0,
-                          desktop: 60.0,
-                        ),
-                      ),
-                    )
-                    : StreamBuilder<List<Map<String, dynamic>>>(
-                      stream: _databaseService.fetchUserChats(_currentUserId!),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(
-                            child: SpinKitDoubleBounce(
-                              color: const Color(0xFF0A2D7B),
-                              size: ResponsiveHelper.getValue(
-                                context,
-                                mobile: 40.0,
-                                tablet: 50.0,
-                                desktop: 60.0,
-                              ),
-                            ),
-                          );
-                        }
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Error loading chats: ${snapshot.error}',
-                                  style: context.responsiveBodyLarge,
-                                ),
-                                SizedBox(
-                                  height: ResponsiveHelper.getValue(
-                                    context,
-                                    mobile: 16.0,
-                                    tablet: 20.0,
-                                    desktop: 24.0,
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () => setState(() {}),
-                                  child: Text(
-                                    'Retry',
-                                    style: context.responsiveBodyLarge,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                        final chats = snapshot.data ?? [];
-                        if (chats.isEmpty) {
-                          return Center(
-                            child: Text(
-                              'No chats yet',
-                              style: context.responsiveBodyLarge,
-                            ),
-                          );
-                        }
-
-                        return ListView.builder(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: ResponsiveHelper.getValue(
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: ResponsiveHelper.getValue(
+                  context,
+                  mobile: 16.0,
+                  tablet: 20.0,
+                  desktop: 24.0,
+                ),
+              ),
+              Expanded(
+                child:
+                    _currentUserId == null
+                        ? Center(
+                          child: SpinKitDoubleBounce(
+                            color: const Color(0xFF0A2D7B),
+                            size: ResponsiveHelper.getValue(
                               context,
-                              mobile: 16.0,
-                              tablet: 20.0,
-                              desktop: 24.0,
+                              mobile: 40.0,
+                              tablet: 50.0,
+                              desktop: 60.0,
                             ),
                           ),
-                          itemCount: chats.length,
-                          itemBuilder: (context, index) {
-                            final chat = chats[index];
-                            return _buildChatTile(context, chat);
+                        )
+                        : StreamBuilder<List<Map<String, dynamic>>>(
+                          stream: _databaseService.fetchUserChats(
+                            _currentUserId!,
+                          ),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(
+                                child: SpinKitDoubleBounce(
+                                  color: const Color(0xFF0A2D7B),
+                                  size: ResponsiveHelper.getValue(
+                                    context,
+                                    mobile: 40.0,
+                                    tablet: 50.0,
+                                    desktop: 60.0,
+                                  ),
+                                ),
+                              );
+                            }
+                            if (snapshot.hasError) {
+                              return Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Error loading chats: ${snapshot.error}',
+                                      style: context.responsiveBodyLarge,
+                                    ),
+                                    SizedBox(
+                                      height: ResponsiveHelper.getValue(
+                                        context,
+                                        mobile: 16.0,
+                                        tablet: 20.0,
+                                        desktop: 24.0,
+                                      ),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () => setState(() {}),
+                                      child: Text(
+                                        'Retry',
+                                        style: context.responsiveBodyLarge,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                            final chats = snapshot.data ?? [];
+                            if (chats.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  'No chats yet',
+                                  style: context.responsiveBodyLarge,
+                                ),
+                              );
+                            }
+
+                            return ListView.builder(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 16.0,
+                                  tablet: 20.0,
+                                  desktop: 24.0,
+                                ),
+                              ),
+                              itemCount: chats.length,
+                              itemBuilder: (context, index) {
+                                final chat = chats[index];
+                                return _buildChatTile(context, chat);
+                              },
+                            );
                           },
-                        );
-                      },
-                    ),
+                        ),
+              ),
+            ],
           ),
+
+          if (_userRole == 'Patient')
+            Positioned(
+              bottom: 16.0,
+              right: 16.0,
+              child: FloatingActionButton(
+                onPressed: () => _showInitiateChatDialog(context),
+                backgroundColor: theme.primaryColor,
+                // tooltip: 'Add New Fitness Plan',
+                child: Icon(
+                  Icons.message,
+                  color: Colors.white,
+                  size: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 24.0,
+                    tablet: 26.0,
+                    desktop: 28.0,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -362,7 +369,10 @@ class _ChatListWidgetState extends State<ChatListWidget> {
                     height: radius * 2,
                     fit: BoxFit.cover,
                     placeholder:
-                        (context, url) => const CircularProgressIndicator(),
+                        (context, url) => const SpinKitDoubleBounce(
+                          color: Color(0xFF0A2D7B),
+                          size: 40.0,
+                        ),
                     errorWidget:
                         (context, url, error) => Image.asset(
                           'assets/images/Avatar.png',

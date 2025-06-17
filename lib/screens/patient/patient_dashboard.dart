@@ -14,7 +14,7 @@ import 'package:test_project/utils/responsive_widget.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:test_project/workout_pose/exercise_selection_screen.dart';
-import 'package:intl/intl.dart'; // Add this import
+import 'package:intl/intl.dart';
 
 class PatientDashboard extends StatefulWidget {
   const PatientDashboard({super.key});
@@ -130,28 +130,39 @@ class PatientDashboardState extends State<PatientDashboard>
   }
 
   Widget _buildMobileLayout(BuildContext context, ThemeData theme) {
-    return Column(children: [Expanded(child: _buildPlanTabs(context, theme))]);
+final child = Padding(padding: EdgeInsets.all(0));
+    return _buildTabs(context, theme, child);
   }
 
   Widget _buildTabletLayout(BuildContext context, ThemeData theme) {
-    return Padding(
-      padding: context.horizontalPadding,
-      child: Column(
-        children: [Expanded(child: _buildPlanTabs(context, theme))],
-      ),
-    );
-  }
-
-  Widget _buildDesktopLayout(BuildContext context, ThemeData theme) {
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 1200),
-        padding: context.allPadding,
-        child: Column(
-          children: [Expanded(child: _buildPlanTabs(context, theme))],
+final child = Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveHelper.getValue(
+          context,
+          mobile: 8.0,
+          tablet: 16.0,
+          desktop: 24.0,
         ),
       ),
     );
+    return _buildTabs(context, theme, child);
+  }
+
+  Widget _buildDesktopLayout(BuildContext context, ThemeData theme) {
+final child = Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        padding: EdgeInsets.all(
+          ResponsiveHelper.getValue(
+            context,
+            mobile: 8.0,
+            tablet: 12.0,
+            desktop: 16.0,
+          ),
+        ),
+      ),
+    );
+    return _buildTabs(context, theme, child);
   }
 
   Widget _buildHeader(BuildContext context, ThemeData theme) {
@@ -227,8 +238,8 @@ class PatientDashboardState extends State<PatientDashboard>
       ),
     );
   }
-
-  Widget _buildPlanTabs(BuildContext context, ThemeData theme) {
+  
+  Widget _buildTabs(BuildContext context, ThemeData theme, Widget child) {
     return DefaultTabController(
       length: 5,
       child: Column(
@@ -244,114 +255,116 @@ class PatientDashboardState extends State<PatientDashboard>
               ],
             ),
           ),
-          Container(
-            margin: EdgeInsets.all(
-              ResponsiveHelper.getValue(
-                context,
-                mobile: 8.0,
-                tablet: 12.0,
-                desktop: 16.0,
-              ),
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(context.mediumSpacing),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: ResponsiveHelper.getValue(
-                    context,
-                    mobile: 12.0,
-                    tablet: 16.0,
-                    desktop: 20.0,
-                  ),
+          SafeArea(
+            child: Container(
+              margin: EdgeInsets.all(
+                ResponsiveHelper.getValue(
+                  context,
+                  mobile: 8.0,
+                  tablet: 12.0,
+                  desktop: 16.0,
                 ),
-              ],
-            ),
-            child: TabBar(
-              labelColor: theme.primaryColor,
-              unselectedLabelColor: theme.primaryColor.withOpacity(0.8),
-              indicatorColor: theme.primaryColor,
-              indicatorSize: TabBarIndicatorSize.tab,
-              indicator: BoxDecoration(
-                color: theme.primaryColor.withOpacity(0.1),
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(context.mediumSpacing),
-                border: Border(
-                  top: BorderSide(
-                    color: theme.primaryColor,
-                    width: ResponsiveHelper.getValue(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: ResponsiveHelper.getValue(
                       context,
-                      mobile: 2.0,
-                      tablet: 2.5,
-                      desktop: 3.0,
+                      mobile: 12.0,
+                      tablet: 16.0,
+                      desktop: 20.0,
                     ),
                   ),
-                ),
+                ],
               ),
-              labelStyle: context.responsiveBodyLarge,
-              unselectedLabelStyle: context.responsiveBodyMedium,
-              tabs: [
-                Tab(
-                  icon: Icon(
-                    Icons.description_outlined,
-                    size: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 20.0,
-                      tablet: 22.0,
-                      desktop: 24.0,
+              child: TabBar(
+                labelColor: theme.primaryColor,
+                unselectedLabelColor: theme.primaryColor.withOpacity(0.8),
+                indicatorColor: theme.primaryColor,
+                indicatorSize: TabBarIndicatorSize.tab,
+                labelStyle: context.responsiveBodyLarge,
+                unselectedLabelStyle: context.responsiveBodyMedium,
+                indicator: BoxDecoration(
+                  color: theme.primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(context.mediumSpacing),
+                  border: Border(
+                    top: BorderSide(
+                      color: theme.primaryColor,
+                      width: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 2.0,
+                        tablet: 2.5,
+                        desktop: 3.0,
+                      ),
                     ),
                   ),
-                  text: 'Courses',
                 ),
-                Tab(
-                  icon: Icon(
-                    Icons.article_outlined,
-                    size: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 20.0,
-                      tablet: 22.0,
-                      desktop: 24.0,
+                tabs: [
+                  Tab(
+                    icon: Icon(
+                      Icons.description_outlined,
+                      size: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 20.0,
+                        tablet: 22.0,
+                        desktop: 24.0,
+                      ),
                     ),
+                    text: 'Courses',
                   ),
-                  text: 'Blogs',
-                ),
-                Tab(
-                  icon: Icon(
-                    Icons.fitness_center_outlined,
-                    size: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 20.0,
-                      tablet: 22.0,
-                      desktop: 24.0,
+                  Tab(
+                    icon: Icon(
+                      Icons.article_outlined,
+                      size: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 20.0,
+                        tablet: 22.0,
+                        desktop: 24.0,
+                      ),
                     ),
+                    text: 'Blogs',
                   ),
-                  text: 'Workout',
-                ),
-                Tab(
-                  icon: Icon(
-                    Icons.chat_bubble_outline,
-                    size: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 20.0,
-                      tablet: 22.0,
-                      desktop: 24.0,
+                  Tab(
+                    icon: Icon(
+                      Icons.fitness_center_outlined,
+                      size: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 20.0,
+                        tablet: 22.0,
+                        desktop: 24.0,
+                      ),
                     ),
+                    text: 'Workout',
                   ),
-                  text: 'Chat',
-                ),
-                Tab(
-                  icon: Icon(
-                    Icons.person_outline,
-                    size: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 20.0,
-                      tablet: 22.0,
-                      desktop: 24.0,
+                  Tab(
+                    icon: Icon(
+                      Icons.chat_bubble_outline,
+                      size: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 20.0,
+                        tablet: 22.0,
+                        desktop: 24.0,
+                      ),
                     ),
+                    text: 'Chat',
                   ),
-                  text: 'Profile',
-                ),
-              ],
+                  Tab(
+                    icon: Icon(
+                      Icons.person_outline,
+                      size: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 20.0,
+                        tablet: 22.0,
+                        desktop: 24.0,
+                      ),
+                    ),
+                    text: 'Profile',
+                  ),
+                ],
+              ),
             ),
           ),
         ],

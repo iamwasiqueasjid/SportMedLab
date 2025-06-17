@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/services/blog/file_processor.dart';
 import 'package:test_project/services/blog/blog_service.dart';
 import 'package:test_project/utils/blogs/constants.dart';
@@ -345,9 +346,9 @@ backgroundColor: Colors.red,
                                 ? const SizedBox(
                                   height: 20,
                                   width: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
+                                  child: SpinKitDoubleBounce(
+                                    color: Color(0xFF0A2D7B),
+                                    size: 40.0,
                                   ),
                                 )
                                 : const Row(

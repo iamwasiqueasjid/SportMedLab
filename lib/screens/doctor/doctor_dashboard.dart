@@ -39,6 +39,252 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     });
   }
 
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        backgroundColor: theme.primaryColor,
+        elevation: 0,
+        automaticallyImplyLeading: false, // Remove the back button
+        title: Text(
+          'Doctor Dashboard',
+          style: context.responsiveTitleLarge.copyWith(color: Colors.white),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.logout,
+              color: Colors.white,
+              size: ResponsiveHelper.getValue(
+                context,
+                mobile: 24.0,
+                tablet: 26.0,
+                desktop: 28.0,
+              ),
+            ),
+            onPressed: () => _authService.signOut(context),
+          ),
+        ],
+      ),
+      body:
+          _isLoading
+              ? Center(
+                child: SpinKitDoubleBounce(
+                  color: const Color(0xFF0A2D7B),
+                  size: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 40.0,
+                    tablet: 50.0,
+                    desktop: 60.0,
+                  ),
+                ),
+              )
+              : ResponsiveBuilder(
+                builder: (context, constraints, deviceType) {
+                  return _buildResponsiveLayout(context, theme, deviceType);
+                },
+              ),
+    );
+  }
+
+  Widget _buildResponsiveLayout(
+    BuildContext context,
+    ThemeData theme,
+    DeviceType deviceType,
+  ) {
+    switch (deviceType) {
+      case DeviceType.desktop:
+        return _buildDesktopLayout(context, theme);
+      case DeviceType.tablet:
+        return _buildTabletLayout(context, theme);
+      case DeviceType.mobile:
+      default:
+        return _buildMobileLayout(context, theme);
+    }
+  }
+
+  Widget _buildBlogsTabs() {
+    final theme = Theme.of(context);
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          TabBar(
+            labelColor: theme.primaryColor, // Match LoginScreen
+            unselectedLabelColor: Colors.grey[600], // Match LoginScreen
+            indicatorColor: theme.primaryColor, // Match LoginScreen
+            tabs: [Tab(text: 'Published Blogs'), Tab(text: 'Add New Blog')],
+          ),
+          Expanded(
+            child: TabBarView(
+              children: [BlogList(), AdvancedBlogEditorWidget()],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileLayout(BuildContext context, ThemeData theme) {
+    final child = Padding(padding: EdgeInsets.all(0));
+    return _buildTabBar(context, theme, child);
+  }
+
+  Widget _buildTabletLayout(BuildContext context, ThemeData theme) {
+    final child = Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveHelper.getValue(
+          context,
+          mobile: 8.0,
+          tablet: 16.0,
+          desktop: 24.0,
+        ),
+      ),
+    );
+    return _buildTabBar(context, theme, child);
+  }
+
+  Widget _buildDesktopLayout(BuildContext context, ThemeData theme) {
+    final child = Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        padding: EdgeInsets.all(
+          ResponsiveHelper.getValue(
+            context,
+            mobile: 8.0,
+            tablet: 12.0,
+            desktop: 16.0,
+          ),
+        ),
+      ),
+    );
+    return _buildTabBar(context, theme, child);
+  }
+
+  Widget _buildTabBar(BuildContext context, ThemeData theme, Widget child) {
+    return DefaultTabController(
+      length: 4,
+      child: Column(
+        children: [
+          Expanded(
+            child: TabBarView(
+              children: [
+                _buildCoursesTab(context, theme),
+                _buildBlogsTabs(),
+                ChatListWidget(),
+                ProfileWidget(),
+              ],
+            ),
+          ),
+          SafeArea(
+            child: Container(
+              margin: EdgeInsets.all(
+                ResponsiveHelper.getValue(
+                  context,
+                  mobile: 8.0,
+                  tablet: 12.0,
+                  desktop: 16.0,
+                ),
+              ),
+              decoration: BoxDecoration(
+                // backgroundBlendMode: BlendMode.srcOver,
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(context.mediumSpacing),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 12.0,
+                      tablet: 16.0,
+                      desktop: 20.0,
+                    ),
+                  ),
+                ],
+              ),
+              child: TabBar(
+                labelColor: theme.primaryColor,
+                unselectedLabelColor: theme.primaryColor.withOpacity(0.8),
+                indicatorColor: theme.primaryColor,
+                indicatorSize: TabBarIndicatorSize.tab,
+                labelStyle: context.responsiveBodyLarge,
+                unselectedLabelStyle: context.responsiveBodyMedium,
+                indicator: BoxDecoration(
+                  color: theme.primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(context.mediumSpacing),
+                  border: Border(
+                    top: BorderSide(
+                      color: theme.primaryColor,
+                      width: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 2.0,
+                        tablet: 2.5,
+                        desktop: 3.0,
+                      ),
+                    ),
+                  ),
+                ),
+                tabs: [
+                  Tab(
+                    icon: Icon(
+                      Icons.description_outlined,
+                      size: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 20.0,
+                        tablet: 22.0,
+                        desktop: 24.0,
+                      ),
+                    ),
+                    text: 'Courses',
+                  ),
+                  Tab(
+                    icon: Icon(
+                      Icons.article_outlined,
+                      size: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 20.0,
+                        tablet: 22.0,
+                        desktop: 24.0,
+                      ),
+                    ),
+                    text: 'Blogs',
+                  ),
+                  Tab(
+                    icon: Icon(
+                      Icons.chat_bubble_outline,
+                      size: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 20.0,
+                        tablet: 22.0,
+                        desktop: 24.0,
+                      ),
+                    ),
+                    text: 'Chat',
+                  ),
+                  Tab(
+                    icon: Icon(
+                      Icons.person_outline,
+                      size: ResponsiveHelper.getValue(
+                        context,
+                        mobile: 20.0,
+                        tablet: 22.0,
+                        desktop: 24.0,
+                      ),
+                    ),
+                    text: 'Profile',
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _showAddPlanDialog() async {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
@@ -373,256 +619,6 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         });
       },
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        backgroundColor: theme.primaryColor,
-        elevation: 0,
-        automaticallyImplyLeading: false, // Remove the back button
-        title: Text(
-          'Doctor Dashboard',
-          style: context.responsiveTitleLarge.copyWith(color: Colors.white),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.logout,
-              color: Colors.white,
-              size: ResponsiveHelper.getValue(
-                context,
-                mobile: 24.0,
-                tablet: 26.0,
-                desktop: 28.0,
-              ),
-            ),
-            onPressed: () => _authService.signOut(context),
-          ),
-        ],
-      ),
-      body:
-          _isLoading
-              ? Center(
-                child: SpinKitDoubleBounce(
-                  color: const Color(0xFF0A2D7B),
-                  size: ResponsiveHelper.getValue(
-                    context,
-                    mobile: 40.0,
-                    tablet: 50.0,
-                    desktop: 60.0,
-                  ),
-                ),
-              )
-              : ResponsiveBuilder(
-                builder: (context, constraints, deviceType) {
-                  return _buildResponsiveLayout(context, theme, deviceType);
-                },
-              ),
-
-      // bottomNavigationBar: CustomBottomNavBar(currentRoute: '/doctorDashboard'),
-    );
-  }
-
-  Widget _buildResponsiveLayout(
-    BuildContext context,
-    ThemeData theme,
-    DeviceType deviceType,
-  ) {
-    switch (deviceType) {
-      case DeviceType.desktop:
-        return _buildDesktopLayout(context, theme);
-      case DeviceType.tablet:
-        return _buildTabletLayout(context, theme);
-      case DeviceType.mobile:
-      default:
-        return _buildMobileLayout(context, theme);
-    }
-  }
-  Widget _buildBlogsTabs() {
-    final theme = Theme.of(context);
-    return DefaultTabController(
-      length: 2,
-      child: Column(
-        children: [
-          // _buildHeader(context, theme),
-          TabBar(
-            labelColor: theme.primaryColor, // Match LoginScreen
-            unselectedLabelColor: Colors.grey[600], // Match LoginScreen
-            indicatorColor: theme.primaryColor, // Match LoginScreen
-            tabs: [Tab(text: 'Published Blogs'), Tab(text: 'Add New Blog')],
-          ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                             BlogList(),
-                AdvancedBlogEditorWidget(),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-  Widget _buildTabBar(BuildContext context, ThemeData theme, Widget child) {
-    return DefaultTabController(
-      length: 4,
-      child: Column(
-        children: [
-          Expanded(
-            child: TabBarView(
-              children: [
-                _buildCoursesTab(context, theme),
-                _buildBlogsTabs(),
-                ChatListWidget(),
-                ProfileWidget(),
-              ],
-            ),
-          ),
-          SafeArea(
-            child: Container(
-              margin: EdgeInsets.all(
-                ResponsiveHelper.getValue(
-                  context,
-                  mobile: 8.0,
-                  tablet: 12.0,
-                  desktop: 16.0,
-                ),
-              ),
-              decoration: BoxDecoration(
-                // backgroundBlendMode: BlendMode.srcOver,
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(context.mediumSpacing),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: ResponsiveHelper.getValue(
-                      context,
-                      mobile: 12.0,
-                      tablet: 16.0,
-                      desktop: 20.0,
-                    ),
-                  ),
-                ],
-              ),
-              child: TabBar(
-                unselectedLabelColor: theme.primaryColor.withValues(alpha: 0.8),
-                // unselectedLabelColor: theme.primaryColor.withOpacity(0.8),
-                indicatorColor: theme.primaryColor,
-                indicatorSize: TabBarIndicatorSize.tab,
-                unselectedLabelStyle: context.responsiveBodyMedium,
-                labelStyle: context.responsiveBodyLarge,
-                indicator: BoxDecoration(
-                  color: theme.primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(context.mediumSpacing),
-                  border: Border(
-                    top: BorderSide(
-                      color: theme.primaryColor,
-                      width: ResponsiveHelper.getValue(
-                        context,
-                        mobile: 2.0,
-                        tablet: 2.5,
-                        desktop: 3.0,
-                      ),
-                    ),
-                  ),
-                ),
-                tabs: [
-                  Tab(
-                    icon: Icon(
-                      Icons.dashboard_outlined,
-                      size: ResponsiveHelper.getValue(
-                        context,
-                        mobile: 20.0,
-                        tablet: 22.0,
-                        desktop: 24.0,
-                      ),
-                    ),
-                    text: 'Courses',
-                  ),
-                  Tab(
-                    icon: Icon(
-                      Icons.article_outlined,
-                      size: ResponsiveHelper.getValue(
-                        context,
-                        mobile: 20.0,
-                        tablet: 22.0,
-                        desktop: 24.0,
-                      ),
-                    ),
-                    text: 'Blogs',
-                  ),
-                  Tab(
-                    icon: Icon(
-                      Icons.chat_bubble_outline,
-                      size: ResponsiveHelper.getValue(
-                        context,
-                        mobile: 20.0,
-                        tablet: 22.0,
-                        desktop: 24.0,
-                      ),
-                    ),
-                    text: 'Chat',
-                  ),
-                  Tab(
-                    icon: Icon(
-                      Icons.person_outline,
-                      size: ResponsiveHelper.getValue(
-                        context,
-                        mobile: 20.0,
-                        tablet: 22.0,
-                        desktop: 24.0,
-                      ),
-                    ),
-                    text: 'Profile',
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMobileLayout(BuildContext context, ThemeData theme) {
-    final child = Padding(padding: EdgeInsets.all(0));
-    return _buildTabBar(context, theme, child);
-  }
-
-  Widget _buildTabletLayout(BuildContext context, ThemeData theme) {
-    final child = Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: ResponsiveHelper.getValue(
-          context,
-          mobile: 8.0,
-          tablet: 16.0,
-          desktop: 24.0,
-        ),
-      ),
-    );
-    return _buildTabBar(context, theme, child);
-  }
-
-  Widget _buildDesktopLayout(BuildContext context, ThemeData theme) {
-    final child = Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 1200),
-        padding: EdgeInsets.all(
-          ResponsiveHelper.getValue(
-            context,
-            mobile: 8.0,
-            tablet: 12.0,
-            desktop: 16.0,
-          ),
-        ),
-      ),
-    );
-    return _buildTabBar(context, theme, child);
   }
 
   Widget _buildCoursesTab(BuildContext context, ThemeData theme) {

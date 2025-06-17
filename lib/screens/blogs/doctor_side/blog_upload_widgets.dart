@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/utils/blogs/constants.dart';
 
 class BlogUploadWidgets {
@@ -119,9 +120,9 @@ color: Colors.blue.shade50,
                           ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              color: Colors.white,
+                            child: SpinKitDoubleBounce(
+                              color: Color(0xFF0A2D7B),
+                              size: 40.0,
                             ),
                           )
                           : const Icon(Icons.cloud_upload, size: 20),
@@ -361,10 +362,10 @@ color: Colors.blue.shade50,
                   SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      color: Colors.teal.shade600,
-                    ),
+                      child: SpinKitDoubleBounce(
+                        color: Color(0xFF0A2D7B),
+                        size: 40.0,
+                      ),
                   ),
                 ],
               ],
@@ -585,9 +586,9 @@ color: Colors.blue.shade50,
                         ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            color: Colors.white,
+                          child: SpinKitDoubleBounce(
+                            color: Color(0xFF0A2D7B),
+                            size: 40.0,
                           ),
                         )
                         : const Icon(Icons.publish, size: 20),

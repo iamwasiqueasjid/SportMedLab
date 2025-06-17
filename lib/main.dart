@@ -94,8 +94,31 @@ class _MyAppState extends State<MyApp> {
       onGenerateRoute: (settings) {
         if (settings.name == '/chat') {
           final arguments = settings.arguments as Map<String, dynamic>?;
-          return MaterialPageRoute(
-            builder: (context) => ChatScreen(arguments: arguments),
+          return PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 400),
+            pageBuilder:
+                (context, animation, secondaryAnimation) =>
+                    ChatScreen(arguments: arguments),
+            transitionsBuilder: (
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ) {
+              const begin = Offset(0.0, 1.0); // Slide from bottom
+              const end = Offset.zero;
+              const curve = Curves.easeInOut;
+
+              final tween = Tween(
+                begin: begin,
+                end: end,
+              ).chain(CurveTween(curve: curve));
+
+              return SlideTransition(
+                position: animation.drive(tween),
+                child: child,
+              );
+            },
           );
         }
         if (settings.name == '/courseDetails') {
@@ -104,7 +127,7 @@ class _MyAppState extends State<MyApp> {
             builder:
                 (context) => CourseDetailsScreen(
                   courseId: courseId,
-                ), // Use the imported widget
+                ),
           );
         }
         return null;

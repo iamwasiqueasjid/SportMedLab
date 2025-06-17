@@ -46,8 +46,6 @@ class _DetectorViewState extends State<DetectorView> {
   @override
   Widget build(BuildContext context) {
     return
-    // _mode == DetectorViewMode.liveFeed
-    //         ?
     CameraView(
       customPaint: widget.customPaint,
       onImage: widget.onImage,
@@ -56,11 +54,6 @@ class _DetectorViewState extends State<DetectorView> {
       initialCameraLensDirection: widget.initialCameraLensDirection,
       onCameraLensDirectionChanged: widget.onCameraLensDirectionChanged,
     )
-    // : GalleryView(
-    //     title: widget.title,
-    //     text: widget.text,
-    //     onImage: widget.onImage,
-    //     onDetectorViewModeChanged: _onDetectorViewModeChanged)
     ;
   }
 
