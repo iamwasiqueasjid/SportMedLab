@@ -380,6 +380,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: theme.primaryColor,
         elevation: 0,
@@ -453,7 +454,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
             labelColor: theme.primaryColor, // Match LoginScreen
             unselectedLabelColor: Colors.grey[600], // Match LoginScreen
             indicatorColor: theme.primaryColor, // Match LoginScreen
-            tabs: [Tab(text: 'Blogs'), Tab(text: 'add new blog')],
+            tabs: [Tab(text: 'Published Blogs'), Tab(text: 'Add New Blog')],
           ),
           Expanded(
             child: TabBarView(
@@ -509,8 +510,8 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                 ],
               ),
               child: TabBar(
-                labelColor: theme.primaryColor,
-                unselectedLabelColor: theme.primaryColor.withOpacity(0.8),
+                unselectedLabelColor: theme.primaryColor.withValues(alpha: 0.8),
+                // unselectedLabelColor: theme.primaryColor.withOpacity(0.8),
                 indicatorColor: theme.primaryColor,
                 indicatorSize: TabBarIndicatorSize.tab,
                 unselectedLabelStyle: context.responsiveBodyMedium,

@@ -211,45 +211,12 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
                       ],
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.blue[600],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(12),
-                        onTap: _previewBlog,
-                        child: const Padding(
-                          padding: EdgeInsets.all(12),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.preview,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                'Preview',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  
                 ],
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
             // File Upload Section
             _buildSection(
@@ -262,8 +229,8 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
                 _uploadFile,
               ),
             ),
-
-            const SizedBox(height: 24),
+            
+            const SizedBox(height: 20),
 
             // Blog Details Section
             _buildSection(
@@ -272,14 +239,14 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
               child: Column(
                 children: [
                   BlogUploadWidgets.buildTitleInput(context, _titleController),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   BlogUploadWidgets.buildCategorySelector(
                     context,
                     _selectedCategory,
                     (String? value) =>
                         setState(() => _selectedCategory = value),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   BlogUploadWidgets.buildTagsInput(
                     context,
                     _tagsController,
@@ -290,7 +257,7 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
             // Content Editor Section
             _buildSection(
@@ -299,97 +266,112 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
               child: BlogUploadWidgets.buildQuillEditor(context, _controller),
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 15),
 
             // Action Buttons
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 1,
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _clearForm,
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(color: Colors.grey[300]!),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _previewBlog,
+                    icon: const Icon(Icons.visibility_outlined, size: 20),
+                    label: const Text(
+                      'Preview Blog',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.clear, color: Colors.grey[600]),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Clear',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[600],
-                            ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: BorderSide(color: Colors.blue[600]!, width: 1.5),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      backgroundColor: Colors.blue,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _clearForm,
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+backgroundColor: Colors.red,
+                          side: BorderSide(color: Colors.red),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    flex: 2,
-                    child: ElevatedButton(
-                      onPressed: _isPublishing ? null : _publishBlog,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green[600],
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
                         ),
-                        elevation: 0,
-                      ),
-                      child:
-                          _isPublishing
-                              ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                              : const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.publish, color: Colors.white),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Publish Blog',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.clear, color: Colors.white),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Clear',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
                               ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton(
+                        onPressed: _isPublishing ? null : _publishBlog,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green[600],
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child:
+                            _isPublishing
+                                ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                                : const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.publish, color: Colors.white),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Publish Blog',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
 
-            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -418,9 +400,14 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 20,
+              bottom: 10,
+            ),
             decoration: BoxDecoration(
-              color: Colors.grey[50],
+              color: Colors.white,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
@@ -441,7 +428,16 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
               ],
             ),
           ),
-          Padding(padding: const EdgeInsets.all(20), child: child),
+// Divider
+          Container(
+            height: 1,
+            color: Colors.grey[300],
+            margin: const EdgeInsets.symmetric(vertical: 10),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            child: child,
+          ),
         ],
       ),
     );

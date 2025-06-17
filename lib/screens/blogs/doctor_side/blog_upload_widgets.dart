@@ -16,11 +16,7 @@ class BlogUploadWidgets {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.blue.shade50, Colors.white],
-          ),
+color: Colors.blue.shade50,
         ),
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -162,62 +158,72 @@ class BlogUploadWidgets {
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.purple.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.title,
-                    color: Colors.purple.shade700,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Blog Title',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey.shade800,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: titleController,
-              decoration: InputDecoration(
-                hintText: 'Enter your blog title...',
-                hintStyle: TextStyle(color: Colors.grey.shade500),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.blue.shade500, width: 2),
-                ),
-                filled: true,
-                fillColor: Colors.grey.shade50,
-                contentPadding: const EdgeInsets.all(16),
-              ),
-              maxLength: 100,
-              style: TextStyle(color: Colors.grey.shade800, fontSize: 16),
-            ),
-          ],
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.purple.shade50,
         ),
+      child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.purple.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.title,
+                      color: Colors.purple.shade700,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Blog Title',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade800,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: titleController,
+                decoration: InputDecoration(
+                  hintText: 'Enter your blog title...',
+                  hintStyle: TextStyle(color: Colors.grey.shade500),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.purple.shade700,
+                      width: 2,
+                    ),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.all(16),
+                  counterStyle: TextStyle(color: Colors.grey.shade600),
+                ),
+                maxLength: 100,
+                style: TextStyle(color: Colors.grey.shade900, fontSize: 16),
+              ),
+            ],
+          ),
+      ),
       ),
     );
   }
@@ -231,6 +237,11 @@ class BlogUploadWidgets {
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.orange.shade50,
+        ),
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -274,10 +285,13 @@ class BlogUploadWidgets {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.blue.shade500, width: 2),
+                    borderSide: BorderSide(
+                      color: Colors.orange.shade700,
+                      width: 2,
+                    ),
                 ),
                 filled: true,
-                fillColor: Colors.grey.shade50,
+                  fillColor: Colors.white,
                 contentPadding: const EdgeInsets.all(16),
               ),
               hint: Text(
@@ -290,7 +304,7 @@ class BlogUploadWidgets {
                       value: category,
                       child: Text(
                         category,
-                        style: TextStyle(color: Colors.grey.shade800),
+                          style: TextStyle(color: Colors.grey.shade900),
                       ),
                     );
                   }).toList(),
@@ -299,6 +313,7 @@ class BlogUploadWidgets {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -313,6 +328,11 @@ class BlogUploadWidgets {
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.teal.shade50,
+        ),
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -365,14 +385,17 @@ class BlogUploadWidgets {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.blue.shade500, width: 2),
+                    borderSide: BorderSide(
+                      color: Colors.teal.shade500,
+                      width: 2,
+                    ),
                 ),
                 filled: true,
                 fillColor: Colors.grey.shade50,
                 contentPadding: const EdgeInsets.all(16),
               ),
-              maxLines: 2,
-              style: TextStyle(color: Colors.grey.shade800, fontSize: 16),
+                // maxLines: 2,
+                style: TextStyle(color: Colors.grey.shade900, fontSize: 16),
             ),
             if (suggestedTags.isNotEmpty) ...[
               const SizedBox(height: 20),
@@ -426,6 +449,7 @@ class BlogUploadWidgets {
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -435,239 +459,64 @@ class BlogUploadWidgets {
   ) {
     return Card(
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
+      color: Colors.white, // Light background for card
+      child: Column(
+        children: [
+          // Enhanced Quill Toolbar with light theme
+          Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.indigo.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.edit_note,
-                    color: Colors.indigo.shade700,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Blog Content',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey.shade800,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                      ),
-                      border: Border(
-                        bottom: BorderSide(color: Colors.grey.shade200),
-                      ),
-                    ),
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _buildToolbarButton(
-                          icon: Icons.format_bold,
-                          onPressed:
-                              () => controller.formatSelection(Attribute.bold),
-                          tooltip: 'Bold',
-                        ),
-                        _buildToolbarButton(
-                          icon: Icons.format_italic,
-                          onPressed:
-                              () =>
-                                  controller.formatSelection(Attribute.italic),
-                          tooltip: 'Italic',
-                        ),
-                        _buildToolbarButton(
-                          icon: Icons.format_underlined,
-                          onPressed:
-                              () => controller.formatSelection(
-                                Attribute.underline,
-                              ),
-                          tooltip: 'Underline',
-                        ),
-                        _buildToolbarButton(
-                          icon: Icons.format_list_bulleted,
-                          onPressed:
-                              () => controller.formatSelection(Attribute.ul),
-                          tooltip: 'Bullet List',
-                        ),
-                        _buildToolbarButton(
-                          icon: Icons.format_list_numbered,
-                          onPressed:
-                              () => controller.formatSelection(Attribute.ol),
-                          tooltip: 'Numbered List',
-                        ),
-                        PopupMenuButton<int>(
-                          icon: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.grey.shade300),
-                            ),
-                            child: Icon(
-                              Icons.title,
-                              color: Colors.grey.shade700,
-                              size: 18,
-                            ),
-                          ),
-                          tooltip: 'Header',
-                          itemBuilder:
-                              (context) => [
-                                const PopupMenuItem(
-                                  value: 1,
-                                  child: Text('Header 1'),
-                                ),
-                                const PopupMenuItem(
-                                  value: 2,
-                                  child: Text('Header 2'),
-                                ),
-                                const PopupMenuItem(
-                                  value: 3,
-                                  child: Text('Header 3'),
-                                ),
-                                const PopupMenuItem(
-                                  value: 0,
-                                  child: Text('Normal'),
-                                ),
-                              ],
-                          onSelected: (value) {
-                            switch (value) {
-                              case 1:
-                                controller.formatSelection(Attribute.h1);
-                                break;
-                              case 2:
-                                controller.formatSelection(Attribute.h2);
-                                break;
-                              case 3:
-                                controller.formatSelection(Attribute.h3);
-                                break;
-                              case 0:
-                                if (controller
-                                    .getSelectionStyle()
-                                    .attributes
-                                    .containsKey(Attribute.header.key)) {
-                                  controller.formatSelection(Attribute.header);
-                                }
-                                break;
-                            }
-                          },
-                        ),
-                        _buildToolbarButton(
-                          icon: Icons.format_clear,
-                          onPressed: () {
-                            final selection = controller.selection;
-                            if (selection.isCollapsed) return;
-
-                            if (controller
-                                .getSelectionStyle()
-                                .attributes
-                                .containsKey(Attribute.bold.key)) {
-                              controller.formatSelection(Attribute.bold);
-                            }
-                            if (controller
-                                .getSelectionStyle()
-                                .attributes
-                                .containsKey(Attribute.italic.key)) {
-                              controller.formatSelection(Attribute.italic);
-                            }
-                            if (controller
-                                .getSelectionStyle()
-                                .attributes
-                                .containsKey(Attribute.underline.key)) {
-                              controller.formatSelection(Attribute.underline);
-                            }
-                          },
-                          tooltip: 'Clear Format',
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    height: 400,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(12),
-                        bottomRight: Radius.circular(12),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: QuillEditor(
-                        controller: controller,
-                        focusNode: FocusNode(),
-                        scrollController: ScrollController(),
-                      ),
-                    ),
-                  ),
-                ],
+            decoration: BoxDecoration(
+              color: Colors.grey.shade500, // Light grey toolbar background
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(8),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  static Widget _buildToolbarButton({
-    required IconData icon,
-    required VoidCallback onPressed,
-    required String tooltip,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 2,
-            offset: const Offset(0, 1),
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                // Customize toolbar icons to be darker
+                iconTheme: const IconThemeData(
+                  color: Colors.white, // Dark icons
+                  size: 20,
+                ),
+                // Customize button colors
+                elevatedButtonTheme: ElevatedButtonThemeData(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+                textButtonTheme: TextButtonThemeData(
+                  style: TextButton.styleFrom(foregroundColor: Colors.white,
+                        ),
+                ),
+                // Customize icon button colors
+                iconButtonTheme: IconButtonThemeData(
+                  style: IconButton.styleFrom(foregroundColor: Colors.white),
+                ),
+              ),
+              child: QuillSimpleToolbar(controller: controller),
+            ),
+          ),
+          Divider(height: 1, color: Colors.grey.shade300), // Lighter divider
+          // Quill Editor with light theme
+          SizedBox(
+            height: 400,
+            child: Container(
+              color: Colors.white, // White background for editor
+              padding: const EdgeInsets.all(16),
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  // Ensure text in editor is dark
+                  textTheme: Theme.of(context).textTheme.apply(
+                    bodyColor: Colors.black87,
+                    displayColor: Colors.black87,
+                  ),
+                ),
+                child: QuillEditor.basic(controller: controller),
+              ),
+            ),
           ),
         ],
-      ),
-      child: IconButton(
-        icon: Icon(icon, color: Colors.grey.shade700),
-        onPressed: onPressed,
-        tooltip: tooltip,
-        iconSize: 18,
-        padding: const EdgeInsets.all(8),
-        constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
       ),
     );
   }

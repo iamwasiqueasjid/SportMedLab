@@ -172,8 +172,29 @@ class _BlogListState extends State<BlogList> {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
+                const SizedBox(height: 12),
                 Row(
                   children: [
+                    Text(
+                      'By ${blog.authorId ?? 'Unknown'}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '•',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[400]),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      blog.createdAt != null
+                          ? _formatDate(blog.createdAt!)
+                          : 'No date',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    ),
                     const Spacer(),
                     Icon(
                       Icons.arrow_forward_ios,
@@ -279,6 +300,21 @@ class _BlogListState extends State<BlogList> {
         },
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays == 0) {
+      return 'Today';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} days ago';
+    } else {
+      return '${date.day}/${date.month}/${date.year}';
+    }
   }
 
 }
