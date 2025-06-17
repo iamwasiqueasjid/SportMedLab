@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/blog/blog_service.dart';
+import '../../models/blog.dart';
 import 'view_blog.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 
@@ -11,7 +12,7 @@ class BlogList extends StatefulWidget {
 }
 
 class _BlogListState extends State<BlogList> {
-  late Future<List<Map<String, dynamic>>> _blogsFuture;
+  late Future<List<Blog>> _blogsFuture;
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -25,6 +26,7 @@ class _BlogListState extends State<BlogList> {
     setState(() => _isLoading = true);
     try {
       final blogs = await BlogService.getPublishedBlogs();
+
       setState(() {
         _blogsFuture = Future.value(blogs);
         _isLoading = false;
@@ -57,7 +59,7 @@ class _BlogListState extends State<BlogList> {
               )
               : _errorMessage != null
               ? _buildErrorWidget()
-              : FutureBuilder<List<Map<String, dynamic>>>(
+              : FutureBuilder<List<Blog>>(
                 future: _blogsFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -94,7 +96,7 @@ class _BlogListState extends State<BlogList> {
     );
   }
 
-  Widget _buildBlogCard(Map<String, dynamic> blog) {
+  Widget _buildBlogCard(Blog blog) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -131,7 +133,7 @@ class _BlogListState extends State<BlogList> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        blog['category'] ?? 'General',
+                        blog.category,
                         style: const TextStyle(
                           color: Color(0xFF2196F3),
                           fontSize: 12,
@@ -149,7 +151,7 @@ class _BlogListState extends State<BlogList> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  blog['title'] ?? 'Untitled',
+                  blog.title,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -159,13 +161,9 @@ class _BlogListState extends State<BlogList> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  blog['extractedText']?.substring(
-                        0,
-                        blog['extractedText'].length > 100
-                            ? 100
-                            : blog['extractedText'].length,
-                      ) ??
-                      'No preview available',
+                  (blog.extractedText?.length ?? 0) > 100
+                      ? '${blog.extractedText?.substring(0, 100)}...'
+                      : blog.extractedText ?? '',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[600],
@@ -256,21 +254,31 @@ class _BlogListState extends State<BlogList> {
     );
   }
 
-  void _navigateToBlog(Map<String, dynamic> blog) {
+  void _navigateToBlog(Blog blog) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder:
-            (context) => PatientBlogScreen(
-              title: blog['title'] ?? 'Untitled',
-              controller: QuillController(
-                document: Document.fromJson(blog['content']),
-                selection: const TextSelection.collapsed(offset: 0),
-              ),
-              tags: blog['tags'] as List<String>? ?? [],
-              category: blog['category'] ?? 'Uncategorized',
-            ),
+      PageRouteBuilder(
+        transitionDuration: Duration(milliseconds: 400),
+        pageBuilder:
+            (context, animation, secondaryAnimation) =>
+                PatientBlogScreen(blog: blog),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0); // Slide from bottom
+          const end = Offset.zero;
+          final curve = Curves.easeInOut;
+
+          final tween = Tween(
+            begin: begin,
+            end: end,
+          ).chain(CurveTween(curve: curve));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
       ),
     );
   }
+
 }

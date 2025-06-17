@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:test_project/models/blog.dart';
 import 'package:test_project/screens/patient/patient_dashboard.dart';
 import 'package:test_project/screens/profile/profile_setup_page.dart';
 import 'package:test_project/screens/launch/starter_page.dart';
@@ -104,35 +105,6 @@ class _MyAppState extends State<MyApp> {
                 (context) => CourseDetailsScreen(
                   courseId: courseId,
                 ), // Use the imported widget
-          );
-        }
-
-        if (settings.name == '/blogs') {
-          return MaterialPageRoute(
-            builder:
-                (context) => FutureBuilder<String?>(
-                  future: AuthService().getUserRole(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Scaffold(
-                        body: Center(
-                          child: SpinKitDoubleBounce(
-                            color: Color(0xFF0A2D7B),
-                            size: 40.0,
-                          ),
-                        ),
-                      );
-                    }
-                    final role = snapshot.data ?? 'Patient';
-                    final controller = quill.QuillController.basic();
-                    return PatientBlogScreen(
-                      title: 'Patient Blogs',
-                      controller: controller,
-                      tags: [],
-                      category: 'General',
-                    );
-                  },
-                ),
           );
         }
         return null;

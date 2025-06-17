@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:test_project/utils/blogs/constants.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
+import 'package:test_project/models/blog.dart'; // Add import for Blog model
 
 class BlogService {
   static Future<void> publishBlog(
@@ -52,25 +53,23 @@ class BlogService {
     }
 
     try {
-      final Map<String, dynamic> blogData = {
-        'title': title,
-        'content': delta.toJson(),
-        'tags': tags,
-        'category': selectedCategory,
-        'authorId': AppConstants.currentDoctorId,
-        'createdAt': Timestamp.now(),
-        'updatedAt': Timestamp.now(),
-        'isPublished': true,
-        'viewCount': 0,
-        'likeCount': 0,
-      };
+      final blog = Blog(
+        title: title,
+        content: {'ops': delta.toJson()},
+        tags: tags,
+        category: selectedCategory,
+        authorId: AppConstants.currentDoctorId,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        isPublished: true,
+        extractedText: extractedText,
+        sourceFile: uploadedFileName,
+      );
 
-      if (extractedText != null && uploadedFileName != null) {
-        blogData['extractedText'] = extractedText;
-        blogData['sourceFile'] = uploadedFileName;
-      }
+      await FirebaseFirestore.instance
+          .collection('blogs')
+          .add(blog.toFirestore());
 
-      await FirebaseFirestore.instance.collection('blogs').add(blogData);
       AppNotifier.show(
         context,
         'Blog published successfully with enhanced formatting!',
@@ -85,32 +84,33 @@ class BlogService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getPublishedBlogs() async {
+  static Future<List<Blog>> getPublishedBlogs() async {
     try {
       final collection = FirebaseFirestore.instance.collection('blogs');
-
-      // Temporarily remove filters to test connectivity
-      final querySnapshot = await collection.get();
+      final querySnapshot =
+          await collection
+              .where('isPublished', isEqualTo: true)
+              .orderBy('createdAt', descending: true)
+              .get();
 
       if (querySnapshot.docs.isEmpty) {
         return [];
       }
 
-      return querySnapshot.docs.map((doc) {
-        final data = doc.data();
-        return {
-          'id': doc.id,
-          'title': data['title'] ?? 'Untitled',
-          'content': data['content'] ?? {},
-          'tags': (data['tags'] as List?)?.cast<String>() ?? [],
-          'category': data['category'] ?? 'Uncategorized',
-          'extractedText': data['extractedText'],
-          'sourceFile': data['sourceFile'],
-          'createdAt':
-              (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-        };
-      }).toList();
+      return querySnapshot.docs
+          .map((doc) {
+            try {
+              return Blog.fromFirestore(doc);
+            } catch (e) {
+              print('Error parsing blog document ${doc.id}: $e');
+              return null;
+            }
+          })
+          .where((blog) => blog != null)
+          .cast<Blog>()
+          .toList();
     } catch (e) {
+      print('Error fetching published blogs: ${e.toString()}');
       return [];
     }
   }
