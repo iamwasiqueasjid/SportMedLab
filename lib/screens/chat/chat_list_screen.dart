@@ -389,250 +389,482 @@ class _ChatListWidgetState extends State<ChatListWidget> {
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Dismiss',
-      barrierColor: Colors.black.withOpacity(0.6),
-      transitionDuration: const Duration(milliseconds: 400),
+      barrierColor: Colors.black.withOpacity(0.7),
+      transitionDuration: const Duration(milliseconds: 450),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return SlideTransition(
           position: Tween<Offset>(
-            begin: const Offset(0, 1),
+            begin: const Offset(0, 1), // Slide up from bottom
             end: Offset.zero,
           ).animate(
             CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
           ),
-          child: FadeTransition(opacity: animation, child: child),
+          child: FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 0.9, end: 1.0).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+              ),
+              child: child,
+            ),
+          ),
         );
       },
       pageBuilder: (context, animation, secondaryAnimation) {
         return Dialog(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          child: Card(
-            color: Colors.white,
-            elevation: 10,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(
-                color: theme.primaryColor.withOpacity(0.2),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Colors.white, Colors.white.withOpacity(0.95)],
+              ),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 30,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 10),
+                ),
+                BoxShadow(
+                  color: const Color(0xFF0A2D7B).withOpacity(0.05),
+                  blurRadius: 20,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+              border: Border.all(
+                color: const Color(0xFF0A2D7B).withOpacity(0.08),
                 width: 1,
               ),
             ),
-            child: Container(
-              padding: EdgeInsets.all(
-                ResponsiveHelper.getValue(
-                  context,
-                  mobile: 20.0,
-                  tablet: 24.0,
-                  desktop: 28.0,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Container(
+                padding: EdgeInsets.all(
+                  ResponsiveHelper.getValue(
+                    context,
+                    mobile: 16.0,
+                    tablet: 20.0,
+                    desktop: 24.0,
+                  ),
                 ),
-              ),
-              constraints: BoxConstraints(
-                maxWidth: ResponsiveHelper.getValue(
-                  context,
-                  mobile: double.infinity,
-                  tablet: 600.0,
-                  desktop: 700.0,
+                constraints: BoxConstraints(
+                  maxWidth: ResponsiveHelper.getValue(
+                    context,
+                    mobile: double.infinity,
+                    tablet: 600.0,
+                    desktop: 700.0,
+                  ),
+                  maxHeight: MediaQuery.of(context).size.height * 0.6,
                 ),
-                maxHeight: MediaQuery.of(context).size.height * 0.7,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Select a Doctor',
-                        style: context.responsiveHeadlineMedium.copyWith(
-                          color: const Color(0xFF0A2D7B),
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0A2D7B).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.medical_services_outlined,
+                              color: const Color(0xFF0A2D7B),
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Select a Doctor',
+                              style: context.responsiveHeadlineMedium.copyWith(
+                                color: const Color(0xFF0A2D7B),
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.3,
+                                fontSize: ResponsiveHelper.getValue(
+                                  context,
+                                  mobile: 20.0,
+                                  tablet: 22.0,
+                                  desktop: 24.0,
+                                ),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.close_rounded,
+                                color: Colors.grey[600],
+                                size: 20,
+                              ),
+                              onPressed: () => Navigator.pop(context),
+                              splashRadius: 16,
+                              padding: const EdgeInsets.all(8),
+                              constraints: const BoxConstraints(
+                                minWidth: 32,
+                                minHeight: 32,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Text(
+                        'Choose a healthcare professional to start a new conversation',
+                        style: context.responsiveBodyMedium.copyWith(
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w400,
+                          fontSize: ResponsiveHelper.getValue(
+                            context,
+                            mobile: 13.0,
+                            tablet: 14.0,
+                            desktop: 14.0,
+                          ),
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(
-                          Icons.close,
-                          color: const Color(0xFF0A2D7B),
-                          size: 28,
+                    ),
+                    Container(
+                      height: 1,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.transparent,
+                            const Color(0xFF0A2D7B).withOpacity(0.1),
+                            Colors.transparent,
+                          ],
                         ),
-                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                    Expanded(
+                      child: StreamBuilder<List<Map<String, dynamic>>>(
+                        stream: _databaseService.fetchUserChats(
+                          _currentUserId!,
+                        ),
+                        builder: (context, chatSnapshot) {
+                          if (chatSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return _buildLoadingState(context);
+                          }
+                          if (chatSnapshot.hasError) {
+                            return _buildErrorState(
+                              context,
+                              'Error loading chats: ${chatSnapshot.error}',
+                            );
+                          }
+
+                          final chats = chatSnapshot.data ?? [];
+                          final chattedDoctorIds =
+                              chats
+                                  .map(
+                                    (chat) => chat['participants'].firstWhere(
+                                      (id) => id != _currentUserId,
+                                      orElse: () => '',
+                                    ),
+                                  )
+                                  .where((id) => id.isNotEmpty)
+                                  .toSet();
+
+                          return StreamBuilder<List<Map<String, dynamic>>>(
+                            stream: _databaseService.fetchDoctors(),
+                            builder: (context, doctorSnapshot) {
+                              if (doctorSnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return _buildLoadingState(context);
+                              }
+                              if (doctorSnapshot.hasError) {
+                                return _buildErrorState(
+                                  context,
+                                  'Error loading doctors: ${doctorSnapshot.error}',
+                                );
+                              }
+
+                              final doctors = doctorSnapshot.data ?? [];
+                              final filteredDoctors =
+                                  doctors
+                                      .where(
+                                        (doctor) =>
+                                            !chattedDoctorIds.contains(
+                                              doctor['id'],
+                                            ),
+                                      )
+                                      .toList();
+
+                              if (filteredDoctors.isEmpty) {
+                                return _buildEmptyState(context);
+                              }
+
+                              return _buildDoctorsList(
+                                context,
+                                filteredDoctors,
+                                theme,
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLoadingState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0A2D7B).withOpacity(0.05),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: SpinKitDoubleBounce(
+              color: const Color(0xFF0A2D7B),
+              size: ResponsiveHelper.getValue(
+                context,
+                mobile: 32.0,
+                tablet: 36.0,
+                desktop: 40.0,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Loading doctors...',
+            style: context.responsiveBodyMedium.copyWith(
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.red[50],
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              Icons.error_outline_rounded,
+              size: 40,
+              color: Colors.red[400],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Oops! Something went wrong',
+            style: context.responsiveBodyLarge.copyWith(
+              color: Colors.red[600],
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            message,
+            style: context.responsiveBodyMedium.copyWith(
+              color: Colors.red[500],
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              Icons.people_outline_rounded,
+              size: 48,
+              color: Colors.grey[400],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No new doctors available',
+            style: context.responsiveBodyLarge.copyWith(
+              color: Colors.grey[700],
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'You\'ve already started conversations with all available doctors',
+            style: context.responsiveBodyMedium.copyWith(
+              color: Colors.grey[500],
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDoctorsList(
+    BuildContext context,
+    List<Map<String, dynamic>> doctors,
+    ThemeData theme,
+  ) {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const BouncingScrollPhysics(),
+      itemCount: doctors.length,
+      separatorBuilder:
+          (context, index) => Container(
+            height: 1,
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  const Color(0xFF0A2D7B).withOpacity(0.08),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+      itemBuilder: (context, index) {
+        final doctor = doctors[index];
+        final doctorId = doctor['id'] as String;
+        final displayName = doctor['displayName'] as String;
+        final photoURL = doctor['photoURL'] as String?;
+        final email = doctor['email'] as String;
+
+        return AnimatedContainer(
+          duration: Duration(milliseconds: 200 + (index * 50)),
+          curve: Curves.easeOutCubic,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: Colors.transparent,
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showMessageInputDialog(
+                    context,
+                    doctorId,
+                    displayName,
+                    email,
+                  );
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 16.0,
+                      tablet: 18.0,
+                      desktop: 20.0,
+                    ),
+                    vertical: 16.0,
+                  ),
+                  child: Row(
+                    children: [
+                      // Enhanced Avatar
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF0A2D7B).withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: _buildProfileAvatar(
+                          photoURL,
+                          displayName,
+                          24,
+                          theme,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+
+                      // Doctor Info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              displayName,
+                              style: context.responsiveBodyLarge.copyWith(
+                                color: const Color(0xFF0A2D7B),
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              email,
+                              style: context.responsiveBodyMedium.copyWith(
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Enhanced Action Button
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0A2D7B).withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: const Color(0xFF0A2D7B),
+                          size: 16,
+                        ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Choose a healthcare professional to start a new conversation',
-                    style: context.responsiveBodyMedium.copyWith(
-                      color: Colors.grey[700],
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Expanded(
-                    child: StreamBuilder<List<Map<String, dynamic>>>(
-                      stream: _databaseService.fetchUserChats(_currentUserId!),
-                      builder: (context, chatSnapshot) {
-                        if (chatSnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(
-                            child: SpinKitDoubleBounce(
-                              color: const Color(0xFF0A2D7B),
-                              size: ResponsiveHelper.getValue(
-                                context,
-                                mobile: 40.0,
-                                tablet: 50.0,
-                                desktop: 60.0,
-                              ),
-                            ),
-                          );
-                        }
-                        if (chatSnapshot.hasError) {
-                          return Center(
-                            child: Text(
-                              'Error loading chats: ${chatSnapshot.error}',
-                              style: context.responsiveBodyLarge.copyWith(
-                                color: Colors.red[600],
-                              ),
-                            ),
-                          );
-                        }
-                        final chats = chatSnapshot.data ?? [];
-                        final chattedDoctorIds =
-                            chats
-                                .map(
-                                  (chat) => chat['participants'].firstWhere(
-                                    (id) => id != _currentUserId,
-                                    orElse: () => '',
-                                  ),
-                                )
-                                .where((id) => id.isNotEmpty)
-                                .toSet();
-
-                        return StreamBuilder<List<Map<String, dynamic>>>(
-                          stream: _databaseService.fetchDoctors(),
-                          builder: (context, doctorSnapshot) {
-                            if (doctorSnapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(
-                                child: SpinKitDoubleBounce(
-                                  color: const Color(0xFF0A2D7B),
-                                  size: ResponsiveHelper.getValue(
-                                    context,
-                                    mobile: 40.0,
-                                    tablet: 50.0,
-                                    desktop: 60.0,
-                                  ),
-                                ),
-                              );
-                            }
-                            if (doctorSnapshot.hasError) {
-                              return Center(
-                                child: Text(
-                                  'Error loading doctors: ${doctorSnapshot.error}',
-                                  style: context.responsiveBodyLarge.copyWith(
-                                    color: Colors.red[600],
-                                  ),
-                                ),
-                              );
-                            }
-                            final doctors = doctorSnapshot.data ?? [];
-                            final filteredDoctors =
-                                doctors
-                                    .where(
-                                      (doctor) =>
-                                          !chattedDoctorIds.contains(
-                                            doctor['id'],
-                                          ),
-                                    )
-                                    .toList();
-
-                            if (filteredDoctors.isEmpty) {
-                              return Center(
-                                child: Text(
-                                  'No new doctors available',
-                                  style: context.responsiveBodyLarge.copyWith(
-                                    color: Colors.grey[600],
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                ),
-                              );
-                            }
-
-                            return ListView.separated(
-                              shrinkWrap: true,
-                              itemCount: filteredDoctors.length,
-                              separatorBuilder:
-                                  (context, index) => Divider(
-                                    color: const Color(
-                                      0xFF0A2D7B,
-                                    ).withOpacity(0.1),
-                                    height: 1,
-                                    thickness: 1,
-                                  ),
-                              itemBuilder: (context, index) {
-                                final doctor = filteredDoctors[index];
-                                final doctorId = doctor['id'] as String;
-                                final displayName =
-                                    doctor['displayName'] as String;
-                                final photoURL = doctor['photoURL'] as String?;
-                                final email = doctor['email'] as String;
-
-                                return ListTile(
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: ResponsiveHelper.getValue(
-                                      context,
-                                      mobile: 12.0,
-                                      tablet: 14.0,
-                                      desktop: 16.0,
-                                    ),
-                                    vertical: 10.0,
-                                  ),
-                                  leading: _buildProfileAvatar(
-                                    photoURL,
-                                    displayName,
-                                    24,
-                                    theme,
-                                  ),
-                                  title: Text(
-                                    displayName,
-                                    style: context.responsiveBodyLarge.copyWith(
-                                      color: const Color(0xFF0A2D7B),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    email,
-                                    style: context.responsiveBodyMedium
-                                        .copyWith(color: Colors.grey[600]),
-                                  ),
-                                  trailing: Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: const Color(0xFF0A2D7B),
-                                    size: 18,
-                                  ),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    _showMessageInputDialog(
-                                      context,
-                                      doctorId,
-                                      displayName,
-                                      email,
-                                    );
-                                  },
-                                  hoverColor: const Color(
-                                    0xFF0A2D7B,
-                                  ).withOpacity(0.05),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -654,17 +886,25 @@ class _ChatListWidgetState extends State<ChatListWidget> {
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Dismiss',
-      barrierColor: Colors.black.withOpacity(0.6),
-      transitionDuration: const Duration(milliseconds: 400),
+      barrierColor: Colors.black.withOpacity(0.7),
+      transitionDuration: const Duration(milliseconds: 450),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return SlideTransition(
           position: Tween<Offset>(
-            begin: const Offset(0, 1),
+            begin: const Offset(0, 1), // Slide up from bottom
             end: Offset.zero,
           ).animate(
             CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
           ),
-          child: FadeTransition(opacity: animation, child: child),
+          child: FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 0.9, end: 1.0).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+              ),
+              child: child,
+            ),
+          ),
         );
       },
       pageBuilder: (context, animation, secondaryAnimation) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/models/course.dart';
 import 'package:test_project/models/lesson.dart';
+import 'package:test_project/services/auth/auth_service.dart'; // Added import
 import 'package:test_project/services/database_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/utils/responsive_extension.dart';
@@ -21,13 +22,16 @@ class CourseLessonsScreen extends StatefulWidget {
 
 class _CourseLessonsScreenState extends State<CourseLessonsScreen> {
   final DatabaseService _databaseService = DatabaseService();
+  final AuthService _authService = AuthService(); // Added AuthService
   Course? _courseData;
   bool _isLoading = true;
+  String? _userRole; // Added to store user role
 
   @override
   void initState() {
     super.initState();
     _loadCourseData();
+    _loadUserRole(); // Added to load user role
   }
 
   Future<void> _loadCourseData() async {
@@ -47,6 +51,13 @@ class _CourseLessonsScreenState extends State<CourseLessonsScreen> {
         type: MessageType.error,
       );
     }
+  }
+
+  Future<void> _loadUserRole() async {
+    final userData = await _authService.fetchUserData();
+    setState(() {
+      _userRole = userData?.role;
+    });
   }
 
   Future<void> _showAddLessonDialog() async {
@@ -431,7 +442,9 @@ class _CourseLessonsScreenState extends State<CourseLessonsScreen> {
                                 ),
                                 SizedBox(height: context.smallSpacing),
                                 Text(
-                                  'Add your first lesson',
+                                  _userRole == 'Doctor'
+                                      ? 'Add your first lesson'
+                                      : 'No lessons available',
                                   style: context.responsiveBodyLarge.copyWith(
                                     color: Colors.grey[600],
                                   ),
@@ -461,21 +474,24 @@ class _CourseLessonsScreenState extends State<CourseLessonsScreen> {
                   ),
                 ],
               ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddLessonDialog,
-        backgroundColor: theme.primaryColor,
-        tooltip: 'Add New Lesson',
-        child: Icon(
-          Icons.add,
-          color: Colors.white,
-          size: ResponsiveHelper.getValue(
-            context,
-            mobile: 24.0,
-            tablet: 26.0,
-            desktop: 28.0,
-          ),
-        ),
-      ),
+      floatingActionButton:
+          _userRole == 'Doctor'
+              ? FloatingActionButton(
+                onPressed: _showAddLessonDialog,
+                backgroundColor: theme.primaryColor,
+                tooltip: 'Add New Lesson',
+                child: Icon(
+                  Icons.add,
+                  color: Colors.white,
+                  size: ResponsiveHelper.getValue(
+                    context,
+                    mobile: 24.0,
+                    tablet: 26.0,
+                    desktop: 28.0,
+                  ),
+                ),
+              )
+              : null, // Hide FAB for non-Doctor users
     );
   }
 
@@ -575,19 +591,20 @@ class _CourseLessonsScreenState extends State<CourseLessonsScreen> {
                   ],
                 ),
               ),
-              IconButton(
-                icon: Icon(
-                  Icons.delete,
-                  color: Colors.red,
-                  size: ResponsiveHelper.getValue(
-                    context,
-                    mobile: 20.0,
-                    tablet: 22.0,
-                    desktop: 24.0,
+              if (_userRole == 'Doctor') // Show delete button only for Doctors
+                IconButton(
+                  icon: Icon(
+                    Icons.delete,
+                    color: Colors.red,
+                    size: ResponsiveHelper.getValue(
+                      context,
+                      mobile: 20.0,
+                      tablet: 22.0,
+                      desktop: 24.0,
+                    ),
                   ),
+                  onPressed: () => _showDeleteLessonConfirmation(lesson.id),
                 ),
-                onPressed: () => _showDeleteLessonConfirmation(lesson.id),
-              ),
             ],
           ),
         ),
