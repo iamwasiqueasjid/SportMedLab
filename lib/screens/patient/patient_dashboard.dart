@@ -1,6 +1,7 @@
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:test_project/models/course.dart';
 import 'package:test_project/screens/chat/chat_list_screen.dart';
+import 'package:test_project/screens/courses/course_details_screen.dart';
 import 'package:test_project/screens/courses/course_lesson_screen.dart';
 import 'package:test_project/screens/blogs/blog_list.dart';
 import 'package:test_project/screens/profile/edit_profile.dart';
@@ -13,7 +14,7 @@ import 'package:test_project/utils/responsive_widget.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:test_project/workout_pose/exercise_selection_screen.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart'; // Add this import
 
 class PatientDashboard extends StatefulWidget {
   const PatientDashboard({super.key});
@@ -70,7 +71,10 @@ class PatientDashboardState extends State<PatientDashboard>
         automaticallyImplyLeading: false,
         title: Text(
           'Patient Dashboard',
-          style: context.responsiveTitleLarge.copyWith(color: Colors.white),
+          style: context.responsiveTitleLarge.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         actions: [
           IconButton(
@@ -289,7 +293,7 @@ class PatientDashboardState extends State<PatientDashboard>
               tabs: [
                 Tab(
                   icon: Icon(
-                    Icons.dashboard_outlined,
+                    Icons.description_outlined,
                     size: ResponsiveHelper.getValue(
                       context,
                       mobile: 20.0,
@@ -409,7 +413,7 @@ class PatientDashboardState extends State<PatientDashboard>
           return Center(
             child: Text(
               'Error loading courses',
-              style: context.responsiveBodyLarge,
+              style: context.responsiveTitleLarge,
             ),
           );
         }
@@ -511,7 +515,7 @@ class PatientDashboardState extends State<PatientDashboard>
           return Center(
             child: Text(
               'Error loading enrolled courses',
-              style: context.responsiveBodyLarge,
+              style: context.responsiveTitleLarge,
             ),
           );
         }
@@ -671,6 +675,26 @@ class PatientDashboardState extends State<PatientDashboard>
                           ? Image.network(
                             course.coverImageUrl!,
                             fit: BoxFit.cover,
+                            loadingBuilder: (
+                              BuildContext context,
+                              Widget child,
+                              ImageChunkEvent? loadingProgress,
+                            ) {
+                              if (loadingProgress == null) {
+                                return child;
+                              }
+                              return Center(
+                                child: SpinKitCircle(
+                                  color: theme.primaryColor,
+                                  size: ResponsiveHelper.getValue(
+                                    context,
+                                    mobile: 30.0,
+                                    tablet: 40.0,
+                                    desktop: 50.0,
+                                  ),
+                                ),
+                              );
+                            },
                             errorBuilder:
                                 (_, __, ___) => Container(
                                   color: Colors.grey[100],
@@ -801,21 +825,15 @@ class PatientDashboardState extends State<PatientDashboard>
                                       ),
                                     );
                                   }
-                                  : () async {
-                                    final userId =
-                                        (await _authService.fetchUserData())
-                                            ?.uid;
-                                    if (userId != null) {
-                                      final success = await _databaseService
-                                          .enrollInCourse(
-                                            courseId: course.id,
-                                            context: context,
-                                          );
-                                      if (success) {
+                                  : () {
+                                    CourseDetailsScreen.show(
+                                      context: context,
+                                      courseId: course.id,
+                                      onEnrollSuccess: () {
                                         setState(() {});
                                         _courseTabController.animateTo(1);
-                                      }
-                                    }
+                                      },
+                                    );
                                   },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: theme.primaryColor,
