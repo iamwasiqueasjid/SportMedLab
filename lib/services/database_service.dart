@@ -69,13 +69,15 @@ class DatabaseService {
           imageFile.path,
           dotenv.env['CLOUDINARY_CLOUD_PRESET'] ?? '',
         );
+      } else {
+        coverImageUrl = dotenv.env['COURSE_DEFAULT_IMAGE'] ?? '';
       }
 
       final course = Course(
         id: '',
         title: title,
         description: description,
-        coverImageUrl: coverImageUrl ?? '',
+        coverImageUrl: coverImageUrl,
         tutorId: user.uid,
         enrolledStudents: [],
         subjects: subjects,
