@@ -105,19 +105,19 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     }
   }
 
-  String? _retryLoadArguments() {
-    if (widget.arguments == null) {
-      AppNotifier.show(
-        context,
-        'Invalid chat data, please try again',
-        type: MessageType.warning,
-      );
-      Navigator.pop(context);
-    }
-    return widget.arguments?[ModalRoute.of(context)?.settings.name == '/chat'
-        ? 'chatId'
-        : 'otherUserId'];
-  }
+  // String? _retryLoadArguments() {
+  //   if (widget.arguments == null) {
+  //     AppNotifier.show(
+  //       context,
+  //       'Invalid chat data, please try again',
+  //       type: MessageType.warning,
+  //     );
+  //     Navigator.pop(context);
+  //   }
+  //   return widget.arguments?[ModalRoute.of(context)?.settings.name == '/chat'
+  //       ? 'chatId'
+  //       : 'otherUserId'];
+  // }
 
   void _sendMessage() async {
     if (_messageController.text.isEmpty ||

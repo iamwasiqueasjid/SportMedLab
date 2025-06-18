@@ -143,11 +143,4 @@ class BlogService {
       );
     }
   }
-
-  // Example usage:
-  // BlogService.deleteBlog('blog_document_id', context);
-  //
-  // Where 'blog_document_id' is the Firestore document ID of the blog
-  // This would typically be stored in the Blog model's id field when
-  // fetched from Firestore using Blog.fromFirestore(doc)
 }
