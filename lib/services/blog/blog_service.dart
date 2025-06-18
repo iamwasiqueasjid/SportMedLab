@@ -1,7 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:test_project/utils/blogs/constants.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
 import 'package:test_project/models/blog.dart'; // Add import for Blog model
@@ -54,11 +54,12 @@ class BlogService {
 
     try {
       final blog = Blog(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: title,
         content: {'ops': delta.toJson()},
         tags: tags,
         category: selectedCategory,
-        authorId: AppConstants.currentDoctorId,
+        authorId: FirebaseAuth.instance.currentUser?.displayName ?? 'Anonymous',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         isPublished: true,
@@ -102,7 +103,6 @@ class BlogService {
             try {
               return Blog.fromFirestore(doc);
             } catch (e) {
-              print('Error parsing blog document ${doc.id}: $e');
               return null;
             }
           })
@@ -110,8 +110,32 @@ class BlogService {
           .cast<Blog>()
           .toList();
     } catch (e) {
-      print('Error fetching published blogs: ${e.toString()}');
       return [];
     }
   }
+
+  static Future<void> deleteBlog(String blogId, BuildContext context) async {
+    try {
+      await FirebaseFirestore.instance.collection('blogs').doc(blogId).delete();
+
+      AppNotifier.show(
+        context,
+        'Blog deleted successfully!',
+        type: MessageType.success,
+      );
+    } catch (e) {
+      AppNotifier.show(
+        context,
+        'Error deleting blog: ${e.toString()}',
+        type: MessageType.error,
+      );
+    }
+  }
+
+  // Example usage:
+  // BlogService.deleteBlog('blog_document_id', context);
+  //
+  // Where 'blog_document_id' is the Firestore document ID of the blog
+  // This would typically be stored in the Blog model's id field when
+  // fetched from Firestore using Blog.fromFirestore(doc)
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:test_project/utils/blogs/constants.dart';
+import 'package:test_project/models/blog.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
 
@@ -45,7 +45,7 @@ class MetadataService {
     Requirements:
     - Title: Engaging, professional, SEO-friendly
     - Tags: Relevant medical terms, conditions, treatments
-    - Category: Must be exactly one from: ${AppConstants.categories.join(', ')}
+    - Category: Must be exactly one from: ${BlogConstants.categories.join(', ')}
     - Summary: Concise overview of main points
     - Response: Valid JSON only, no additional text
 
@@ -93,7 +93,7 @@ class MetadataService {
             }
 
             if (jsonData['category'] != null &&
-                AppConstants.categories.contains(
+                BlogConstants.categories.contains(
                   jsonData['category'].toString(),
                 )) {
               onCategorySelected(jsonData['category'].toString());

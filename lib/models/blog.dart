@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Blog {
-  final String? id;
+  final String id;
   final String title;
   final Map<String, dynamic> content;
   final List<String> tags;
@@ -16,7 +16,7 @@ class Blog {
   final String? sourceFile;
 
   Blog({
-    this.id,
+    required this.id,
     required this.title,
     required this.content,
     required this.tags,
@@ -83,4 +83,20 @@ class Blog {
       if (sourceFile != null) 'sourceFile': sourceFile,
     };
   }
+}
+
+class BlogConstants {
+  static const String defaultCategory = 'General Medicine';
+  static const List<String> categories = [
+    'General Medicine',
+    'Cardiology',
+    'Dermatology',
+    'Neurology',
+    'Pediatrics',
+    'Surgery',
+    'Mental Health',
+    'Nutrition',
+    'Preventive Care',
+    'Emergency Medicine',
+  ];
 }

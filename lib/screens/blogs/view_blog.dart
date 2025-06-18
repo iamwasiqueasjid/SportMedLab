@@ -4,13 +4,13 @@ import 'package:flutter_quill/quill_delta.dart';
 import 'dart:convert';
 
 import 'package:test_project/models/blog.dart';
+import 'package:test_project/services/auth/auth_service.dart';
+import 'package:test_project/services/blog/blog_service.dart';
 
 class PatientBlogScreen extends StatefulWidget {
   final Blog blog;
 
-  const PatientBlogScreen({
-    super.key,
-    required this.blog});
+  const PatientBlogScreen({super.key, required this.blog});
 
   @override
   State<PatientBlogScreen> createState() => _PatientBlogScreenState();
@@ -102,7 +102,6 @@ class _PatientBlogScreenState extends State<PatientBlogScreen>
         );
       }
     } catch (e) {
-      print('Error parsing blog content: $e');
     }
 
     // Fallback to plain text if delta parsing fails
@@ -116,7 +115,7 @@ class _PatientBlogScreenState extends State<PatientBlogScreen>
   @override
   Widget build(BuildContext context) {
     final controller = _createQuillController();
-    
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: Column(
@@ -286,7 +285,7 @@ class _PatientBlogScreenState extends State<PatientBlogScreen>
                         ),
 
                         const SizedBox(height: 16),
-                        
+
                         // Category
                         Row(
                           children: [
@@ -385,8 +384,8 @@ class _PatientBlogScreenState extends State<PatientBlogScreen>
                     ),
                   ),
 
-                  const SizedBox(height: 24),
-                  
+                  const SizedBox(height: 20),
+
                   // Blog content container
                   Container(
                     decoration: BoxDecoration(
@@ -405,7 +404,42 @@ class _PatientBlogScreenState extends State<PatientBlogScreen>
                     child: QuillEditor.basic(controller: controller),
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 20),
+
+                  // Action button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _showDeleteDialog(widget.blog);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 2,
+                      ),
+
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.delete, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Delete Blog',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
                   // Action button
                   SizedBox(
@@ -423,7 +457,8 @@ class _PatientBlogScreenState extends State<PatientBlogScreen>
                         ),
                         elevation: 2,
                       ),
-                      child: const Row(
+
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.article_outlined, size: 20),
@@ -439,7 +474,7 @@ class _PatientBlogScreenState extends State<PatientBlogScreen>
                       ),
                     ),
                   ),
-                  
+
                   // Extra spacing at bottom to ensure progress bar reaches 100%
                   const SizedBox(height: 50),
                 ],
@@ -453,5 +488,107 @@ class _PatientBlogScreenState extends State<PatientBlogScreen>
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  
+}
+
+  void _showDeleteDialog(Blog blog) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          icon: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.red[50],
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.warning_rounded,
+              color: Colors.red[600],
+              size: 32,
+            ),
+          ),
+          title: const Text(
+            'Delete Blog',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
+            textAlign: TextAlign.center,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Are you sure you want to delete this blog?',
+                style: TextStyle(color: Colors.grey[700], fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'This action cannot be undone.',
+                style: TextStyle(
+                  color: Colors.red[600],
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.grey[700],
+                      side: BorderSide(color: Colors.grey[300]!),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await BlogService.deleteBlog(blog.id, context);
+                      Navigator.of(context).pop(); // Close dialog
+                      if (mounted) {
+                        Navigator.of(context).pop(); // Close the blog view page
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red[600],
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Delete',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
 }

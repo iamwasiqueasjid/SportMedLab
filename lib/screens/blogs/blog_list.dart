@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:test_project/services/auth/auth_service.dart';
 import '../../services/blog/blog_service.dart';
 import '../../models/blog.dart';
 import 'view_blog.dart';
@@ -162,9 +164,9 @@ class _BlogListState extends State<BlogList> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  (blog.extractedText?.length ?? 0) > 100
-                      ? '${blog.extractedText?.substring(0, 100)}...'
-                      : blog.extractedText ?? '',
+                  (blog.content['ops'][0]['insert']?.length ?? 0) > 100
+                      ? '${blog.content['ops'][0]['insert']?.substring(0, 100)}...'
+                      : blog.content['ops'][0]['insert'] ?? '',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[600],
@@ -196,7 +198,9 @@ class _BlogListState extends State<BlogList> {
                           : 'No date',
                       style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                     ),
+                    // const SizedBox(width: 8),
                     const Spacer(),
+                    
                     Icon(
                       Icons.arrow_forward_ios,
                       size: 16,
@@ -318,4 +322,17 @@ class _BlogListState extends State<BlogList> {
     }
   }
 
+  // bool _isDoctorUser() {
+  //   // Get the current user role from Firebase auth
+  //   final userRole = AuthService().getUserRole();
+  //   // if (user != null) {
+  //   //   // Check if user has a custom claim for role or check user document
+  //   //   return user.role?.contains('doctor') ?? false; // Temporary check
+  //   //   // TODO: Implement proper role checking from Firestore user document
+  //   //   // or Firebase Auth custom claims
+  //   // }
+  //   return false; // Default to false for now
+  // }
+
+  
 }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:test_project/models/blog.dart';
 import 'package:test_project/services/blog/file_processor.dart';
 import 'package:test_project/services/blog/blog_service.dart';
-import 'package:test_project/utils/blogs/constants.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
 import '../../../services/blog/content_formatter.dart';
@@ -108,7 +108,7 @@ class _AdvancedBlogEditorWidgetState extends State<AdvancedBlogEditorWidget> {
                       .map((e) => e.trim())
                       .where((e) => e.isNotEmpty)
                       .toList(),
-              category: _selectedCategory ?? AppConstants.defaultCategory,
+              category: _selectedCategory ?? BlogConstants.defaultCategory,
             ),
       ),
     );

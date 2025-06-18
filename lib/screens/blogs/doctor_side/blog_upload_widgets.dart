@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:test_project/utils/blogs/constants.dart';
+import 'package:test_project/models/blog.dart';
 
 class BlogUploadWidgets {
   static Widget buildFileUploadSection(
@@ -300,7 +300,7 @@ color: Colors.blue.shade50,
                 style: TextStyle(color: Colors.grey.shade500),
               ),
               items:
-                  AppConstants.categories.map((String category) {
+                    BlogConstants.categories.map((String category) {
                     return DropdownMenuItem<String>(
                       value: category,
                       child: Text(
