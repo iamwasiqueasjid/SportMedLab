@@ -162,23 +162,23 @@ class _PatientBlogScreenState extends State<PatientBlogScreen>
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 16),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.visibility,
-                                size: 16,
-                                color: Colors.grey[600],
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${widget.blog.viewCount}',
-                                style: TextStyle(color: Colors.grey[600]),
-                              ),
-                            ],
-                          ),
-                        ),
+                        // Padding(
+                        //   padding: const EdgeInsets.only(right: 16),
+                        //   child: Row(
+                        //     children: [
+                        //       Icon(
+                        //         Icons.visibility,
+                        //         size: 16,
+                        //         color: Colors.grey[600],
+                        //       ),
+                        //       const SizedBox(width: 4),
+                        //       Text(
+                        //         '${widget.blog.viewCount}',
+                        //         style: TextStyle(color: Colors.grey[600]),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),

@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -101,9 +100,10 @@ class BlogService {
       Query query = collection;
 
       if (userRole == 'Doctor') {
+        print("WHY TF HERE??????");
         query = collection.where('authorId', isEqualTo: userData.displayName);
       }
-
+      print(query.toString());
       final querySnapshot = await query.get();
 
       if (querySnapshot.docs.isEmpty) {
