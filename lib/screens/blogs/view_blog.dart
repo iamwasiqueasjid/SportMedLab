@@ -406,40 +406,55 @@ class _PatientBlogScreenState extends State<PatientBlogScreen>
 
                   const SizedBox(height: 20),
 
-                  // Action button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _showDeleteDialog(widget.blog);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 2,
-                      ),
-
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.delete, size: 20),
-                          SizedBox(width: 8),
-                          Text(
-                            'Delete Blog',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+FutureBuilder(
+                    future: AuthService().fetchUserData(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data?.role == 'Doctor') {
+                        return Column(
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  _showDeleteDialog(widget.blog);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 2,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.delete, size: 20),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Delete Blog',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
+                          
+                            const SizedBox(height: 20),
+                          ],
+                        );
+                      }
+                      return SizedBox.shrink();
+                    },
                   ),
-                  const SizedBox(height: 20),
+
+                  
 
                   // Action button
                   SizedBox(

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:test_project/services/auth/auth_service.dart';
 import 'package:test_project/utils/message_type.dart';
 import 'package:test_project/widgets/app_message_notifier.dart';
 import 'package:test_project/models/blog.dart'; // Add import for Blog model
@@ -24,7 +25,11 @@ class BlogService {
             .map((e) => e.trim())
             .where((e) => e.isNotEmpty)
             .toList();
+    AuthService authService = AuthService();
 
+    final userData = await authService.fetchUserData();
+
+    String? displayName = userData!.displayName;
     if (title.isEmpty) {
       AppNotifier.show(
         context,
@@ -59,7 +64,7 @@ class BlogService {
         content: {'ops': delta.toJson()},
         tags: tags,
         category: selectedCategory,
-        authorId: FirebaseAuth.instance.currentUser?.displayName ?? 'Anonymous',
+        authorId: displayName,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         isPublished: true,
@@ -86,13 +91,20 @@ class BlogService {
   }
 
   static Future<List<Blog>> getPublishedBlogs() async {
+    AuthService authService = AuthService();
     try {
       final collection = FirebaseFirestore.instance.collection('blogs');
-      final querySnapshot =
-          await collection
-              .where('isPublished', isEqualTo: true)
-              .orderBy('createdAt', descending: true)
-              .get();
+      final userData = await authService.fetchUserData();
+
+      String? userRole = userData!.role;
+
+      Query query = collection;
+
+      if (userRole == 'Doctor') {
+        query = collection.where('authorId', isEqualTo: userData.displayName);
+      }
+
+      final querySnapshot = await query.get();
 
       if (querySnapshot.docs.isEmpty) {
         return [];

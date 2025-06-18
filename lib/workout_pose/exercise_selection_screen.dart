@@ -105,7 +105,7 @@ class ExerciseSelectionWidget extends StatelessWidget {
   ) {
     // Determine the image path based on exercise name
     String imagePath = '';
-    print('Exercise name: ${exercise.name}'); // Debug log
+    // print('Exercise name: ${exercise.name}'); // Debug log
     if (exercise.name.toLowerCase() == 'arm press') {
       imagePath = 'assets/icons/muscle.png';
     } else if (exercise.name.toLowerCase() == 'push ups') {
@@ -136,9 +136,9 @@ class ExerciseSelectionWidget extends StatelessWidget {
               width: 65,
               height: 65,
               errorBuilder: (context, error, stackTrace) {
-                print(
-                  'Error loading image: $imagePath for ${exercise.name}',
-                ); // Debug log
+                // print(
+                //   'Error loading image: $imagePath for ${exercise.name}',
+                // ); // Debug log
                 return Icon(
                   Icons.fitness_center,
                   size: 50,

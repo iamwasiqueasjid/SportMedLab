@@ -599,12 +599,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                             _buildTextField(
                               label: 'Your Name',
                               controller: _nameController,
-                              enabled: _isEditing,
-                              validator:
-                                  (value) =>
-                                      value == null || value.isEmpty
-                                          ? 'Please enter your name'
-                                          : null,
+                              enabled: false,
                             ),
                             SizedBox(
                               height: ResponsiveHelper.getValue(
@@ -701,7 +696,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                               label: 'Date of Birth',
                               date: _selectedDate,
                               onTap: () => _selectDate(context),
-                              enabled: _isEditing,
+                              enabled: false,
                             ),
                           ],
                         ),

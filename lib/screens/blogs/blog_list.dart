@@ -1,11 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:test_project/services/auth/auth_service.dart';
 import '../../services/blog/blog_service.dart';
 import '../../models/blog.dart';
 import 'view_blog.dart';
-import 'package:flutter_quill/flutter_quill.dart';
 
 class BlogList extends StatefulWidget {
   const BlogList({super.key});
@@ -24,7 +21,6 @@ class _BlogListState extends State<BlogList> {
     super.initState();
     _fetchBlogs();
   }
-
   Future<void> _fetchBlogs() async {
     setState(() => _isLoading = true);
     try {
@@ -193,9 +189,7 @@ class _BlogListState extends State<BlogList> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      blog.createdAt != null
-                          ? _formatDate(blog.createdAt!)
-                          : 'No date',
+                      _formatDate(blog.createdAt),
                       style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                     ),
                     // const SizedBox(width: 8),
@@ -322,17 +316,4 @@ class _BlogListState extends State<BlogList> {
     }
   }
 
-  // bool _isDoctorUser() {
-  //   // Get the current user role from Firebase auth
-  //   final userRole = AuthService().getUserRole();
-  //   // if (user != null) {
-  //   //   // Check if user has a custom claim for role or check user document
-  //   //   return user.role?.contains('doctor') ?? false; // Temporary check
-  //   //   // TODO: Implement proper role checking from Firestore user document
-  //   //   // or Firebase Auth custom claims
-  //   // }
-  //   return false; // Default to false for now
-  // }
-
-  
 }

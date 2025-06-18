@@ -331,7 +331,6 @@ class AuthService {
   // Get user role
   Future<String?> getUserRole() async {
     final userData = await fetchUserData();
-    print(userData?.role);
     return userData?.role;
   }
 
