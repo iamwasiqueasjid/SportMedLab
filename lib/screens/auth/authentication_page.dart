@@ -98,7 +98,7 @@ class AuthenticationPageState extends State<AuthenticationPage> {
         return _buildDesktopLayout(context, size, primaryColor);
       case DeviceType.tablet:
         return _buildTabletLayout(context, size, primaryColor);
-      case DeviceType.mobile:
+      // case DeviceType.mobile:
       default:
         return _buildMobileLayout(context, size, primaryColor);
     }

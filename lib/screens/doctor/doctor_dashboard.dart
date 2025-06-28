@@ -100,7 +100,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         return _buildDesktopLayout(context, theme);
       case DeviceType.tablet:
         return _buildTabletLayout(context, theme);
-      case DeviceType.mobile:
+      // case DeviceType.mobile:
       default:
         return _buildMobileLayout(context, theme);
     }

@@ -26,7 +26,7 @@ class StarterPage extends StatelessWidget {
         return _buildDesktopLayout(context);
       case DeviceType.tablet:
         return _buildTabletLayout(context);
-      case DeviceType.mobile:
+      // case DeviceType.mobile:
       default:
         return _buildMobileLayout(context);
     }

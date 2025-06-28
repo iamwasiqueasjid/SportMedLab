@@ -46,7 +46,7 @@ class FileProcessor {
       String text = '';
 
       for (int i = 0; i < document.pages.count; i++) {
-        final PdfPage page = document.pages[i];
+        // final PdfPage page = document.pages[i];
         String pageText = PdfTextExtractor(
           document,
         ).extractText(startPageIndex: i, endPageIndex: i);
@@ -67,7 +67,7 @@ class FileProcessor {
     try {
       final bytes = await file.readAsBytes();
       final text = docxToText(bytes);
-      return text ?? '';
+      return text;
     } catch (e) {
       throw Exception(
         'Failed to extract text from Word document: ${e.toString()}',

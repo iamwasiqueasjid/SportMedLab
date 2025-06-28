@@ -33,8 +33,8 @@ class _ExerciseSessionScreenState extends State<ExerciseSessionScreen> {
   DateTime _lastSpeechTime = DateTime.now();
 
   // Exercise state tracking
-  final bool _wasInCorrectStartPosition = false;
-  final DateTime _lastPhaseChange = DateTime.now();
+  // final bool _wasInCorrectStartPosition = false;
+  // final DateTime _lastPhaseChange = DateTime.now();
 
   @override
   void initState() {
